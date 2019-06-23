@@ -11,7 +11,7 @@ The goal of **dirinla** is to analyze compositional data with a Dirichlet regres
 It is not yet in CRAN, but you can install the latest bugfix release of inlabru from [bitbucket](https://bitbucket.org/) with:
 
 ```{r gh-bugfix-installation, eval = FALSE}
-# install.packages("devtools")
-devtools::install_bitbucket("joaquin-martinez-minaya/dirinla")
+# install.packages("remotes")
+remotes::install_bitbucket("joaquin-martinez-minaya/dirinla")
 ```
 
