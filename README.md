@@ -10,6 +10,6 @@ Installation
 It is not yet in CRAN, but you can install the latest bugfix release of inlabru from [bitbucket](https://bitbucket.org/) with:
 
 ``` r
-# install.packages("remotes")
-remotes::install_bitbucket("jmartinezminaya/dirinla")
+# install.packages("devtools")
+devtools::install_bitbucket("joaquin-martinez-minaya/dirinla")
 ```
