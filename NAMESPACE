@@ -1,0 +1,8 @@
+exportPattern("^[[:alpha:]]+")
+import("Matrix")
+import("plyr")
+import("dplyr")
+import("samplingDataCRT")
+import("purrr")
+import("magrittr")
+

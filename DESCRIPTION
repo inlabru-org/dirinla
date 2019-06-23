@@ -1,0 +1,30 @@
+Package: dirinla
+Type: Package
+Title: Hierarchical Bayesian Dirichlet regression models using Integrated Nested Laplace Approximation
+Version: 1.0.0
+Authors@R: c(
+  person("Joaquín", "Martínez-Minaya", email = "jomarminaya@gmail.com", 
+	role = c("aut", "cre"),
+        comment = "Joaquín Martínez-Minaya started to write the main code"),
+  person("Finn", "Lindgren", email = "Finn.Lindgren@ed.ac.uk", 
+	role = c("aut"),
+         comment = c(ORCID = "0000-0002-5833-2011", "Finn Lindgren continued development of the main code"))
+	)
+Maintainer: <joaquin.martinez-minaya@uv.es>
+Description: The package provide tools to analyze compositional data using R-INLA. 
+License: GPL-2
+Imports:
+  utils,
+  Matrix,
+  plyr,
+  dplyr,
+  samplingDataCRT,
+  purrr,
+  magrittr,
+  tidyverse
+Suggests:
+  DirichletReg,
+    testthat
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
