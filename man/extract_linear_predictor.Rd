@@ -7,28 +7,30 @@
 extract_linear_predictor(inla_model, n, d, Lk_eta)
 }
 \arguments{
-\item{inla_model:}{An object of class inla.}
+\item{inla_model}{An object of class inla.}
 
-\item{n:}{Number of observations.}
+\item{n}{Number of observations.}
 
-\item{d:}{Number of categories.}
+\item{d}{Number of categories.}
+
+\item{Lk_eta}{Cholesky decomposition of the Hessian matrix.}
 }
 \value{
-summary_linear_predictor: List containing a summary of the marginal posterior distributions of the linear predictor.
+summary_linear_predictor List containing a summary of the marginal posterior distributions of the linear predictor.
 
-marginals_linear_predictor: List containing the marginal posterior distributions of the linear predictor.
+marginals_linear_predictor List containing the marginal posterior distributions of the linear predictor.
 
-summary_alphas: List containing a summary of the marginal posterior distributions of the alphas.
+summary_alphas List containing a summary of the marginal posterior distributions of the alphas.
 
-marginals_alphas: List containing the marginal posterior distributions of the alphas.
+marginals_alphas List containing the marginal posterior distributions of the alphas.
 
-summary_precision: List containing a summary of the marginal posterior distributions of the precision.
+summary_precision List containing a summary of the marginal posterior distributions of the precision.
 
-marginals_precision: List containing the marginal posterior distributions of the precision.
+marginals_precision List containing the marginal posterior distributions of the precision.
 
-summary_means: List containing a summary of the marginal posterior distributions of the means.
+summary_means List containing a summary of the marginal posterior distributions of the means.
 
-marginals_means: List containing the marginal posterior distributions of the means.
+marginals_means List containing the marginal posterior distributions of the means.
 
 simulations of the linear predictor.
 }

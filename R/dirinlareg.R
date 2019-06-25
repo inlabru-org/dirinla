@@ -2,21 +2,23 @@
 #'
 #' `dirinlareg` Main function to do a Dirichlet Regression
 #'
-#' @param y: matrix containing the response variable R^{nxd}, being n number of individuals
+#' @param formula object of class formula indicating the response variable and the covariates of the Dirichlet regression
+#' @param y matrix containing the response variable R^{nxd}, being n number of individuals
 #' and d the number of categories
-#' @param data.cov: data.frame with the covarites, only the covariates!
-#' @param share: parameters to be fitted jointly.
-#' @param x0: initial optimization value
-#' @param tol0: tolerance
-#' @param tol1: tolerance for the gradient such that |grad| < tol1 * max(1, |f|)
-#' @param k0: number of iterations
-#' @param a: step length in the optimization algorithm
-#' @param strategy: strategy to use to optimize
-#' @param Qx: matrix of precision for the prior Gaussian field
-#' @param ...:
+#' @param data.cov data.frame with the covarites, only the covariates!
+#' @param share parameters to be fitted jointly.
+#' @param x0 initial optimization value
+#' @param tol0 tolerance
+#' @param tol1 tolerance for the gradient such that |grad| < tol1 * max(1, |f|)
+#' @param k0 number of iterations
+#' @param a step length in the optimization algorithm
+#' @param strategy strategy to use to optimize
+#' @param prec precision for the prior of the fixed effects
+#' @param verbose if TRUE all the computing process is shown. Default is FALSE
+#' @param ... arguments for the inla command
 #'
-#' @return model: inla object
-#' @return mean : posteriors means of the parameters corresponding to the latent variables
+#' @return model inla object
+#' @return mean  posteriors means of the parameters corresponding to the latent variables
 #'
 #' @examples
 #' ### In this example, we show how to fit a model using the dirinla package ###
@@ -24,8 +26,6 @@
 #' library(dirinla)
 #' library(INLA)
 #' library(DirichletReg)
-#' library(ggplot2)
-#' library(gridExtra)
 #'
 #'
 #' ### --- 2. Simulating from a Dirichlet likelihood --- ####
@@ -74,7 +74,11 @@
 #'
 #' summary(model.inla)
 #'
-#'
+#' @export
+#' @import stringr
+#' @import INLA
+#' @import samplingDataCRT
+#' @importFrom purrr map
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 dirinlareg <- function (formula,
                         y,

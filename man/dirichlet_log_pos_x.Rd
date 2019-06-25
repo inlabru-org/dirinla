@@ -7,13 +7,13 @@
 dirichlet_log_pos_x(A = A, x, Qx = Qx, y)
 }
 \arguments{
-\item{A:}{A matrix which links eta with the latent field, i.e., eta = A x.}
+\item{A}{A matrix which links eta with the latent field, i.e., eta = A x.}
 
-\item{x:}{Vector with the elements of the latent field, i.e., eta = A x.}
+\item{x}{Vector with the elements of the latent field, i.e., eta = A x.}
 
-\item{Qx:}{Precision matrix for the priors of the latent field.}
+\item{Qx}{Precision matrix for the priors of the latent field.}
 
-\item{y:}{Vector with the response variable.}
+\item{y}{Vector with the response variable.}
 }
 \value{
 A real value showing the -log posterior density is returned

@@ -7,7 +7,7 @@
 summary.dirinlaregmodel(object)
 }
 \arguments{
-\item{object:}{Object of class dirinlareg.}
+\item{object}{Object of class dirinlareg.}
 }
 \value{
 Print summary.

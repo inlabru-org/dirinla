@@ -7,23 +7,23 @@
 newton_x(A, x_hat, gk, Hk, a, Qx, strategy, y, d = d)
 }
 \arguments{
-\item{A:}{Matrix which links eta with the latent field, i.e., eta = A x}
+\item{A}{Matrix which links eta with the latent field, i.e., eta = A x}
 
-\item{x_hat:}{Vector with the elements of the latent field, i.e., eta_hat = A x_hat}
+\item{x_hat}{Vector with the elements of the latent field, i.e., eta_hat = A x_hat}
 
-\item{gk:}{Gradient in eta.}
+\item{gk}{Gradient in eta.}
 
-\item{Hk:}{Hessian in eta.}
+\item{Hk}{Hessian in eta.}
 
-\item{a:}{Step length.}
+\item{a}{Step length.}
 
-\item{Qx:}{Precision matrix for the prior of the latent field.}
+\item{Qx}{Precision matrix for the prior of the latent field.}
 
-\item{strategy:}{Strategy to use to optimize. Now, line search strategy with quasi-newton algorithm is the only one avaliable.}
+\item{strategy}{Strategy to use to optimize. Now, line search strategy with quasi-newton algorithm is the only one avaliable.}
 
-\item{y:}{Vector with the response variable}
+\item{y}{Vector with the response variable}
 
-\item{d:}{Number of categories.}
+\item{d}{Number of categories.}
 }
 \value{
 g0 : Gradient in x_hat_new. A numeric vector with the gradient in x_hat_new.

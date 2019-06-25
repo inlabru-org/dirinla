@@ -1,9 +1,9 @@
 #' Computing the function digamma
 #'
-#' `digamma_def` is the function digamma appropiate for really small values
+#' `digamma_red` is the function digamma appropiate for really small values
 #'
-#' @param x: Argument to applied the function digamma.
-#' @param ...: Rest of arguments used in the case of digamma functions.
+#' @param x Argument to applied the function digamma.
+#' @param ... Rest of arguments used in the case of digamma functions.
 #'
 #' @return Result of applying digamma function
 #'
@@ -21,8 +21,8 @@ digamma_red <- function(x, ...) {
 #'
 #' `trigamma_red` is the function trigamma appropiate for really small values
 #'
-#' @param x: Argument to applied the function trigamma.
-#' @param ...: Rest of arguments used in the case of digamma functions.
+#' @param x Argument to applied the function trigamma.
+#' @param ... Rest of arguments used in the case of digamma functions.
 #'
 #' @return Result of applying trigamma function.
 #'

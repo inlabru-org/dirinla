@@ -9,41 +9,57 @@ dirinlaregmodel(call = NULL, summary_fixed = NULL,
   marginals_linear_predictor = NULL, summary_alphas = NULL,
   marginals_alphas = NULL, summary_precision = NULL,
   marginals_precision = NULL, summary_means = NULL,
-  marginals_means = NULL, dic = NULL, waic = NULL, cpo = NULL,
-  nobs = NULL, ncat = NULL)
+  marginals_means = NULL, summary_predictive_alphas = NULL,
+  marginals_predictive_alphas = NULL, summary_predictive_means = NULL,
+  marginals_predictive_means = NULL,
+  summary_predictive_precision = NULL,
+  marginals_predictive_precision = NULL, dic = NULL, waic = NULL,
+  cpo = NULL, nobs = NULL, ncat = NULL)
 }
 \arguments{
-\item{call:}{The call of the function dirinlareg.}
+\item{call}{The call of the function dirinlareg.}
 
-\item{summary_fixed:}{List containing a summary of the marginal posterior distributions of the fixed effects.}
+\item{summary_fixed}{List containing a summary of the marginal posterior distributions of the fixed effects.}
 
-\item{marginals_fixed:}{List containing the marginal posterior distributions of the fixed effects.}
+\item{marginals_fixed}{List containing the marginal posterior distributions of the fixed effects.}
 
-\item{summary_linear_predictor:}{List containing a summary of the marginal posterior distributions of the linear predictor.}
+\item{summary_linear_predictor}{List containing a summary of the marginal posterior distributions of the linear predictor.}
 
-\item{marginals_linear_predictor:}{List containing the marginal posterior distributions of the linear predictor.}
+\item{marginals_linear_predictor}{List containing the marginal posterior distributions of the linear predictor.}
 
-\item{summary_alphas:}{List containing a summary of the marginal posterior distributions of the alphas.}
+\item{summary_alphas}{List containing a summary of the marginal posterior distributions of the alphas.}
 
-\item{marginals_alphas:}{List containing the marginal posterior distributions of the alphas.}
+\item{marginals_alphas}{List containing the marginal posterior distributions of the alphas.}
 
-\item{summary_precision:}{List containing a summary of the marginal posterior distributions of the precision.}
+\item{summary_precision}{List containing a summary of the marginal posterior distributions of the precision.}
 
-\item{marginals_precision:}{List containing the marginal posterior distributions of the precision.}
+\item{marginals_precision}{List containing the marginal posterior distributions of the precision.}
 
-\item{summary_means:}{List containing a summary of the marginal posterior distributions of the means.}
+\item{summary_means}{List containing a summary of the marginal posterior distributions of the means.}
 
-\item{marginals_means:}{List containing the marginal posterior distributions of the means.}
+\item{marginals_means}{List containing the marginal posterior distributions of the means.}
 
-\item{dic:}{List containing the inla output for dic.}
+\item{summary_predictive_alphas}{List containing a summary  of the marginal posterior predictive distribution of the alphas.}
 
-\item{waic:}{List containing the inla output for waic.}
+\item{marginals_predictive_alphas}{List containing the marginal posterior predictive distribution of the alphas.}
 
-\item{cpo:}{List containing the inla output for cpo.}
+\item{summary_predictive_means}{List containing a summary fo the marginal posterior predictive distribution of the means.}
 
-\item{nobs:}{Number of observations.}
+\item{marginals_predictive_means}{List containing the marginal posterior predictive distribution of the means.}
 
-\item{ncat:}{Number of categories.}
+\item{summary_predictive_precision}{List containing a summary of the marginal posterior predictive distribution of the precision.}
+
+\item{marginals_predictive_precision}{List containing the marginal posterior predictive distribution of the precision.}
+
+\item{dic}{List containing the inla output for dic.}
+
+\item{waic}{List containing the inla output for waic.}
+
+\item{cpo}{List containing the inla output for cpo.}
+
+\item{nobs}{Number of observations.}
+
+\item{ncat}{Number of categories.}
 }
 \value{
 object of list and dirinlaregmodel class.

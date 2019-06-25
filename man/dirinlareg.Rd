@@ -5,82 +5,98 @@
 \title{Fitting a Dirichlet regression}
 \usage{
 dirinlareg(formula, y, data.cov, share = NULL, x0 = NULL,
-  tol0 = 1e-10, tol1 = 1e-10, k0 = 100, a = 0.5,
+  tol0 = 1e-08, tol1 = 0.01, k0 = 100, a = 0.5,
   strategy = "ls-quasi-newton", prec = prec, verbose = FALSE, ...)
 }
 \arguments{
-\item{y:}{matrix containing the response variable R^{nxd}, being n number of individuals
+\item{formula}{object of class formula indicating the response variable and the covariates of the Dirichlet regression}
+
+\item{y}{matrix containing the response variable R^{nxd}, being n number of individuals
 and d the number of categories}
 
-\item{data.cov:}{data.frame with the covarites, only the covariates!}
+\item{data.cov}{data.frame with the covarites, only the covariates!}
 
-\item{share:}{parameters to be fitted jointly.}
+\item{share}{parameters to be fitted jointly.}
 
-\item{x0:}{initial optimization value}
+\item{x0}{initial optimization value}
 
-\item{tol0:}{tolerance}
+\item{tol0}{tolerance}
 
-\item{tol1:}{tolerance for the gradient such that |grad| < tol1 * max(1, |f|)}
+\item{tol1}{tolerance for the gradient such that |grad| < tol1 * max(1, |f|)}
 
-\item{k0:}{number of iterations}
+\item{k0}{number of iterations}
 
-\item{a:}{step length in the optimization algorithm}
+\item{a}{step length in the optimization algorithm}
 
-\item{strategy:}{strategy to use to optimize}
+\item{strategy}{strategy to use to optimize}
 
-\item{Qx:}{matrix of precision for the prior Gaussian field}
+\item{prec}{precision for the prior of the fixed effects}
 
-\item{...:}{}
+\item{verbose}{if TRUE all the computing process is shown. Default is FALSE}
+
+\item{...}{arguments for the inla command}
 }
 \value{
-model: inla object
+model inla object
 
-mean : posteriors means of the parameters corresponding to the latent variables
+mean  posteriors means of the parameters corresponding to the latent variables
 }
 \description{
 `dirinlareg` Main function to do a Dirichlet Regression
 }
 \examples{
-### --- 1. Data simulation --- ####
+### In this example, we show how to fit a model using the dirinla package ###
+### --- 1. Loading the libraries --- ####
+library(dirinla)
+library(INLA)
+library(DirichletReg)
+
+
+### --- 2. Simulating from a Dirichlet likelihood --- ####
 set.seed(1000)
-n <- 100
-x <- c(-2, -2, -2,  3, + 3, + 3, 2,2,2)
+N <- 50 #number of data
+V <- as.data.frame(matrix(runif((4) * N, 0, 1), ncol = 4)) #Covariates
+names(V) <- paste0('v', 1:4)
 
-## Latent field
-d <- 3
-m <- length(x)/d #including intercept
+formula <- y ~ 1 + v1 | 1 + v2 | 1 + v3 | 1 + v4
+(names_cat <- formula_list(formula))
 
-## Generate covariates
-v <- rnorm(n, 0,1)
-V <- as.data.frame(matrix(rnorm((m-1)*n, 0, 1), ncol=m-1))
-names(V) <- paste0('v', 1:(m-1))
+x <- c(-1.5, 1, -3, 1.5,
+       2, -3 , -1, 5)
 
-## Response variable
-y_o <- draw_data(x = x,
-                 d = d,
-                 V = V)
+mus <- exp(x) / sum(exp(x))
+C <- length(names_cat)
+data_stack_construct <-
+  data_stack_dirich(y = as.vector(rep(NA, N * C)),
+                    covariates = names_cat,
+                    data       = V,
+                    d          = C,
+                    n          = N)
 
-## Some values are so small, numerical problems.
+A_construct <- data_stack_construct$A
+A_construct[1:8, ]
+
+eta <- A_construct \%*\% x
+alpha <- exp(eta)
+alpha <- matrix(alpha,
+                ncol  = C,
+                byrow = TRUE)
+y_o <- rdirichlet(N, alpha)
+colnames(y_o) <- paste0("y", 1:C)
+head(y_o)
+
+
+### --- 3. Fitting the model --- ####
 y <- y_o
-y[which(y < exp(-500), arr.ind = TRUE)] <- exp(-500)
-y[which(y == 1, arr.ind = TRUE)] <- 1- exp(-500)
-pos <- which(!is.na(y[,1]))
-y <- y[pos,]
+model.inla <- dirinlareg(
+  formula  = y ~ 1 + v1 | 1 + v2 | 1 + v3 | 1 + v4,
+  y        = y,
+  data.cov = V,
+  prec     = 0.0001,
+  verbose  = TRUE)
 
-## Removing some rows
-n <- dim(y)[1]
-V <- V[pos,]
 
-### --- 2. Precision matrix prior for latent variables --- ###
-prec_prior <- 0.00001
-Qx <- Matrix(diag(length(x))*prec_prior)
-
-### --- 3. Call the function --- ####
-model1 <- check1 <- dirinlareg( formula  = y ~ v1 + v2 | v1 + v2  | v1 + v2,
-                               y        = y,
-                               data.cov = V,
-                               Qx       = Qx)
-
+summary(model.inla)
 
 }
 \author{

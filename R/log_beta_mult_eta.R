@@ -2,8 +2,7 @@
 #'
 #' `beta_mult_eta` computes the log beta function in eta
 #'
-#' @param x: Vector of elements.
-#' @param y: Vector with dimension 1 x d.
+#' @param x Vector of elements.
 #'
 #' @return Numeric value.
 #'

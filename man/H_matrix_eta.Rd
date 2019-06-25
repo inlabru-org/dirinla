@@ -7,11 +7,11 @@
 H_matrix_eta(A = A, x, y)
 }
 \arguments{
-\item{A:}{Matrix which links eta with the latent field, i.e., eta = A x.}
+\item{A}{Matrix which links eta with the latent field, i.e., eta = A x.}
 
-\item{x:}{Vector with the elements of the latent field, i.e., eta = A x.}
+\item{x}{Vector with the elements of the latent field, i.e., eta = A x.}
 
-\item{y:}{Vector with dimension 1 x d.}
+\item{y}{Vector with dimension 1 x d.}
 }
 \value{
 Expected Hessian in eta.

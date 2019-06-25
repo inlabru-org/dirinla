@@ -2,12 +2,12 @@
 #'
 #' `data_stack_dirich` prepares the data using inla.stack from the package INLA.
 #'
-#' @param y: Response variable in a matrix format.
-#' @param covariates: String with the name of covariates.
-#' @param share: Covariates to share in all the cateogries. Not implemented yet.
-#' @param data: Data.frame which contains all the covariates including the intercept.
-#' @param d: Number of categories.
-#' @param n: Number of locations.
+#' @param y Response variable in a matrix format.
+#' @param covariates String with the name of covariates.
+#' @param share Covariates to share in all the cateogries. Not implemented yet.
+#' @param data Data.frame which contains all the covariates including the intercept.
+#' @param d Number of categories.
+#' @param n Number of locations.
 #'
 #' @return Object of class inla.stack
 #'
@@ -33,7 +33,9 @@
 #'                                           d          = d,
 #'                                           n          = n )
 #'
-#'
+#' @export
+#' @import dplyr
+#' @import Matrix
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 
 

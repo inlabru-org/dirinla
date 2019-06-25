@@ -7,14 +7,14 @@
 extract_fixed(inla_model, names_cat)
 }
 \arguments{
-\item{inla_model:}{Object of inla class.}
+\item{inla_model}{Object of inla class.}
 
-\item{names_cat:}{List generated with extract_formula.}
+\item{names_cat}{List generated with extract_formula.}
 }
 \value{
-summary_fixed: Summary of fixed effects for each category.
+summary_fixed Summary of fixed effects for each category.
 
-marginals_fixed: Marginals for each parameter estimated.
+marginals_fixed Marginals for each parameter estimated.
 }
 \description{
 `extract_fixed` is a function to extract summary and marginals distribution corresponding to the fixed effects

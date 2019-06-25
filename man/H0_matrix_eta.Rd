@@ -4,12 +4,12 @@
 \alias{H0_matrix_eta}
 \title{Computing expected Hessian in eta}
 \usage{
-H0_matrix_eta(A = A, x = x)
+H0_matrix_eta(A, x)
 }
 \arguments{
-\item{A:}{Matrix which links eta with the latent field, i.e., eta = A x.}
+\item{A}{Matrix which links eta with the latent field, i.e., eta = A x.}
 
-\item{x:}{Vector with the elements of the latent field, i.e., eta = A x.}
+\item{x}{Vector with the elements of the latent field, i.e., eta = A x.}
 }
 \value{
 Expected Hessian in eta.

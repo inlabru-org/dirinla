@@ -2,7 +2,7 @@
 #'
 #' `formula_list` reads the formula and generates a list with the name of the covariates used in each category
 #'
-#' @param form: Object of class formula.
+#' @param form Object of class formula.
 #'
 #' @return A list with the names of the variables used in each category.
 #'
@@ -10,6 +10,7 @@
 #' formula <- y ~ 1 + v1 + v2 | -1 + v1 | 0 + v2
 #' formula_list(formula)
 #'
+#' @export
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 
 formula_list <- function(form) {

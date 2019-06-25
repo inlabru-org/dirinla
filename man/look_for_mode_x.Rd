@@ -8,44 +8,44 @@ look_for_mode_x(A = A, x0, tol0, tol1, k0, a = 0.5, y, d, n,
   strategy = "ls-quasi-newton", Qx, verbose)
 }
 \arguments{
-\item{A:}{Matrix which links latent field with linear predictor.}
+\item{A}{Matrix which links latent field with linear predictor.}
 
-\item{x0:}{Initial optimization value.}
+\item{x0}{Initial optimization value.}
 
-\item{tol0:}{Tolerance for |x_new - x_old| and |f_new - f_old|.}
+\item{tol0}{Tolerance for |x_new - x_old| and |f_new - f_old|.}
 
-\item{tol1:}{Tolerance for the gradient such that |grad| < tol1 * max(1, |f|)}
+\item{tol1}{Tolerance for the gradient such that |grad| < tol1 * max(1, |f|)}
 
-\item{k0:}{Number of iterations.}
+\item{k0}{Number of iterations.}
 
-\item{a:}{Step length in the algorithm.}
+\item{a}{Step length in the algorithm.}
 
-\item{y:}{Response variable. Number of columns correspond to the number of categories.}
+\item{y}{Response variable. Number of columns correspond to the number of categories.}
 
-\item{d:}{Number of categories.}
+\item{d}{Number of categories.}
 
-\item{n:}{Number of individuals.}
+\item{n}{Number of individuals.}
 
-\item{strategy:}{Strategy to use to optimize.}
+\item{strategy}{Strategy to use to optimize.}
 
-\item{Qx:}{Prior precision matrix for the fixed effects.}
+\item{Qx}{Prior precision matrix for the fixed effects.}
 
-\item{verbose:}{By default is FALSE. If TRUE, the computation process is shown in the scream.}
+\item{verbose}{By default is FALSE. If TRUE, the computation process is shown in the scream.}
 }
 \value{
-x_hat: Matrix with the x of the iterations.
+x_hat Matrix with the x of the iterations.
 
-Hk: Hessian in eta. This Hessian is a combination of the real Hessian (when
+Hk Hessian in eta. This Hessian is a combination of the real Hessian (when
 it is positive definite) and the expected Hessian (when the real Hessian is not positive
 definite).
 
-gk: Gradient in eta.
+gk Gradient in eta.
 
-Lk: Cholesky decomposition matrix.
+Lk Cholesky decomposition matrix.
 
-eta: Linear predictor.
+eta Linear predictor.
 
-z: New pseudo observation conditioned to eta.
+z New pseudo observation conditioned to eta.
 }
 \description{
 `look_for_mode_x` computes optimization algorithms to find the mode of the posterior

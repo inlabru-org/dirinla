@@ -7,15 +7,15 @@
 digamma_red(x, ...)
 }
 \arguments{
-\item{x:}{Argument to applied the function digamma.}
+\item{x}{Argument to applied the function digamma.}
 
-\item{...:}{Rest of arguments used in the case of digamma functions.}
+\item{...}{Rest of arguments used in the case of digamma functions.}
 }
 \value{
 Result of applying digamma function
 }
 \description{
-`digamma_def` is the function digamma appropiate for really small values
+`digamma_red` is the function digamma appropiate for really small values
 }
 \author{
 Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>

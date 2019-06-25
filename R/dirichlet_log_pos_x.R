@@ -4,14 +4,14 @@
 #' multivariate normal prior with precision matrix Qx for elements of the latent field.
 #'
 #'
-#' @param A: A matrix which links eta with the latent field, i.e., eta = A x.
-#' @param x: Vector with the elements of the latent field, i.e., eta = A x.
-#' @param Qx: Precision matrix for the priors of the latent field.
-#' @param y: Vector with the response variable.
+#' @param A A matrix which links eta with the latent field, i.e., eta = A x.
+#' @param x Vector with the elements of the latent field, i.e., eta = A x.
+#' @param Qx Precision matrix for the priors of the latent field.
+#' @param y Vector with the response variable.
 #'
 #' @return A real value showing the -log posterior density is returned
 #'
-#'
+#' @export
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 dirichlet_log_pos_x <- function(A = A, x, Qx = Qx, y) {
     eta_hat <- A %*% x

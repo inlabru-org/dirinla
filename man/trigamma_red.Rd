@@ -7,9 +7,9 @@
 trigamma_red(x, ...)
 }
 \arguments{
-\item{x:}{Argument to applied the function trigamma.}
+\item{x}{Argument to applied the function trigamma.}
 
-\item{...:}{Rest of arguments used in the case of digamma functions.}
+\item{...}{Rest of arguments used in the case of digamma functions.}
 }
 \value{
 Result of applying trigamma function.

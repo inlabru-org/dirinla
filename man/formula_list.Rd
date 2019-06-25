@@ -7,7 +7,7 @@
 formula_list(form)
 }
 \arguments{
-\item{form:}{Object of class formula.}
+\item{form}{Object of class formula.}
 }
 \value{
 A list with the names of the variables used in each category.

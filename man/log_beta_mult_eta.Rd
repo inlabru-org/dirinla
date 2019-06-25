@@ -7,9 +7,7 @@
 log_beta_mult_eta(x)
 }
 \arguments{
-\item{x:}{Vector of elements.}
-
-\item{y:}{Vector with dimension 1 x d.}
+\item{x}{Vector of elements.}
 }
 \value{
 Numeric value.

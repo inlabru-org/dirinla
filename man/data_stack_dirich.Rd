@@ -7,17 +7,17 @@
 data_stack_dirich(y, covariates, share = NULL, data, d, n)
 }
 \arguments{
-\item{y:}{Response variable in a matrix format.}
+\item{y}{Response variable in a matrix format.}
 
-\item{covariates:}{String with the name of covariates.}
+\item{covariates}{String with the name of covariates.}
 
-\item{share:}{Covariates to share in all the cateogries. Not implemented yet.}
+\item{share}{Covariates to share in all the cateogries. Not implemented yet.}
 
-\item{data:}{Data.frame which contains all the covariates including the intercept.}
+\item{data}{Data.frame which contains all the covariates including the intercept.}
 
-\item{d:}{Number of categories.}
+\item{d}{Number of categories.}
 
-\item{n:}{Number of locations.}
+\item{n}{Number of locations.}
 }
 \value{
 Object of class inla.stack
@@ -46,7 +46,6 @@ data_stack_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
                                           data       = V,
                                           d          = d,
                                           n          = n )
-
 
 }
 \author{

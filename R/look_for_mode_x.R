@@ -2,27 +2,27 @@
 #'
 #' `look_for_mode_x` computes optimization algorithms to find the mode of the posterior
 #'
-#' @param A: Matrix which links latent field with linear predictor.
-#' @param x0: Initial optimization value.
-#' @param tol0: Tolerance for |x_new - x_old| and |f_new - f_old|.
-#' @param tol1: Tolerance for the gradient such that |grad| < tol1 * max(1, |f|)
-#' @param k0: Number of iterations.
-#' @param a: Step length in the algorithm.
-#' @param y: Response variable. Number of columns correspond to the number of categories.
-#' @param d: Number of categories.
-#' @param n: Number of individuals.
-#' @param strategy: Strategy to use to optimize.
-#' @param Qx: Prior precision matrix for the fixed effects.
-#' @param verbose: By default is FALSE. If TRUE, the computation process is shown in the scream.
+#' @param A Matrix which links latent field with linear predictor.
+#' @param x0 Initial optimization value.
+#' @param tol0 Tolerance for |x_new - x_old| and |f_new - f_old|.
+#' @param tol1 Tolerance for the gradient such that |grad| < tol1 * max(1, |f|)
+#' @param k0 Number of iterations.
+#' @param a Step length in the algorithm.
+#' @param y Response variable. Number of columns correspond to the number of categories.
+#' @param d Number of categories.
+#' @param n Number of individuals.
+#' @param strategy Strategy to use to optimize.
+#' @param Qx Prior precision matrix for the fixed effects.
+#' @param verbose By default is FALSE. If TRUE, the computation process is shown in the scream.
 #'
-#' @return x_hat: Matrix with the x of the iterations.
-#' @return Hk: Hessian in eta. This Hessian is a combination of the real Hessian (when
+#' @return x_hat Matrix with the x of the iterations.
+#' @return Hk Hessian in eta. This Hessian is a combination of the real Hessian (when
 #' it is positive definite) and the expected Hessian (when the real Hessian is not positive
 #' definite).
-#' @return gk: Gradient in eta.
-#' @return Lk: Cholesky decomposition matrix.
-#' @return eta: Linear predictor.
-#' @return z: New pseudo observation conditioned to eta.
+#' @return gk Gradient in eta.
+#' @return Lk Cholesky decomposition matrix.
+#' @return eta Linear predictor.
+#' @return z New pseudo observation conditioned to eta.
 #'
 #'
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
