@@ -21,7 +21,8 @@ Imports:
   samplingDataCRT,
   purrr,
   magrittr,
-  tidyverse
+  tidyverse,
+  INLA
 Suggests:
   DirichletReg,
     testthat
