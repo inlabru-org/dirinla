@@ -16,12 +16,13 @@ License: GPL-2
 Imports:
   utils,
   Matrix,
-  plyr,
   dplyr,
   samplingDataCRT,
   purrr,
   magrittr,
+  stringr,
   tidyverse,
+  stats,
   INLA
 Suggests:
   DirichletReg,
