@@ -17,8 +17,7 @@
 #' @param verbose if TRUE all the computing process is shown. Default is FALSE
 #' @param ... arguments for the inla command
 #'
-#' @return model inla object
-#' @return mean  posteriors means of the parameters corresponding to the latent variables
+#' @return model dirinlaregmodel object
 #'
 #' @examples
 #' ### In this example, we show how to fit a model using the dirinla package ###
