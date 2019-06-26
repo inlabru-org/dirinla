@@ -7,7 +7,7 @@ The goal of **dirinla** is to analyze compositional data with a Dirichlet regres
 Installation
 ------------
 
-It is not yet in CRAN, but you can install the latest bugfix release of inlabru from [bitbucket](https://bitbucket.org/) with:
+It is not yet in CRAN, but you can install the latest bugfix release of dirinla from [bitbucket](https://bitbucket.org/) with:
 
 ``` r
 # install.packages("remotes")
