@@ -18,7 +18,7 @@ You can install the development version of dirinla from [bitbucket](https://bitb
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("joaquin-martinez-minaya/dirinla", ref="devel")
+devtools::install_bitbucket("joaquin-martinez-minaya/dirinla", ref="devel")
 ```
 
 Example
