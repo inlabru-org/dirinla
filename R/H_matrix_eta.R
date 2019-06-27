@@ -15,7 +15,7 @@ H_matrix_eta <- function(A = A, x, y) {
     sum_exp <- sum(exp(eta))
 
 
-    ### --- Elemenths of the diagonal --- ###
+    ### --- Elements of the diagonal --- ###
     H <- diag(-exp(eta) * (digamma(exp(eta)) - digamma(sum_exp)) - exp(2 * eta) * (trigamma(exp(eta)) - trigamma(sum_exp)) +
         exp(eta) * log(y))
 
@@ -23,7 +23,7 @@ H_matrix_eta <- function(A = A, x, y) {
     for (i in 1:length(eta)) {
         for (j in 1:length(eta)) {
             if (i != j) {
-                H[i, j] <- +exp(sum(eta[i], eta[j])) * trigamma(sum_exp)
+                H[i, j] <- + exp(sum(eta[i], eta[j])) * trigamma(sum_exp)
             }
         }
     }
