@@ -17,8 +17,8 @@ remotes::install_bitbucket("joaquin-martinez-minaya/dirinla", ref="master")
 You can install the development version of dirinla from [bitbucket](https://bitbucket.org/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_bitbucket("joaquin-martinez-minaya/dirinla", ref="devel")
+# install.packages("remotes")
+remotes::install_bitbucket("joaquin-martinez-minaya/dirinla", ref="devel")
 ```
 
 Example
