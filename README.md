@@ -32,8 +32,6 @@ This is a basic example which shows you how to solve a common problem:
 library(dirinla)
 library(INLA)
 library(DirichletReg)
-library(ggplot2)
-library(gridExtra)
 ```
 
 ### Simulating from a Dirichlet likelihood
