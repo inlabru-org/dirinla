@@ -22,10 +22,10 @@ Imports:
   magrittr,
   stringr,
   tidyverse,
-  stats,
-  INLA
+  stats
 Suggests:
   DirichletReg,
+  INLA
     testthat
 Encoding: UTF-8
 LazyData: true
