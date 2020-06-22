@@ -9,10 +9,11 @@
 #'
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 H0_matrix_eta <- function(A, x) {
+
     eta <- as.numeric(A %*% x)
     sum_exp <- sum(exp(eta))
 
-    ### --- Elemenths of the diagonal --- ###
+    ### --- Elements of the diagonal --- ###
     H0 <- -diag(exp(2 * eta) * (trigamma(exp(eta)) - trigamma(sum_exp)))
 
     ### --- The rest of the elements --- ###
@@ -27,4 +28,9 @@ H0_matrix_eta <- function(A, x) {
     # t(A) %*% H0 %*% A
     -H0
 }
+
+
+
+
+
 

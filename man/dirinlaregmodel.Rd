@@ -4,17 +4,30 @@
 \alias{dirinlaregmodel}
 \title{Defining a new class}
 \usage{
-dirinlaregmodel(call = NULL, summary_fixed = NULL,
-  marginals_fixed = NULL, summary_linear_predictor = NULL,
-  marginals_linear_predictor = NULL, summary_alphas = NULL,
-  marginals_alphas = NULL, summary_precision = NULL,
-  marginals_precision = NULL, summary_means = NULL,
-  marginals_means = NULL, summary_predictive_alphas = NULL,
-  marginals_predictive_alphas = NULL, summary_predictive_means = NULL,
+dirinlaregmodel(
+  call = NULL,
+  summary_fixed = NULL,
+  marginals_fixed = NULL,
+  summary_linear_predictor = NULL,
+  marginals_linear_predictor = NULL,
+  summary_alphas = NULL,
+  marginals_alphas = NULL,
+  summary_precision = NULL,
+  marginals_precision = NULL,
+  summary_means = NULL,
+  marginals_means = NULL,
+  summary_predictive_alphas = NULL,
+  marginals_predictive_alphas = NULL,
+  summary_predictive_means = NULL,
   marginals_predictive_means = NULL,
   summary_predictive_precision = NULL,
-  marginals_predictive_precision = NULL, dic = NULL, waic = NULL,
-  cpo = NULL, nobs = NULL, ncat = NULL)
+  marginals_predictive_precision = NULL,
+  dic = NULL,
+  waic = NULL,
+  cpo = NULL,
+  nobs = NULL,
+  ncat = NULL
+)
 }
 \arguments{
 \item{call}{The call of the function dirinlareg.}

@@ -22,7 +22,7 @@
 #'
 extract_linear_predictor <- function(inla_model, n, d, Lk_eta) {
     ### --- 1. Simulating in order to get posterior distributions of the linear predictor --- ####
-    p_mod <- inla.posterior.sample(10000, inla_model)
+    p_mod <- inla.posterior.sample(5000, inla_model)
     p_mod <- Matrix(sapply(p_mod, function(x) x$latent[1:(n * d)]))  #L^t eta
     p_predictor <- solve(t(Lk_eta), p_mod)
 
@@ -41,7 +41,7 @@ extract_linear_predictor <- function(inla_model, n, d, Lk_eta) {
     ### ----- 2.2. Marginals of the linear predictor --- ####
     marginals_linear_predictor <- p_predictor %>% map(function(cat) {
         apply(cat, 1, function(sim) {
-            dens <- density(sim, n = 1000)
+            dens <- density(sim, n = 500)
             data.frame(x = dens$x, y = dens$y)
         })
     })

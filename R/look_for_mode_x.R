@@ -44,22 +44,20 @@ look_for_mode_x <- function(A = A,
   x_hat[1, ] <- x0
   k <- 1
   less <- FALSE
-
   ### --- Looking for using the expected Hessian --- ###
   while ((!less == TRUE) && (k<k0)) {
     ### --- Call the function to define new variables in each iteration --- ###
     Hk_list <- list()
     gk <- numeric()
+    gk <- g0_vector_eta_1(
+        A = A,
+        x = x_hat[k, ],
+        y = y
+      )
+
+
     for (i in 1:n)
     {
-      gk <- c(
-        gk,
-        g0_vector_eta(
-          A = A[(d * (i - 1) + 1):(i * d), ],
-          x = x_hat[k, ],
-          y = y[i, ]
-        )
-      )
 
       Hk_list[[i]] <- H0_matrix_eta(
         A = A[(d * (i - 1) + 1):(i * d), ],
@@ -113,7 +111,7 @@ look_for_mode_x <- function(A = A,
 
     if(verbose == TRUE)
     {
-      cat(paste0(
+      cat(paste0("prueba",
         "Iter = ", k,
         ", |grad| = ", round(abs(sum(gk)), 2),
         ", log.post = ", round(f_new, 2),
@@ -137,13 +135,19 @@ look_for_mode_x <- function(A = A,
 
   Hk_list <- list()
   gk <- numeric()
+  gk <- g0_vector_eta_1(
+    A = A,
+    x = x_hat[k, ],
+    y = y
+  )
   for (i in 1:n)
   {
-    gk <- c(gk, g0_vector_eta(
-      A = A[(d * (i - 1) + 1):(i * d), ],
-      x = x_hat[k, ],
-      y = y[i, ]
-    ))
+    # gk <- c(gk, g0_vector_eta(
+    #   A = A[(d * (i - 1) + 1):(i * d), ],
+    #   x = x_hat[k, ],
+    #   y = y[i, ]
+    # ))
+
 
     ## Auxiliar matrix to determina if the real Hessian is positive definite
     H_aux <- H_matrix_eta(

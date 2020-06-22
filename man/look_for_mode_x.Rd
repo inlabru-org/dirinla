@@ -4,8 +4,20 @@
 \alias{look_for_mode_x}
 \title{Finding the mode of the full posterior distribution}
 \usage{
-look_for_mode_x(A = A, x0, tol0, tol1, k0, a = 0.5, y, d, n,
-  strategy = "ls-quasi-newton", Qx, verbose)
+look_for_mode_x(
+  A = A,
+  x0,
+  tol0,
+  tol1,
+  k0,
+  a = 0.5,
+  y,
+  d,
+  n,
+  strategy = "ls-quasi-newton",
+  Qx,
+  verbose
+)
 }
 \arguments{
 \item{A}{Matrix which links latent field with linear predictor.}

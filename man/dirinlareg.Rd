@@ -4,9 +4,21 @@
 \alias{dirinlareg}
 \title{Fitting a Dirichlet regression}
 \usage{
-dirinlareg(formula, y, data.cov, share = NULL, x0 = NULL,
-  tol0 = 1e-08, tol1 = 0.01, k0 = 100, a = 0.5,
-  strategy = "ls-quasi-newton", prec = prec, verbose = FALSE, ...)
+dirinlareg(
+  formula,
+  y,
+  data.cov,
+  share = NULL,
+  x0 = NULL,
+  tol0 = 1e-08,
+  tol1 = 0.01,
+  k0 = 100,
+  a = 0.5,
+  strategy = "ls-quasi-newton",
+  prec = prec,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{formula}{object of class formula indicating the response variable and the covariates of the Dirichlet regression}
