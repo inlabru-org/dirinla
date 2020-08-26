@@ -31,7 +31,7 @@ names(V) <- paste0('v', 1:(10))
 
 # Formula that we want to fit
 formula <- y ~ 1 + v1 | 1 + v2 | 1 + v3 | 1 + v4
-ø
+
 names_cat <- formula_list(formula)
 
 # Parameters to fit
@@ -47,7 +47,6 @@ data_stack_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
                                           data       = V,
                                           d          = d,
                                           n          = n )
-
 # Ordering the data with covariates --- ###
 A_construct <- data_stack_construct$A
 eta <- A_construct %*% x
@@ -128,10 +127,85 @@ model.inla <- dirinlareg( formula  = y ~ 1 + v1 | 1 + v2 | 1 + v3 | 1 + v4  ,
                           y        = y,
                           data.cov = V,
                           prec     = 0.0001,
-                          verbose  = TRUE)
+                          verbose  = TRUE,
+                          cores    = 1)
 
 t_inla <- proc.time()-t    # Stop the time
 summary(model.inla)
+
+
+pdf("example_simulation2_intercept_1000.pdf", width = 10, height = 3)
+beta0_not <- expression(beta[0])
+p_beta0_not <- expression(paste("p(", beta[0], "|", "y)"))
+par(mfrow=c(1,4))
+for (i in 1:4)
+{
+  plot(density(model.jags$BUGSoutput$sims.list$beta0[,i]),
+       col = "orange",
+       lwd  = 2,
+       type = "l",
+       ylim= c(0, max(model.inla$marginals_fixed[[i]][[1]][,2],
+                      density(model.jags$BUGSoutput$sims.list$beta0[,i])$y)),
+       xlab = beta0_not,
+       ylab = p_beta0_not,
+       main = beta0_not)
+
+  lines(model.inla$marginals_fixed[[i]][[1]],
+        col="red",
+        lwd=2)
+  # lines(density(model.jags.2$BUGSoutput$sims.list$beta0[,i]),
+  #       col = "blue")
+  abline(v = x[i],
+         col = "black",
+         lwd = 2)
+
+  legend("topright", legend=c("R-jags", "dirinla", "R-long-jags"),
+         col = c("orange", "red", "blue"),
+         lty = 1,
+         lwd = 2)
+}
+dev.off()
+
+
+### ------- 3.4.2. slopes --- ####
+### ------- 3.4.2.1. Using plots --- ####
+pdf("example_simulation2_slope_500.pdf", width = 10, height = 3)
+beta1_not <- expression(beta[1])
+p_beta1_not <- expression(paste("p(", beta[1], "|", "y)"))
+par(mfrow=c(1,4))
+for (i in 1:4)
+{
+  plot(density(model.jags$BUGSoutput$sims.list$beta1[,i]),
+       col = "orange",
+       lwd  = 2,
+       type = "l",
+       ylim= c(0, max(model.inla$marginals_fixed[[i]][[2]][,2],
+                      density(model.jags$BUGSoutput$sims.list$beta1[,i])$y)),
+       # xlim = c(min(model.inla$marginals_fixed[[i]][[2]][,1],
+       #              density(model.jags$BUGSoutput$sims.list$beta1[,i])$x),
+       #          max(model.inla$marginals_fixed[[i]][[2]][,1],
+       #              density(model.jags$BUGSoutput$sims.list$beta1[,i])$x)),
+       xlab = beta1_not,
+       ylab = p_beta1_not,
+       main = beta1_not)
+
+  lines(model.inla$marginals_fixed[[i]][[2]],
+        col="red",
+        lwd=2)
+  # lines(density(model.jags.2$BUGSoutput$sims.list$beta1[,i]),
+  #       col = "blue")
+  abline(v = x[i + 4],
+         col = "black",
+         lwd = 2)
+
+  legend("topright", legend=c("R-jags", "dirinla", "R-long-jags"),
+         col = c("orange", "red", "blue"),
+         lty = 1,
+         lwd = 2)
+}
+dev.off()
+
+
 
 ### ----- 3.3. Fitting the model with long jags --- ####
 ## MCMC configuration
