@@ -17,6 +17,7 @@ dirinlareg(
   strategy = "ls-quasi-newton",
   prec = prec,
   verbose = FALSE,
+  cores = cores,
   ...
 )
 }
@@ -45,6 +46,8 @@ and d the number of categories}
 \item{prec}{precision for the prior of the fixed effects}
 
 \item{verbose}{if TRUE all the computing process is shown. Default is FALSE}
+
+\item{cores}{Number of cores for parallel computation. The package parallel is used.}
 
 \item{...}{arguments for the inla command}
 }
