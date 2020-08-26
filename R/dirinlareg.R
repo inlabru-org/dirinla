@@ -15,6 +15,7 @@
 #' @param strategy strategy to use to optimize
 #' @param prec precision for the prior of the fixed effects
 #' @param verbose if TRUE all the computing process is shown. Default is FALSE
+#' @param cores Number of cores for parallel computation. The package parallel is used.
 #' @param ... arguments for the inla command
 #'
 #' @return model dirinlaregmodel object
@@ -91,6 +92,7 @@ dirinlareg <- function (formula,
                         strategy = "ls-quasi-newton",
                         prec     = prec,
                         verbose  = FALSE,
+                        cores    = cores,
                         ...)
 {
 
@@ -160,7 +162,8 @@ dirinlareg <- function (formula,
                             n        = n,
                             strategy = strategy,
                             Qx       = Qx,
-                            verbose  = verbose)
+                            verbose  = verbose,
+                            cores    = cores)
 
 
   ### --- 4. Second step : Include it in INLA.  --- ####
@@ -225,7 +228,8 @@ dirinlareg <- function (formula,
                                         list(prec =
                                                list(initial = log(1),
                                                     fixed   = TRUE))),
-             verbose           = verbose)
+             verbose           = verbose,
+             num.threads = cores)
 
   #Checking
   # ## --- New modes
