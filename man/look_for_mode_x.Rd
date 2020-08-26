@@ -16,7 +16,8 @@ look_for_mode_x(
   n,
   strategy = "ls-quasi-newton",
   Qx,
-  verbose
+  verbose,
+  cores
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ look_for_mode_x(
 \item{Qx}{Prior precision matrix for the fixed effects.}
 
 \item{verbose}{By default is FALSE. If TRUE, the computation process is shown in the scream.}
+
+\item{cores}{Number of cores for parallel computation. The package parallel is used.}
 }
 \value{
 x_hat Matrix with the x of the iterations.

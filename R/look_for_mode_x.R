@@ -14,7 +14,8 @@
 #' @param strategy Strategy to use to optimize.
 #' @param Qx Prior precision matrix for the fixed effects.
 #' @param verbose By default is FALSE. If TRUE, the computation process is shown in the scream.
-#'
+#' @param cores Number of cores for parallel computation. The package parallel is used.
+
 #' @return x_hat Matrix with the x of the iterations.
 #' @return Hk Hessian in eta. This Hessian is a combination of the real Hessian (when
 #' it is positive definite) and the expected Hessian (when the real Hessian is not positive
@@ -39,7 +40,8 @@ look_for_mode_x <- function(A = A,
                             n,
                             strategy = "ls-quasi-newton",
                             Qx,
-                            verbose) {
+                            verbose,
+                            cores) {
   x_hat <- matrix(ncol = length(x0), nrow = 1)
   x_hat[1, ] <- x0
   k <- 1
@@ -55,15 +57,7 @@ look_for_mode_x <- function(A = A,
         y = y
       )
 
-
-    for (i in 1:n)
-    {
-
-      Hk_list[[i]] <- H0_matrix_eta(
-        A = A[(d * (i - 1) + 1):(i * d), ],
-        x_hat[k, ]
-      )
-    }
+    Hk_list <- H0_matrix_eta_x(A, x = x_hat[k, ] , d, cores = cores)
 
     if (any(!is.finite(gk))) {
       gk[which(!is.finite(gk))] <- exp(100)
@@ -71,7 +65,11 @@ look_for_mode_x <- function(A = A,
     }
     ### Expected Hessian ####
     ### --- Diagonal matrix dim=dn x dn with the expected hessian in the diagonal
-    Hk <- Matrix(blockMatrixDiagonal(Hk_list))
+    #Hk <- Matrix(blockMatrixDiagonal(Hk_list))
+    #Hk <- Matrix::bdiag_m(Hk_list)
+    #Hk <- blockMatrixDiagonal(Hk_list) Too much time
+    #Hk <- Matrix::bdiag(Hk_list)
+    Hk <- bdiag_m(Hk_list)
 
     ### --- Iterative method --- ###
     x_g0_hat_new <- newton_x(
@@ -111,7 +109,7 @@ look_for_mode_x <- function(A = A,
 
     if(verbose == TRUE)
     {
-      cat(paste0("prueba",
+      cat(paste0(
         "Iter = ", k,
         ", |grad| = ", round(abs(sum(gk)), 2),
         ", log.post = ", round(f_new, 2),
@@ -187,7 +185,8 @@ look_for_mode_x <- function(A = A,
 
   }
   ### --- Diagonal matrix dim=dn x dn with the real hessian in the diagonal
-  Hk <- Matrix(blockMatrixDiagonal(Hk_list))
+  #Hk <- Matrix(blockMatrixDiagonal(Hk_list))
+  Hk <- bdiag_m(Hk_list)
 
   ### --- Compute the new variables z --- ###
   Lk <- chol(Hk)
