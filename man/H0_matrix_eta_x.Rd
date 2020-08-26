@@ -4,7 +4,7 @@
 \alias{H0_matrix_eta_x}
 \title{Computing expected Hessian in eta}
 \usage{
-H0_matrix_eta_x(A, x, d)
+H0_matrix_eta_x(A, x, d, cores)
 }
 \arguments{
 \item{A}{Matrix which links eta with the latent field, i.e., eta = A x.}
@@ -12,13 +12,15 @@ H0_matrix_eta_x(A, x, d)
 \item{x}{Vector with the elements of the latent field, i.e., eta = A x.}
 
 \item{d}{Dimension}
+
+\item{cores}{Number of cores for parallel computation. The package parallel is used.}
 }
 \value{
 Expected Hessian in eta.
 }
 \description{
-`H0_matrix_eta` computes the expected Hessian in eta of -loglikelihood
+`H0_matrix_x` computes the expected Hessian in eta of -loglikelihood
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
 }
