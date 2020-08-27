@@ -11,18 +11,33 @@
 #'
 #' @return A real value showing the -log posterior density is returned
 #'
+#' @import Rfast
 #' @export
-#' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
-dirichlet_log_pos_x <- function(A = A, x, Qx = Qx, y) {
-    eta_hat <- A %*% x
-    eta <- matrix(eta_hat,
-                  ncol  = dim(y)[2],
-                  nrow  = dim(y)[1],
-                  byrow = TRUE)
-    as.numeric(sum(apply(eta, 1, function(z)
-      {
-      log_beta_mult_eta(exp(z))}) -
-          apply( (log(y) * (exp(eta) - 1) ), 1, sum)) +
-          t(x) %*% Qx %*% x)
-}
+#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+# dirichlet_log_pos_x <- function(A = A, x, Qx = Qx, y) {
+#     eta_hat <- A %*% x
+#     eta <- matrix(eta_hat,
+#                   ncol  = dim(y)[2],
+#                   nrow  = dim(y)[1],
+#                   byrow = TRUE)
+#     as.numeric(sum(apply(eta, 1, function(z)
+#       {
+#       log_beta_mult_eta(exp(z))}) -
+#           apply( (log(y) * (exp(eta) - 1) ), 1, sum)) +
+#           t(x) %*% Qx %*% x)
+# }
 
+dirichlet_log_pos_x <- function(A = A, x, Qx = Qx, y) {
+  eta_hat <- A %*% x
+  eta <- matrix(eta_hat,
+                ncol  = dim(y)[2],
+                nrow  = dim(y)[1],
+                byrow = TRUE)
+
+  as.numeric(sum(apply(eta, 1, function(z)
+  {
+    log_beta_mult_eta(exp(z))}) -
+    Rfast::rowsums((log(y) * (exp(eta) - 1) ))) +
+    #apply( (log(y) * (exp(eta) - 1) ), 1, sum)) +
+    t(x) %*% Qx %*% x)
+}

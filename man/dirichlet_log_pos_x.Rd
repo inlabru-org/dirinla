@@ -23,5 +23,5 @@ A real value showing the -log posterior density is returned
 multivariate normal prior with precision matrix Qx for elements of the latent field.
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
 }
