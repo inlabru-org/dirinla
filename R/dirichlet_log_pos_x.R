@@ -11,7 +11,7 @@
 #'
 #' @return A real value showing the -log posterior density is returned
 #'
-#' @import Rfast
+#' @importFrom Rfast rowsums
 #' @export
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 # dirichlet_log_pos_x <- function(A = A, x, Qx = Qx, y) {
