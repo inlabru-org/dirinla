@@ -14,7 +14,7 @@ H_matrix_eta(A = A, x, y)
 \item{y}{Vector with dimension 1 x d.}
 }
 \value{
-Expected Hessian in eta.
+Real Hessian in eta.
 }
 \description{
 `H_matrix_eta` computes the real Hessian in eta of -loglikelihood
