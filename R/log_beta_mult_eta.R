@@ -10,7 +10,8 @@
 
 
 log_beta_mult_eta <- function(x) {
-    num <- sum(sapply(x, lgamma))
+    #num <- sum(sapply(x, lgamma))
+    num <- sum(lgamma(x))
     den <- lgamma(sum(x))
     log_beta_mult <- num - den
     log_beta_mult
