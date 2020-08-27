@@ -244,23 +244,23 @@ dirinlareg <- function (formula,
                                  names_cat  = names_cat)
 
   ### --- 5.2. Extracting linear predictor --- ####
-  linear_predictor <- extract_linear_predictor(inla_model = mod0,
-                                               n          = n,
-                                               d          = d,
-                                               Lk_eta     = Lk_eta)
+  # linear_predictor <- extract_linear_predictor(inla_model = mod0,
+  #                                              n          = n,
+  #                                              d          = d,
+  #                                              Lk_eta     = Lk_eta)
 
 
   structure(list(call                           = this.call,
                  summary_fixed                  = fixed_effects$summary_fixed,
                  marginals_fixed                = fixed_effects$marginals_fixed,
-                 summary_linear_predictor       = linear_predictor$summary_linear_predictor,
-                 marginals_linear_predictor     = linear_predictor$marginals_linear_predictor,
-                 summary_alphas                 = linear_predictor$summary_alphas,
-                 marginals_alphas               = linear_predictor$marginals_alphas,
-                 summary_precision              = linear_predictor$summary_precision,
-                 marginals_precision            = linear_predictor$marginals_precision,
-                 summary_means                  = linear_predictor$summary_means,
-                 marginals_means                = linear_predictor$marginals_means,
+                 # summary_linear_predictor       = linear_predictor$summary_linear_predictor,
+                 # marginals_linear_predictor     = linear_predictor$marginals_linear_predictor,
+                 # summary_alphas                 = linear_predictor$summary_alphas,
+                 # marginals_alphas               = linear_predictor$marginals_alphas,
+                 # summary_precision              = linear_predictor$summary_precision,
+                 # marginals_precision            = linear_predictor$marginals_precision,
+                 # summary_means                  = linear_predictor$summary_means,
+                 # marginals_means                = linear_predictor$marginals_means,
                  summary_predictive_alphas      = NULL,
                  marginals_predictive_alphas    = NULL,
                  summary_predictive_means       = NULL,
