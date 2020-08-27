@@ -48,7 +48,8 @@ newton_x <- function(A, x_hat, gk, Hk, a, Qx, strategy, y, d = d) {
 
         while (!found & (j < 20)) {
             x_hat_new <- x_hat + aa * p
-            f <- suppressWarnings(dirichlet_log_pos_x(A = A, x_hat_new, Qx, y))
+            #f <- suppressWarnings(dirichlet_log_pos_x(A = A, x_hat_new, Qx, y))
+            f <- dirichlet_log_pos_x(A = A, x_hat_new, Qx, y)
 
             ## Checking if f is finite. If not, we reduce aa
             if (is.finite(f)) {
