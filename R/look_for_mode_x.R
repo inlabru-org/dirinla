@@ -57,7 +57,11 @@ look_for_mode_x <- function(A = A,
         y = y
       )
 
-    Hk_list <- H0_matrix_eta_x(A, x = x_hat[k, ] , d, cores = cores)
+    Hk_list <- H0_matrix_eta_x(eta = Matrix::Matrix(as.numeric(A %*% x_hat[k, ]),
+                                                    ncol = d,
+                                                    byrow = TRUE),
+                               d,
+                               cores = cores)
 
     if (any(!is.finite(gk))) {
       gk[which(!is.finite(gk))] <- exp(100)
@@ -125,51 +129,64 @@ look_for_mode_x <- function(A = A,
   }
 
 
-
+  cat("Computing Hessian in the mode \n")
   ### --- Compute the new variables using the real Hessian when it is positive definite --- ###
   ### --- if not, we use the expected Hessian                                           --- ###
   count_exp <- 0 #Count the times that expected hessian is used
-  count_real <- 0 #Count the times that real hessian is used
 
-  Hk_list <- list()
+  Hk_list <- H0_list <- H_list <- list()
   gk <- numeric()
   gk <- g0_vector_eta_1(
     A = A,
     x = x_hat[k, ],
     y = y
   )
-  for (i in 1:n)
-  {
-    # gk <- c(gk, g0_vector_eta(
-    #   A = A[(d * (i - 1) + 1):(i * d), ],
-    #   x = x_hat[k, ],
-    #   y = y[i, ]
-    # ))
+
+  eta = matrix(as.numeric(A %*% x_hat[k, ]),
+                       ncol = d,
+                       byrow = TRUE)
+
+  H0_list <- H0_matrix_eta_x(eta = eta,
+                             d,
+                             cores = cores)
+
+  H_diag <- H_matrix_eta_diag(eta = eta, d = d, y = y)
 
 
-    ## Auxiliar matrix to determina if the real Hessian is positive definite
-    H_aux <- H_matrix_eta(
-      A = A[(d * (i - 1) + 1):(i * d), ],
-      x_hat[k, ],
-      y = y[i, ]
-    )
-    if (any(eigen(H_aux)$values < 0)) {
-      Hk_list[[i]] <- H0_matrix_eta(
-        A = A[(d * (i - 1) + 1):(i * d), ],
-        x_hat[k, ]
-      )
-      #cat("Expected hessian is used \n")
-      count_exp <- count_exp + 1
-    } else {
-      Hk_list[[i]] <- H_matrix_eta(
-        A = A[(d * (i - 1) + 1):(i * d), ],
-        x_hat[k, ],
-        y = y[i, ]
-      )
-      count_real <- count_real + 1
-      #cat("Real hessian is used \n")
+  lapply(1:length(H0_list), function(x){
+    H_list[[x]] <- H0_list[[x]] + diag(H_diag[x,])
+    real <- TRUE
+    if(any(eigen(H_list[[x]])$values < 0))
+    {
+      H_list[[x]] <- H0_list[[x]]
+      real <- FALSE
     }
-  }
+     list(block = H_list[[x]], real = real)
+    }) -> H_list
+
+
+  Hk_list <- lapply(H_list, "[[", 1)
+  count_exp <- table(unlist(lapply(H_list, "[[", 2)))[1]
+
+
+  # for (i in 1:n)
+  # {
+  #
+  #   ## Auxiliar matrix to determina if the real Hessian is positive definite
+  #   Hk_list[[i]] <- H_matrix_eta(
+  #     A = A[(d * (i - 1) + 1):(i * d), ],
+  #     x_hat[k, ],
+  #     y = y[i, ]
+  #   )
+  #   if (any(eigen(Hk_list[[i]])$values < 0)) {
+  #     Hk_list[[i]] <- H0_matrix_eta(
+  #       A = A[(d * (i - 1) + 1):(i * d), ],
+  #       x_hat[k, ]
+  #     )
+  #     #cat("Expected hessian is used \n")
+  #     count_exp <- count_exp + 1
+  #   }
+  # }
 
   if(verbose==TRUE)
   {
@@ -180,7 +197,7 @@ look_for_mode_x <- function(A = A,
       cat("\nBad news! You should increase the number of iterations (k0), or increase tol0 and tol1.")
     }
 
-    cat(paste0("\n \nReal Hessian has been used ", count_real, " times \n"))
+    cat(paste0("\n \nReal Hessian has been used ", n - count_exp , " times \n"))
     cat(paste0("Expected Hessian has been used ", count_exp, " times \n"))
 
   }
