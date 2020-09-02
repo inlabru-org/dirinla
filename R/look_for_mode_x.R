@@ -129,7 +129,7 @@ look_for_mode_x <- function(A = A,
   }
 
 
-  cat("Computing Hessian in the mode \n")
+  #cat("Computing Hessian in the mode \n")
   ### --- Compute the new variables using the real Hessian when it is positive definite --- ###
   ### --- if not, we use the expected Hessian                                           --- ###
   count_exp <- 0 #Count the times that expected hessian is used

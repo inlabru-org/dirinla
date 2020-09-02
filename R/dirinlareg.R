@@ -97,7 +97,6 @@ dirinlareg <- function (formula,
 {
 
 
-
   ### --- Some checkings --- ####
   this.call <- match.call()
 
@@ -145,10 +144,8 @@ dirinlareg <- function (formula,
   # Creating precision matrix for the prior
   Qx <- Matrix(diag(prec, m))
 
-  if(verbose==TRUE)
-  {
-    cat(paste0("\n \n ----------------------", " Looking for the mode ", "----------------- \n \n "))
-  }
+  cat(paste0("\n \n ----------------------", " Looking for the mode ", "----------------- \n \n "))
+
 
 
   x_hat1 <- look_for_mode_x(A        = A,
@@ -210,20 +207,25 @@ dirinlareg <- function (formula,
 
 
 
-  if(verbose==TRUE)
-  {
-    cat(paste0("\n ----------------------", " Fitting it using INLA ", "----------------- \n"))
-  }
+  cat(paste0("\n ----------------------", "    INLA call    ", "----------------- \n"))
+
+  ### This is for the linear predictor using lincomb
+  #Inverse of Lk_eta
+  # Lk_eta_inv <- solve(t(Lk_eta))
+  # all3 <- sapply(1:dim(Lk_eta_inv)[2], function(x){
+  #   a <- inla.make.lincomb(APredictor = Lk_eta_inv[x,])
+  #   names(a) <- c(paste0("lc", x))
+  #   a})
 
   mod0<-inla(formula.inla,
              family            = "gaussian",
              data              = inla.stack.data(data_stack_2),
-             control.predictor = list(A = t(Lk_eta) %*% inla.stack.A(data_stack_2)),
+             control.predictor = list(A = t(Lk_eta) %*% inla.stack.A(data_stack_2), compute = TRUE),
              control.compute   = list(config = TRUE, #Compute marginals
                                       dic    = TRUE,
                                       waic   = TRUE,
                                       cpo    = TRUE),
-             control.inla      = list(strategy = "laplace"),
+             control.inla      = list(strategy = "gaussian"),
              control.family    = list(hyper =
                                         list(prec =
                                                list(initial = log(1),
@@ -243,24 +245,28 @@ dirinlareg <- function (formula,
   fixed_effects <- extract_fixed(inla_model = mod0,
                                  names_cat  = names_cat)
 
+  cat(paste0("\n ----------------------", " Obtaining linear predictor ", "----------------- \n"))
+
   ### --- 5.2. Extracting linear predictor --- ####
-  # linear_predictor <- extract_linear_predictor(inla_model = mod0,
-  #                                              n          = n,
-  #                                              d          = d,
-  #                                              Lk_eta     = Lk_eta)
+  linear_predictor <- extract_linear_predictor(inla_model = mod0,
+                                               n          = n,
+                                               d          = d,
+                                               Lk_eta     = Lk_eta)
+
+
 
 
   structure(list(call                           = this.call,
                  summary_fixed                  = fixed_effects$summary_fixed,
                  marginals_fixed                = fixed_effects$marginals_fixed,
-                 # summary_linear_predictor       = linear_predictor$summary_linear_predictor,
-                 # marginals_linear_predictor     = linear_predictor$marginals_linear_predictor,
-                 # summary_alphas                 = linear_predictor$summary_alphas,
-                 # marginals_alphas               = linear_predictor$marginals_alphas,
-                 # summary_precision              = linear_predictor$summary_precision,
-                 # marginals_precision            = linear_predictor$marginals_precision,
-                 # summary_means                  = linear_predictor$summary_means,
-                 # marginals_means                = linear_predictor$marginals_means,
+                 summary_linear_predictor       = linear_predictor$summary_linear_predictor,
+                 marginals_linear_predictor     = linear_predictor$marginals_linear_predictor,
+                 summary_alphas                 = linear_predictor$summary_alphas,
+                 marginals_alphas               = linear_predictor$marginals_alphas,
+                 summary_precision              = linear_predictor$summary_precision,
+                 marginals_precision            = linear_predictor$marginals_precision,
+                 summary_means                  = linear_predictor$summary_means,
+                 marginals_means                = linear_predictor$marginals_means,
                  summary_predictive_alphas      = NULL,
                  marginals_predictive_alphas    = NULL,
                  summary_predictive_means       = NULL,
