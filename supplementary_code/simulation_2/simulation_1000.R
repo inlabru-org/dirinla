@@ -23,7 +23,7 @@ library(R2jags)
 
 ### --- 2. Simulation data --- ####
 set.seed(1000)
-n <- 5000
+n <- 500
 
 #Covariates
 V <- as.data.frame(matrix(runif((10)*n, 0, 1), ncol=10))
@@ -123,6 +123,9 @@ print(model.jags)
 
 ### ----- 3.2. Fitting the model with INLA --- ####
 t <- proc.time() # Measure the time
+# pb <- progress_bar$new(
+#   format = "  downloading foobar at :rate, got :bytes in :elapsed",
+#   clear = FALSE, total = 1e7, width = 60)
 model.inla <- dirinlareg( formula  = y ~ 1 + v1 | 1 + v2 | 1 + v3 | 1 + v4  ,
                           y        = y,
                           data.cov = V,
@@ -159,10 +162,10 @@ for (i in 1:4)
          col = "black",
          lwd = 2)
 
-  legend("topright", legend=c("R-jags", "dirinla", "R-long-jags"),
-         col = c("orange", "red", "blue"),
-         lty = 1,
-         lwd = 2)
+  # legend("topright", legend=c("R-jags", "dirinla", "R-long-jags"),
+  #        col = c("orange", "red", "blue"),
+  #        lty = 1,
+  #        lwd = 2)
 }
 dev.off()
 
@@ -198,10 +201,10 @@ for (i in 1:4)
          col = "black",
          lwd = 2)
 
-  legend("topright", legend=c("R-jags", "dirinla", "R-long-jags"),
-         col = c("orange", "red", "blue"),
-         lty = 1,
-         lwd = 2)
+  # legend("topright", legend=c("R-jags", "dirinla", "R-long-jags"),
+  #        col = c("orange", "red", "blue"),
+  #        lty = 1,
+  #        lwd = 2)
 }
 dev.off()
 
