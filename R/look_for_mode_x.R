@@ -46,6 +46,12 @@ look_for_mode_x <- function(A = A,
   x_hat[1, ] <- x0
   k <- 1
   less <- FALSE
+  f_old <- dirichlet_log_pos_x(
+    A = A,
+    x = x_hat[k, ],
+    Qx = Qx,
+    y = y
+  )
   ### --- Looking for using the expected Hessian --- ###
   while ((!less == TRUE) && (k<k0)) {
     ### --- Call the function to define new variables in each iteration --- ###
@@ -98,12 +104,7 @@ look_for_mode_x <- function(A = A,
       y = y
     )
 
-    f_old <- dirichlet_log_pos_x(
-      A = A,
-      x = x_hat[k, ],
-      Qx = Qx,
-      y = y
-    )
+
 
 
     ### Checking condition
@@ -126,6 +127,7 @@ look_for_mode_x <- function(A = A,
 
     # print(eigen(Hk)$values)
     k <- k + 1
+    f_old <- f_new
   }
 
 

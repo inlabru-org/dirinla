@@ -29,8 +29,9 @@ newton_x <- function(A, x_hat, gk, Hk, a, Qx, strategy, y, d = d) {
 
     ### --- Quasi-newton without line search
     if (strategy == "quasi-newton") {
-        # Qx_z <- Hkx + Qx x_hat_new <- as.numeric(t(matrix(x_hat, ncol = 1) - a * ( solve(Qx_z, gkx + (Qx %*%
-        # x_hat))))) gk_x_new <- gkx + (Qx %*% x_hat_new)
+        Qx_z <- Hkx + Qx
+        x_hat_new <- as.numeric(t(matrix(x_hat, ncol = 1) - a * ( solve(Qx_z, gkx + (Qx %*% x_hat)))))
+        gk_x_new <- gkx + (Qx %*% x_hat_new)
 
         ### --- Line search direction quasi-newton and Armijo conditions --- ###
     } else if (strategy == "ls-quasi-newton") {
