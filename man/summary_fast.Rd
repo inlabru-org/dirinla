@@ -15,6 +15,11 @@ A matrix whose columns are "mean", "min", "q0.025", "q0.25", "q0.5", "q0.75", "q
 \description{
 `summary_fast` summarise a matrix by rows
 }
+\examples{
+A <- matrix(rnorm(10000), ncol = 1000)
+summary_fast(A)
+
+}
 \author{
 Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
 }

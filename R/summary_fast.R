@@ -9,7 +9,7 @@
 #' @importFrom Rfast rowmeans rowMinsMaxs rowMedians
 #' @importFrom Rfast2 rowQuantile
 #'
-#' @example
+#' @examples
 #' A <- matrix(rnorm(10000), ncol = 1000)
 #' summary_fast(A)
 #'
