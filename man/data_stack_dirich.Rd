@@ -13,7 +13,7 @@ data_stack_dirich(y, covariates, share = NULL, data, d, n)
 
 \item{share}{Covariates to share in all the cateogries. Not implemented yet.}
 
-\item{data}{Data.frame which contains all the covariates including the intercept.}
+\item{data}{Data.frame which contains all the covariates.}
 
 \item{d}{Number of categories.}
 

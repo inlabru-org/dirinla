@@ -5,7 +5,7 @@
 #' @param y Response variable in a matrix format.
 #' @param covariates String with the name of covariates.
 #' @param share Covariates to share in all the cateogries. Not implemented yet.
-#' @param data Data.frame which contains all the covariates including the intercept.
+#' @param data Data.frame which contains all the covariates.
 #' @param d Number of categories.
 #' @param n Number of locations.
 #'
@@ -42,27 +42,10 @@
 data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     data <- cbind(intercept = rep(1, dim(data)[1]), data)
 
-    common <- Reduce(intersect, covariates)
-
     A <- list()
     effects <- list()
-    if (!is.null(common)) {
-        notsharing <- common
-        if (!is.null(notsharing)) {
-            data_cov_notshare <- dplyr::select(data, notsharing)
 
-            A <- c(A, lapply(data_cov_notshare, function(x) {
-                mat <- Matrix::Diagonal(x = rep(x, each = d))
-                mat
-            }))
-
-            effects2 <- rep(list(rep(1:d, n)), length(notsharing))
-            names(effects2) <- notsharing
-            effects <- c(effects, effects2)
-        }
-    }
-
-    notcommon <- lapply(covariates, setdiff, common)
+    notcommon <- covariates
     data_cov_notcommon <- lapply(notcommon, dplyr::select, .data = data)
 
     A.names <- names(A)
