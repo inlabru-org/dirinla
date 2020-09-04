@@ -21,13 +21,28 @@
 #'
 #' @importFrom stats density as.formula sd
 #' @import dplyr
+#' @importFrom jubilee jubilee.mcsapply
+#' @export
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names_cat, sim) {
     ### --- 1. Simulating in order to get posterior distributions of the linear predictor --- ####
-    p_mod <- inla.posterior.sample(sim, inla_model)
+    names_list <- list(1:(n*d))
+    names(names_list) <- c("APredictor")
+    p_mod <- INLA::inla.posterior.sample(sim, inla_model,
+                                   selection = names_list)
+
+    # a <- proc.time()
+    # p_mod1 <- inla.posterior.sample.eval(function(...){APredictor},
+    #                                      p_mod, return.matrix = TRUE)
+    # b <- proc.time() - a
+
+    a <- proc.time()
     p_mod <- Matrix(sapply(p_mod, function(x) x$latent[1:(n * d)]))  #L^t eta
+    b2 <- proc.time() - a
+
     p_predictor <- solve(t(Lk_eta), p_mod)
     p_predictor <- as.matrix(p_predictor)
+
     # Computing predictor
     p_predictor <- lapply(1:d, function(j) {
         p_predictor[seq(j, dim(p_predictor)[1], by = d), ]
@@ -40,6 +55,7 @@ extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names
     ####
     summary_linear_predictor <- p_predictor %>% purrr::map(function(A) {
         summary_fast(A)
+
     })
 
     ### --- 3. alphas: summary and marginals --- ##
