@@ -3,6 +3,8 @@
 #' `formula_list` reads the formula and generates a list with the name of the covariates used in each category
 #'
 #' @param form Object of class formula.
+#' @param y Matrix containing the response variable R^{nxd}, being n number of individuals
+#' and d the number of categories.
 #'
 #' @return A list with the names of the variables used in each category.
 #'
@@ -11,9 +13,11 @@
 #' formula_list(formula)
 #'
 #' @export
-#' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
+#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 
-formula_list <- function(form) {
+formula_list <- function(form,y = NULL) {
+
+
     ### --- 1. Reading the formula --- ####
     oformula <- form
 
@@ -28,8 +32,11 @@ formula_list <- function(form) {
 
     # Clasified variables by category
     names_cat <- sapply(oformula_str, strsplit, split = "\\+")
-    names(names_cat) <- paste0("category ", 1:length(names_cat))
-
+    if(is.null(y)){
+        names(names_cat) <- paste0("category ", 1:length(names_cat))
+    }else{
+        names(names_cat) <- colnames(y)
+    }
     # Checking if there are intercepts
     lapply(names_cat, function(x) {
         if (any(grepl("^1$", x) == TRUE)) {

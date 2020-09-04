@@ -4,7 +4,7 @@
 \alias{extract_linear_predictor}
 \title{Extracting posterior distributions from the linear predictor}
 \usage{
-extract_linear_predictor(inla_model, n, d, Lk_eta)
+extract_linear_predictor(inla_model, n, d, Lk_eta, names_cat = names_cat, sim)
 }
 \arguments{
 \item{inla_model}{An object of class inla.}
@@ -14,6 +14,10 @@ extract_linear_predictor(inla_model, n, d, Lk_eta)
 \item{d}{Number of categories.}
 
 \item{Lk_eta}{Cholesky decomposition of the Hessian matrix.}
+
+\item{names_cat}{List generated with extract_formula.}
+
+\item{sim}{simulations for the function inla.posterior.sample}
 }
 \value{
 summary_linear_predictor List containing a summary of the marginal posterior distributions of the linear predictor.

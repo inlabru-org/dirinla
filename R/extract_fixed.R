@@ -70,7 +70,9 @@ extract_fixed <- function(inla_model, names_cat) {
         marginals_fixed <- c(marginals_fixed, list(marginals_fixed_i))
     }
 
-    names(summary_fixed) <- names(marginals_fixed) <- paste0("category ", 1:length(names_cat))
+    names(summary_fixed) <- names(marginals_fixed) <- names(names_cat)
+
+    #names(summary_fixed) <- names(marginals_fixed) <- paste0("category ", 1:length(names_cat))
 
     # Return
     list(summary_fixed = summary_fixed, marginals_fixed = marginals_fixed)

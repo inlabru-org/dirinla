@@ -4,10 +4,13 @@
 \alias{formula_list}
 \title{Formula in to list}
 \usage{
-formula_list(form)
+formula_list(form, y = NULL)
 }
 \arguments{
 \item{form}{Object of class formula.}
+
+\item{y}{Matrix containing the response variable R^{nxd}, being n number of individuals
+and d the number of categories.}
 }
 \value{
 A list with the names of the variables used in each category.
@@ -21,5 +24,5 @@ formula_list(formula)
 
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
 }

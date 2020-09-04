@@ -26,7 +26,9 @@ dirinlaregmodel(
   waic = NULL,
   cpo = NULL,
   nobs = NULL,
-  ncat = NULL
+  ncat = NULL,
+  y = NULL,
+  covariates = NULL
 )
 }
 \arguments{

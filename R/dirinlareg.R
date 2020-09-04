@@ -16,6 +16,8 @@
 #' @param prec precision for the prior of the fixed effects
 #' @param verbose if TRUE all the computing process is shown. Default is FALSE
 #' @param cores Number of cores for parallel computation. The package parallel is used.
+#' @param sim Simulations to call inla.posterior.sample and extract linear predictor, alphas and mus.
+#' The bigger it is, better is the approximation, but more computational time
 #' @param ... arguments for the inla command
 #'
 #' @return model dirinlaregmodel object
@@ -92,7 +94,8 @@ dirinlareg <- function (formula,
                         strategy = "ls-quasi-newton",
                         prec     = prec,
                         verbose  = FALSE,
-                        cores    = cores,
+                        cores    = 1,
+                        sim      = 1000,
                         ...)
 {
 
@@ -116,7 +119,7 @@ dirinlareg <- function (formula,
   # }
 
   ### --- 1. Reading the formula --- ####
-  names_cat <- formula_list(formula)
+  names_cat <- formula_list(formula, y = y)
 
   # Looking for the covariates in the data.frame for each category
   #data.cov.cat <- lapply(names_cat, function(x){dplyr::select(data.cov, x)} )
@@ -251,7 +254,9 @@ dirinlareg <- function (formula,
   linear_predictor <- extract_linear_predictor(inla_model = mod0,
                                                n          = n,
                                                d          = d,
-                                               Lk_eta     = Lk_eta)
+                                               Lk_eta     = Lk_eta,
+                                               names_cat  = names_cat,
+                                               sim        = sim)
 
 
 
@@ -277,7 +282,9 @@ dirinlareg <- function (formula,
                  waic                           = mod0$waic,
                  cpo                            = mod0$cpo,
                  nobs                           = n,
-                 ncat                           = d
+                 ncat                           = d,
+                 y                              = y,
+                 covariates                     = data.cov
                 ), class = "dirinlaregmodel")
 }
 

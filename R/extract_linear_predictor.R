@@ -6,6 +6,9 @@
 #' @param n Number of observations.
 #' @param d Number of categories.
 #' @param Lk_eta Cholesky decomposition of the Hessian matrix.
+#' @param names_cat List generated with extract_formula.
+#' @param sim simulations for the function inla.posterior.sample
+#'
 #'
 #' @return summary_linear_predictor List containing a summary of the marginal posterior distributions of the linear predictor.
 #' @return marginals_linear_predictor List containing simulations of marginal posterior distributions of the linear predictor.
@@ -19,9 +22,9 @@
 #' @importFrom stats density as.formula sd
 #' @import dplyr
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
-extract_linear_predictor <- function(inla_model, n, d, Lk_eta) {
+extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names_cat, sim) {
     ### --- 1. Simulating in order to get posterior distributions of the linear predictor --- ####
-    p_mod <- inla.posterior.sample(1000, inla_model)
+    p_mod <- inla.posterior.sample(sim, inla_model)
     p_mod <- Matrix(sapply(p_mod, function(x) x$latent[1:(n * d)]))  #L^t eta
     p_predictor <- solve(t(Lk_eta), p_mod)
     p_predictor <- as.matrix(p_predictor)
@@ -30,7 +33,7 @@ extract_linear_predictor <- function(inla_model, n, d, Lk_eta) {
         p_predictor[seq(j, dim(p_predictor)[1], by = d), ]
     })
 
-    names(p_predictor) <- paste0("Category ", 1:d)
+    names(p_predictor) <- names(names_cat)
 
     ### --- 2. Linear predictor: summary and marginals ---  ###
     #### ----- 2.1. Summary of the linear predictor --- ###

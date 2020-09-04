@@ -17,7 +17,8 @@ dirinlareg(
   strategy = "ls-quasi-newton",
   prec = prec,
   verbose = FALSE,
-  cores = cores,
+  cores = 1,
+  sim = 1000,
   ...
 )
 }
@@ -48,6 +49,9 @@ and d the number of categories}
 \item{verbose}{if TRUE all the computing process is shown. Default is FALSE}
 
 \item{cores}{Number of cores for parallel computation. The package parallel is used.}
+
+\item{sim}{Simulations to call inla.posterior.sample and extract linear predictor, alphas and mus.
+The bigger it is, better is the approximation, but more computational time}
 
 \item{...}{arguments for the inla command}
 }
