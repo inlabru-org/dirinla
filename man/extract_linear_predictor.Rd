@@ -4,7 +4,16 @@
 \alias{extract_linear_predictor}
 \title{Extracting posterior distributions from the linear predictor}
 \usage{
-extract_linear_predictor(inla_model, n, d, Lk_eta, names_cat = names_cat, sim)
+extract_linear_predictor(
+  inla_model,
+  n,
+  d,
+  Lk_eta,
+  names_cat = names_cat,
+  sim,
+  verbose,
+  cores
+)
 }
 \arguments{
 \item{inla_model}{An object of class inla.}
@@ -18,6 +27,10 @@ extract_linear_predictor(inla_model, n, d, Lk_eta, names_cat = names_cat, sim)
 \item{names_cat}{List generated with extract_formula.}
 
 \item{sim}{simulations for the function inla.posterior.sample}
+
+\item{verbose}{if TRUE all the computing process is shown. Default is FALSE}
+
+\item{cores}{number of cores to be used in the computations}
 }
 \value{
 summary_linear_predictor List containing a summary of the marginal posterior distributions of the linear predictor.

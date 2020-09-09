@@ -8,6 +8,8 @@
 #' @param Lk_eta Cholesky decomposition of the Hessian matrix.
 #' @param names_cat List generated with extract_formula.
 #' @param sim simulations for the function inla.posterior.sample
+#' @param verbose if TRUE all the computing process is shown. Default is FALSE
+#' @param cores number of cores to be used in the computations
 #'
 #'
 #' @return summary_linear_predictor List containing a summary of the marginal posterior distributions of the linear predictor.
@@ -21,26 +23,38 @@
 #'
 #' @importFrom stats density as.formula sd
 #' @import dplyr
-#' @importFrom jubilee jubilee.mcsapply
 #' @export
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
-extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names_cat, sim) {
+extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names_cat,
+                                     sim, verbose, cores) {
     ### --- 1. Simulating in order to get posterior distributions of the linear predictor --- ####
     names_list <- list(1:(n*d))
     names(names_list) <- c("APredictor")
     p_mod <- INLA::inla.posterior.sample(sim, inla_model,
-                                   selection = names_list)
+                                   selection = names_list,
+                                   verbose = verbose,
+                                   num.threads = cores)
+
+
+    #a <- proc.time()
+    p_mod <- Matrix(sapply(p_mod, "[[", "latent"))
+    #p_mod <- Matrix(sapply(p_mod, function(x) x$latent[1:(n * d)]))
+
+    #b <- proc.time() - a
 
     # a <- proc.time()
     # p_mod1 <- inla.posterior.sample.eval(function(...){APredictor},
     #                                      p_mod, return.matrix = TRUE)
     # b <- proc.time() - a
 
-    a <- proc.time()
-    p_mod <- Matrix(sapply(p_mod, function(x) x$latent[1:(n * d)]))  #L^t eta
-    b2 <- proc.time() - a
+    # a <- proc.time()
+     #p_mod2 <- Matrix(sapply(p_mod, function(x) x$latent[1:(n * d)]))  #L^t eta
+    # b2 <- proc.time() - a
 
-    p_predictor <- solve(t(Lk_eta), p_mod)
+    p_predictor <- Matrix::solve(t(Lk_eta), p_mod, sparse = TRUE)
+    rm(p_mod)
+    #p_predictor2 <- Matrix::solve(t(Lk_eta), p_mod, sparse = FALSE)
+
     p_predictor <- as.matrix(p_predictor)
 
     # Computing predictor
@@ -55,7 +69,6 @@ extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names
     ####
     summary_linear_predictor <- p_predictor %>% purrr::map(function(A) {
         summary_fast(A)
-
     })
 
     ### --- 3. alphas: summary and marginals --- ##

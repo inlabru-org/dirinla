@@ -256,7 +256,9 @@ dirinlareg <- function (formula,
                                                d          = d,
                                                Lk_eta     = Lk_eta,
                                                names_cat  = names_cat,
-                                               sim        = sim)
+                                               sim        = sim,
+                                               verbose    = verbose,
+                                               cores      = cores)
 
 
 
