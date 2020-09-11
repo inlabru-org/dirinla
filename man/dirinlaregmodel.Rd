@@ -28,7 +28,7 @@ dirinlaregmodel(
   nobs = NULL,
   ncat = NULL,
   y = NULL,
-  covariates = NULL
+  data.cov = NULL
 )
 }
 \arguments{

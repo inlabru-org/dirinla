@@ -19,6 +19,8 @@ dirinlareg(
   verbose = FALSE,
   cores = 1,
   sim = 1000,
+  prediction = FALSE,
+  data.pred.cov = NULL,
   ...
 )
 }
@@ -51,7 +53,11 @@ and d the number of categories}
 \item{cores}{Number of cores for parallel computation. The package parallel is used.}
 
 \item{sim}{Simulations to call inla.posterior.sample and extract linear predictor, alphas and mus.
-The bigger it is, better is the approximation, but more computational time}
+The bigger it is, better is the approximation, but more computational time.}
+
+\item{prediction}{if TRUE we will predict with the new values of the covariates given in data.pred.cov.}
+
+\item{data.pred.cov}{data.frame with the values for the covariates where we want to predict.}
 
 \item{...}{arguments for the inla command}
 }

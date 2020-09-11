@@ -17,7 +17,9 @@
 #' @param verbose if TRUE all the computing process is shown. Default is FALSE
 #' @param cores Number of cores for parallel computation. The package parallel is used.
 #' @param sim Simulations to call inla.posterior.sample and extract linear predictor, alphas and mus.
-#' The bigger it is, better is the approximation, but more computational time
+#' The bigger it is, better is the approximation, but more computational time.
+#' @param prediction if TRUE we will predict with the new values of the covariates given in data.pred.cov.
+#' @param data.pred.cov data.frame with the values for the covariates where we want to predict.
 #' @param ... arguments for the inla command
 #'
 #' @return model dirinlaregmodel object
@@ -96,6 +98,8 @@ dirinlareg <- function (formula,
                         verbose  = FALSE,
                         cores    = 1,
                         sim      = 1000,
+                        prediction  = FALSE,
+                        data.pred.cov = NULL,
                         ...)
 {
 
@@ -260,7 +264,25 @@ dirinlareg <- function (formula,
                                                verbose    = verbose,
                                                cores      = cores)
 
-
+  if(prediction == TRUE)
+  {
+    model.prediction <-
+      predict(model.inla,
+              data.pred.cov = data.pred.cov)
+    summary_predictive_alphas       <- model.prediction$summary_predictive_alphas
+    marginals_predictive_alphas    <- model.prediction$marginals_predictive_alphas
+    summary_predictive_means       <- model.prediction$summary_predictive_means
+    marginals_predictive_means     <- model.prediction$marginals_predictive_means
+    summary_predictive_precision   <- model.prediction$summary_predictive_precision
+    marginals_predictive_precision <- model.prediction$marginals_predictive_precision
+  }else{
+    summary_predictive_alphas       <- NULL
+    marginals_predictive_alphas    <- NULL
+    summary_predictive_means       <- NULL
+    marginals_predictive_means     <- NULL
+    summary_predictive_precision   <- NULL
+    marginals_predictive_precision <- NULL
+  }
 
 
   structure(list(call                           = this.call,
@@ -274,19 +296,19 @@ dirinlareg <- function (formula,
                  marginals_precision            = linear_predictor$marginals_precision,
                  summary_means                  = linear_predictor$summary_means,
                  marginals_means                = linear_predictor$marginals_means,
-                 summary_predictive_alphas      = NULL,
-                 marginals_predictive_alphas    = NULL,
-                 summary_predictive_means       = NULL,
-                 marginals_predictive_means     = NULL,
-                 summary_predictive_precision   = NULL,
-                 marginals_predictive_precision = NULL,
+                 summary_predictive_alphas      = summary_predictive_alphas,
+                 marginals_predictive_alphas    = marginals_predictive_alphas,
+                 summary_predictive_means       = summary_predictive_means,
+                 marginals_predictive_means     = marginals_predictive_means,
+                 summary_predictive_precision   = summary_predictive_precision,
+                 marginals_predictive_precision = marginals_predictive_precision,
                  dic                            = mod0$dic,
                  waic                           = mod0$waic,
                  cpo                            = mod0$cpo,
                  nobs                           = n,
                  ncat                           = d,
                  y                              = y,
-                 covariates                     = data.cov
+                 data.cov                       = data.cov
                 ), class = "dirinlaregmodel")
 }
 

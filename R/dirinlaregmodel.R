@@ -52,7 +52,7 @@ dirinlaregmodel <- function(
     nobs                           = NULL,
     ncat                           = NULL,
     y                              = NULL,
-    covariates                     = NULL) {
+    data.cov                       = NULL) {
     res <- list(call                           = call,
                 summary_fixed                  = summary_fixed,
                 marginals_fixed                = marginals_fixed,
@@ -76,7 +76,7 @@ dirinlaregmodel <- function(
                 nobs                           = nobs,
                 ncat                           = ncat,
                 y                              = y,
-                covariates                     = covariates)
+                data.cov                       = data.cov)
 
     ## Set the name for the class
     class(res) <- append(class(res), "dirinlaregmodel")
