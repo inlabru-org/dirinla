@@ -10,7 +10,7 @@ summary_fast(A)
 \item{A}{matrix to be summarised}
 }
 \value{
-A matrix whose columns are "mean", "min", "q0.025", "q0.25", "q0.5", "q0.75", "q0.975", "max"
+A matrix whose columns are "mean", "sd", "0.025quant", "0.5quant", "0.975quant"
 }
 \description{
 `summary_fast` summarise a matrix by rows
