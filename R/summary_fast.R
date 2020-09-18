@@ -4,7 +4,7 @@
 #'
 #' @param A matrix to be summarised
 #'
-#' @return A matrix whose columns are "mean", "min", "q0.025", "q0.25", "q0.5", "q0.75", "q0.975", "max"
+#' @return A matrix whose columns are "mean", "sd", "0.025quant", "0.5quant", "0.975quant"
 #'
 #' @importFrom Rfast rowmeans rowMinsMaxs rowMedians
 #' @importFrom Rfast2 rowQuantile
@@ -18,12 +18,13 @@ summary_fast <- function(A){
     result <- t(
         rbind(
             Rfast::rowmeans(A),
-            Rfast::rowMinsMaxs(A),
-            Rfast::rowMedians(A),
+            Rfast::rowVars(A, std = TRUE),
+            #Rfast::rowMinsMaxs(A),
+            #Rfast::rowMedians(A),
             t(Rfast2::rowQuantile(A,
-                                probs = c(0.025, 0.25, 0.75, 0.975)))))
-    colnames(result) <- c("mean", "min", "max", "q0.5", "q0.025", "q0.25", "q0.75", "q0.975")
-    result <- result[,c("mean", "min", "q0.025", "q0.25", "q0.5", "q0.75", "q0.975", "max")]
+                                probs = c(0.025, 0.5, 0.975)))))
+    colnames(result) <- c("mean", "sd", "0.025quant", "0.5quant", "0.975quant")
     result
 }
+
 
