@@ -11,11 +11,11 @@
 #' @importFrom gridExtra grid.arrange
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 plot.dirinlaregmodel <- function(object) {
+  nombres <- names(object$summary_means)
   if(dim(object$y)[2]> 3)
   {
     warning("Dimension is greater than 3 -> Ternary diagram has not been plotted.")
   }else{
-    nombres <- names(object$summary_means)
     datos <- as.data.frame(sapply(object$summary_alphas, function(x){x[,"mean"]}))
 
     #Simulating from response variable
@@ -31,7 +31,7 @@ plot.dirinlaregmodel <- function(object) {
                         aes(fill=..level..,
                             alpha = ..level..),
                         base = "identity") +
-      theme_rgbw() +
+      ggtern::theme_rgbw() +
       guides(color = "none", fill = "none", alpha = "none") +
       geom_point(data = as.data.frame(object$y),
                  aes_string(x = nombres[1],
@@ -42,6 +42,7 @@ plot.dirinlaregmodel <- function(object) {
       scale_fill_gradient(low='blue',high='red')
     print(a)
   }
+  devAskNewPage(ask=TRUE)
 
   for(x in 1:length(object$marginals_fixed))
   {
@@ -61,5 +62,6 @@ plot.dirinlaregmodel <- function(object) {
     args <- c(p1, list(ncol = 2, top = nombres[x]))
   do.call(gridExtra::grid.arrange,
           args)
+  devAskNewPage(ask=TRUE)
         }
 }
