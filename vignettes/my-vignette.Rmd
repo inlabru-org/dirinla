@@ -1,0 +1,244 @@
+---
+title: "The Integrated nested Laplace approximation for fitting Dirichlet regression models"
+author: Joaquin Martinez-Minaya
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+This vignette is devoted to explain how to use the package **dirinla**. It is a R-package to fit Dirichlet regression models using **R-INLA**. It can be installed and upgraded via the repository https://bitbucket.org/joaquin-martinez-minaya/dirinla. In this manual, we simulate some data from a Dirichlet distribution to posteriorly fit them using the main function of the package **dirinla**.
+
+```{r, echo= TRUE, results= 'hide', warning= FALSE, message= FALSE, eval = TRUE}
+library(dirinla)
+library(INLA)
+library(DirichletReg)
+library(ggplot2)
+library(gridExtra)
+```
+
+# Simulation
+We firstly illustrate how to simulate 100 data points from a Dirichlet regression model with three different categories and one different covariate per category:
+\begin{align}
+  \boldsymbol{Y}_n & \sim  \text{Dirichlet}(\alpha_{1n}, \ldots, \alpha_{3n}) \,, n = 1, \ldots, 100, \nonumber \\
+  \log(\alpha_{1n}) & =  \beta_{01} + \beta_{11} v_{1n}, \nonumber \\
+  \log(\alpha_{2n}) & =  \beta_{02} + \beta_{12} v_{2n},  \\
+  \log(\alpha_{3n}) & =  \beta_{03} + \beta_{13} v_{3n}, \nonumber 
+\end{align}
+being the parameters that compose the latent field $\beta_{01}= -1.5$, $\beta_{02}=-2$, $\beta_{03}=0$ (the intercepts), and $\beta_{11}=1$, $\beta_{12}=2.3$, $\beta_{13}=-1.9$ (the slopes). Note that covariates are different for each category. This could be particularized for a situation where all of them are the same. For simplicity, covariates are simulated from a Uniform distribution on (0,1). To posteriorly fit the model, a following the structure of LGMs, Gaussian prior distributions are assigned with precision $10^{-4}$ to all the elements of the Gaussian field.
+
+```{r, echo= TRUE, results= 'hide', warning= FALSE, message= FALSE, eval = TRUE}
+### --- 2. Simulating from a Dirichlet likelihood --- ####
+set.seed(1000)
+N <- 100 #number of data
+V <- as.data.frame(matrix(runif((4) * N, 0, 1), ncol = 4)) #Covariates
+names(V) <- paste0('v', 1:4)
+
+formula <- y ~ 1 + v1 | 1 + v2 | 1 + v3
+(names_cat <- formula_list(formula))
+
+intercepts <-
+x <- c(-1.5, 1, #Cat 1
+       -2, 2.3, #Cat 2
+       0 , -1.9) #Cat 3
+
+mus <- exp(x) / sum(exp(x))
+C <- length(names_cat)
+data_stack_construct <-
+  data_stack_dirich(y = as.vector(rep(NA, N * C)),
+                    covariates = names_cat,
+                    data       = V,
+                    d          = C,
+                    n          = N)
+
+A_construct <- data_stack_construct$A
+A_construct[1:8, ]
+
+eta <- A_construct %*% x
+alpha <- exp(eta)
+alpha <- matrix(alpha,
+                ncol  = C,
+                byrow = TRUE)
+y_o <- rdirichlet(N, alpha)
+colnames(y_o) <- paste0("y", 1:C)
+head(y_o)
+```
+
+# Fitting the model
+The next step is to call the **dirinlareg** function in order to fit a model to the data. We just need to specify the formula, the response variable, the covariates and the precision for the Gaussian prior distribution of the parameters.
+
+```{r, echo= TRUE, results= 'hide', warning= FALSE, message= FALSE, eval = TRUE}
+### --- 3. Fitting the model --- ####
+y <- y_o
+model.inla <- dirinlareg(
+  formula  = y ~ 1 + v1 | 1 + v2 | 1 + v3,
+  y        = y,
+  data.cov = V,
+  prec     = 0.0001)
+```
+
+To collect information about the fitted values and marginal posterior distributions of the parameters, we can use the methods **summary** and **plot** directly to the **dirinlaregmodel** object generated.
+
+## Summary
+```{r, echo = TRUE}
+summary(model.inla)
+```
+
+## Plot of the posterior distributions
+```{r, echo = FALSE, eval = FALSE}
+  plot(model.inla)
+```
+
+```{r, echo = FALSE, eval = TRUE, fig.asp=1, warning=FALSE, fig.width = 5, out.width = '70%', fig.cap = 'Posterior predictive distribution in the simplex. Points represent the original data'}
+### --- 5. Posterior predictive density for $y$ in the simplex
+set.seed(4)
+nombres <- names(model.inla$summary_means)
+datos <- as.data.frame(sapply(model.inla$summary_alphas, function(x){x[,"mean"]}))
+
+#Simulating from response variable
+alpha <- as.matrix(datos)
+y_resp <- as.data.frame(rdirichlet(dim(datos)[1], alpha))
+
+
+colnames(y_resp) <- colnames(datos)
+a <- ggtern::ggtern(data = y_resp,
+                    aes_string( x = nombres[1],
+                                y = nombres[2],
+                                z = nombres[3])) +
+  ggtern::stat_density_tern(geom='polygon',
+                            n = 200,
+                            aes(fill=..level..,
+                                alpha = ..level..),
+                            base = "identity") +
+  ggtern::theme_rgbw() +
+  guides(color = "none", fill = "none", alpha = "none") +
+  geom_point(data = as.data.frame(model.inla$y),
+             aes_string(x = nombres[1],
+                        y = nombres[2],
+                        z = nombres[3]),
+             size = 0.2) +
+  #ggtitle("Fitted Density vs Original data") +
+  scale_fill_gradient(low='blue',high='red')
+ print(a)
+```
+
+```{r, eval = TRUE, echo = FALSE, fig.asp=0.7, warning=FALSE, fig.width = 10, out.width = '100%', fig.cap = 'Posterior distributions of the parameters. Vertical line represents the real value'}
+### --- 4. Plotting marginal posterior distributions of the parameters --- ####
+### ----- 4.1. Marginal posterior distributions of the intercepts --- ####
+p1 <- list()
+beta0 <- expression(paste("p(", beta[0], "|", "y)"))
+
+for (i in 1:length(model.inla$marginals_fixed))
+{
+
+  #Data combining jags (1) and inla (2)
+  dens <- as.data.frame(model.inla$marginals_fixed[[i]][[1]])
+
+  ### Intercept
+  p1[[i]] <- ggplot(dens,
+                    aes(x = x,
+                        y = y
+                    )) +
+    geom_line(size = 0.6) +
+    xlim(quantile(dens$x, probs=c(0.05, 0.95))) +
+    theme_bw() + #Show axes
+    xlab(expression(beta[0])) + #xlab
+    ylab(beta0) #ylab
+
+
+  #Real value
+  p1[[i]] <- p1[[i]] + geom_vline(xintercept = x[seq(1,6, by=2)][i], col = "red")
+
+
+  p1[[i]] <- p1[[i]] + ggtitle(colnames(y)[i]) +
+    theme(
+      plot.title = element_text(color = "black",
+                                size  = 12,
+                                face  = "bold.italic",
+                                hjust = 0.5))
+}
+
+
+### ----- 4.2. Marginal posterior distributions of the slopes --- ####
+p2 <- list()
+beta1 <- expression(paste("p(", beta[1], "|", "y)"))
+
+for (i in 1:length(model.inla$marginals_fixed))
+{
+
+  #Data combining jags (1) and inla (2)
+  dens <- as.data.frame(model.inla$marginals_fixed[[i]][[2]])
+
+  ### Intercept
+  p2[[i]] <- ggplot(dens,
+                    aes(x = x,
+                        y = y
+                    )) +
+    geom_line(size = 0.6) +
+    xlim(quantile(dens$x, probs=c(0.05, 0.95))) +
+    theme_bw() + #Show axes
+    xlab(expression(beta[1])) + #xlab
+    ylab(beta1) #ylab
+
+
+  #Real value
+  p2[[i]] <- p2[[i]] + geom_vline(xintercept = x[seq(2,6, by=2)][i], col = "red")
+
+
+  p2[[i]] <- p2[[i]] +
+    ggtitle(" ") +
+    theme(
+      plot.title = element_text(color = "black",
+                                size  = 15,
+                                face  = "bold.italic",
+                                hjust = 0.5))
+}
+
+
+gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]],
+                        p2[[1]], p2[[2]], p2[[3]], ncol = 3)
+```
+
+
+
+# Predictions
+
+The package provides a method predict to compute posterior predictive distributions for new individuals. To show how this function works, we will predict for a value of v1 = 0.2, v2 = 0.5, and v3 = -0.1:
+```{r, echo= TRUE, warning= FALSE, message= FALSE, eval = TRUE}
+### --- 5. Predicting for v1 = 0.25, v2 = 0.5, v3 = 0.5, v4 = 0.1 --- ####
+model.prediction <-
+  predict(model.inla,
+                  data.pred.cov = data.frame(v1 = 0.2 ,
+                                         v2 = 0.5,
+                                         v3 = -0.1))
+model.prediction$summary_predictive_means
+
+### --- 6. We can also predict directly --- ####
+model.inla <- dirinlareg(
+  formula  = y ~ 1 + v1 | 1 + v2 | 1 + v3,
+  y        = y,
+  data.cov = V,
+  prec     = 0.0001,
+  verbose  = FALSE,
+  prediction = TRUE,
+  data.pred.cov = data.frame(v1 = 0.2 ,
+                             v2 = 0.5,
+                             v3 = -0.1))
+
+
+model.prediction$summary_predictive_means
+
+```
