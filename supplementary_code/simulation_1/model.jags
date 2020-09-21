@@ -10,13 +10,11 @@
     log(alpha[i,4]) <- beta0[4]
 
     }
-
     alpha0 <- alpha[1,1] + alpha[1,2] + alpha[1,3] + alpha[1,4]
     mu[1] <- alpha[1,1]/alpha0
     mu[2] <- alpha[1,2]/alpha0
     mu[3] <- alpha[1,3]/alpha0
     mu[4] <- alpha[1,4]/alpha0
-
     #priors
     for (c in 1:d)
     {
