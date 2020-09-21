@@ -10,7 +10,7 @@ Authors@R: c(
 	role = c("aut"),
          comment = c(ORCID = "0000-0002-5833-2011", "Finn Lindgren continued development of the main code"))
 	)
-Maintainer: <joaquin.martinez-minaya@uv.es>
+Maintainer: <jomarminaya@gmail.com>
 Description: The package provide tools to analyze compositional data using R-INLA. 
 License: GPL-2
 Imports:
