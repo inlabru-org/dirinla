@@ -9,7 +9,6 @@
 # --- --- eta_3 = beta_{03} + X3 beta3,                                       #
 # --- --- eta_4 = beta_{04} + X4 beta4,                                       #
 # ----------------------------------------------------------------------------#
-setwd("~/GIT1/dirinla/supplementary_code/simulation_2")
 
 ### --- 1. Libraries ---- #####
 ### Needed
@@ -197,9 +196,9 @@ simulations_with_slopes <- function(n)
     ## MCMC configuration
     # ni <- 1000
     # nb <- 100
-    ni <- 1000000
+    ni <- 100000
     nt <- 5
-    nb <- 100000
+    nb <- 10000
     nc <- 3
 
     ## Data set
@@ -491,20 +490,23 @@ simulations_with_slopes <- function(n)
 
 
 ### --- 3. Calling the function --- ####
-#n <- c(50, 100, 500, 1000, 5000, 10000)
 n <- c(50, 100, 500)
-
 a <- parallel::mclapply(n, simulations_with_slopes,
                         mc.cores = 3)
 names(a) <- paste0("n", n)
 saveRDS(a, file = "simulation2_50-500.RDS")
 a <- readRDS(file = "simulation2_50-500.RDS")
-a$n50
-a$n100
-a$n500
+
+n <- c(1000, 10000)
+a <- parallel::mclapply(n, simulations_with_slopes,
+                        mc.cores = 2)
+names(a) <- paste0("n", n)
+saveRDS(a, file = "simulation2_1000-10000.RDS")
+b <- readRDS(file = "simulation2_1000-10000.RDS")
+results <- c(a,b)
 
 ### --- 4. Extracting tables for the paper --- ####
-results <- readRDS(file = "simulation2_50-500.RDS")
+# results <- readRDS(file = "simulation2_50-500.RDS")
 results$n50$times
 results$n50$intercepts
 results$n50$times
@@ -518,33 +520,52 @@ sqrt(results$n50$ratio2_slopes)
 #Computational times
 result_time <- rbind(results$n50$times,
                      results$n100$times,
-                     results$n500$times)
+                     results$n500$times,
+                     results$n1000$times,
+                     results$n10000$times)
 colnames(result_time) <- c("R-JAGS", "dirinla", "long R-JAGS")
-rownames(result_time) <- paste0( c(50, 100, 500))
+rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
 result_time
 
 result_ratio1 <- cbind(rbind(round(results$n50$ratio1_intercepts, 4),
                              round(results$n100$ratio1_intercepts, 4),
-                             round(results$n500$ratio1_intercepts, 4)),
+                             round(results$n500$ratio1_intercepts, 4),
+                             round(results$n1000$ratio1_intercepts, 4),
+                             round(results$n10000$ratio1_intercepts, 4)),
                        rbind(round(results$n50$ratio1_slopes, 4),
                              round(results$n100$ratio1_slopes, 4),
-                             round(results$n500$ratio1_slopes, 4)))
+                             round(results$n500$ratio1_slopes, 4),
+                             round(results$n1000$ratio1_slopes, 4),
+                             round(results$n10000$ratio1_slopes, 4)))
 colnames(result_ratio1) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
-rownames(result_ratio1) <- paste0( c(50, 100, 500))
+rownames(result_ratio1) <- paste0( c(50, 100, 500, 1000, 10000))
 
 result_ratio2 <- cbind(rbind(round(sqrt(results$n50$ratio2_intercepts), 4),
                              round(sqrt(results$n100$ratio2_intercepts), 4),
-                             round(sqrt(results$n500$ratio2_intercepts), 4)),
+                             round(sqrt(results$n500$ratio2_intercepts), 4),
+                             round(sqrt(results$n1000$ratio2_intercepts), 4),
+                             round(sqrt(results$n10000$ratio2_intercepts), 4)),
                        rbind(round(sqrt(results$n50$ratio2_slopes), 4),
                              round(sqrt(results$n100$ratio2_slopes), 4),
-                             round(sqrt(results$n500$ratio2_slopes), 4)))
+                             round(sqrt(results$n500$ratio2_slopes), 4),
+                             round(sqrt(results$n1000$ratio2_slopes), 4),
+                             round(sqrt(results$n10000$ratio2_slopes), 4)))
 colnames(result_ratio2) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
-rownames(result_ratio2) <- paste0( c(50, 100, 500))
+rownames(result_ratio2) <- paste0( c(50, 100, 500, 1000, 10000))
 
 result_ratio2
 
 #Latex
+library(xtable)
 xtable(result_time, digits = 4)
 xtable(result_ratio1, digits = 4)
 xtable(result_ratio2, digits = 4)
+
+
+
+
+
+
+
+
 
