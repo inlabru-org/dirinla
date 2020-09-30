@@ -171,8 +171,8 @@ simulations_just_intercepts <- function(n)
                               y        = y,
                               data.cov = V,
                               prec     = 0.0001,
-                              verbose  = FALSE,
-                              sim       = 5000)
+                              verbose  = TRUE,
+                              sim       = 4000)
 
     t_inla <- proc.time()-t    # Stop the time
     t_inla <- t_inla[3]
@@ -192,14 +192,11 @@ simulations_just_intercepts <- function(n)
     }
   }else{
     ## MCMC configuration
-    # ni <- 10000
-    # nb <- 100
     ni <- 1000000
     nt <- 5
     nb <- 100000
     nc <- 3
-    # ni <- 10000
-    # nb <- 100
+
 
     ## Data set
     data_jags <- list(y = y,
@@ -562,55 +559,62 @@ simulations_just_intercepts <- function(n)
 
 
 ### --- 3. Calling the function --- ####
-#n <- c(50, 100, 500, 1000, 5000, 10000)
 n <- c(50, 100, 500)
-
 a <- parallel::mclapply(n, simulations_just_intercepts,
                         mc.cores = 3)
-a <- lapply(n, simulations_just_intercepts)
+
 names(a) <- paste0("n", n)
 saveRDS(b, file = "simulation1_50-500.RDS")
 a <- readRDS(file = "simulation1_50-500.RDS")
-a$n50$times
 
+
+n <- c(1000, 10000)
+a <- parallel::mclapply(n, simulations_just_intercepts,
+                        mc.cores = 2)
+names(a) <- paste0("n", n)
+saveRDS(a, file = "simulation1_1000-10000.RDS")
+a <- readRDS(file = "simulation1_1000-10000.RDS")
 
 ### --- 4. Extracting tables for the paper --- ####
-results <- readRDS(file = "simulation1_50-500.RDS")
-results$n50$times
-results$n50$intercept
-results$n50$times
-results$n50$times
-results$n50$ratio1_intercept
-results$n50$ratio1_mu
-
-sqrt(results$n50$ratio2_intercept)
-sqrt(results$n50$ratio2_mu)
+results1 <- readRDS(file = "simulation1_50-500.RDS")
+results2 <- readRDS(file = "simulation1_1000-10000.RDS")
+results <- c(results1, results2)
 
 #Computational times
 result_time <- rbind(results$n50$times,
                      results$n100$times,
-                     results$n500$times)
+                     results$n500$times,
+                     results$n1000$times,
+                     results$n10000$times)
 colnames(result_time) <- c("R-JAGS", "dirinla", "long R-JAGS")
-rownames(result_time) <- paste0( c(50, 100, 500))
+rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
 result_time
 
 result_ratio1 <- cbind(rbind(round(results$n50$ratio1_intercept, 4),
                              round(results$n100$ratio1_intercept, 4),
-                             round(results$n500$ratio1_intercept, 4)),
+                             round(results$n500$ratio1_intercept, 4),
+                             round(results$n1000$ratio1_intercept, 4),
+                             round(results$n10000$ratio1_intercept, 4)),
                        rbind(round(results$n50$ratio1_mu, 4),
                              round(results$n100$ratio1_mu, 4),
-                             round(results$n500$ratio1_mu, 4)))
+                             round(results$n500$ratio1_mu, 4),
+                             round(results$n1000$ratio1_mu, 4),
+                             round(results$n10000$ratio1_mu, 4)))
 colnames(result_ratio1) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
-rownames(result_ratio1) <- paste0( c(50, 100, 500))
+rownames(result_ratio1) <- paste0( c(50, 100, 500, 1000, 10000))
 
 result_ratio2 <- cbind(rbind(round(sqrt(results$n50$ratio2_intercept), 4),
                              round(sqrt(results$n100$ratio2_intercept), 4),
-                             round(sqrt(results$n500$ratio2_intercept), 4)),
+                             round(sqrt(results$n500$ratio2_intercept), 4),
+                             round(sqrt(results$n1000$ratio2_intercept), 4),
+                             round(sqrt(results$n10000$ratio2_intercept), 4)),
                        rbind(round(sqrt(results$n50$ratio2_mu), 4),
                              round(sqrt(results$n100$ratio2_mu), 4),
-                             round(sqrt(results$n500$ratio2_mu), 4)))
+                             round(sqrt(results$n500$ratio2_mu), 4),
+                             round(sqrt(results$n1000$ratio2_mu), 4),
+                             round(sqrt(results$n10000$ratio2_mu), 4)))
 colnames(result_ratio2) <- c(paste0("beta0", 1:4), paste0("mu", 1:4))
-rownames(result_ratio2) <- paste0( c(50, 100, 500))
+rownames(result_ratio2) <- paste0( c(50, 100, 500, 1000, 10000))
 
 result_ratio2
 
@@ -618,4 +622,7 @@ result_ratio2
 xtable(result_time, digits = 4)
 xtable(result_ratio1, digits = 4)
 xtable(result_ratio2, digits = 4)
+
+
+
 

@@ -196,9 +196,9 @@ simulations_with_slopes <- function(n)
     ## MCMC configuration
     # ni <- 1000
     # nb <- 100
-    ni <- 100000
+    ni <- 1000000
     nt <- 5
-    nb <- 10000
+    nb <- 100000
     nc <- 3
 
     ## Data set

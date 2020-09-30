@@ -1,4 +1,5 @@
-### In this script simulations with N=50 are conducted in order to check    ###
+### In this script simulations with N=100 and d = 5, 10, 15, 20, 30           #
+#  are conducted in order to check                                            #
 # how the package dirinla works. We compare with r-jags with enough amount of #
 # simulations to guarantee convergence of the method, and with long r-jags,   #
 # which has a large amount of simulations. The model that we try to fit is :  #
@@ -79,12 +80,12 @@ simulations_just_intercepts_nd <- function(n, d)
   cat(paste0("n = ", n, ", d = ", d, " -----> Fitting using SHORT JAGS \n"))
   if(file.exists(paste0("model_jags_", n, "_", d, ".RDS"))){
     model.jags <- readRDS(paste0("model_jags_", n, "_", d, ".RDS"))
-    if(n < 1000)
+    if(d < 50)
     {
       simulation <- readRDS("simulation3_n_d.RDS")
       t_jags <- simulation[[paste0("n",n)]][[paste0("d",d)]]$times[1]
     }else{
-      simulation <- readRDS("simulation3_n_d.RDS")
+      simulation <- readRDS("simulation3_n_d2.RDS")
       t_jags <- simulation[[paste0("n",n)]]$times[1]
     }
 
@@ -153,12 +154,12 @@ simulations_just_intercepts_nd <- function(n, d)
   cat(paste0("n = ", n,  ", d = ", d, " -----> Fitting using INLA \n"))
   if(file.exists(paste0("model_inla_", n, "_", d, ".RDS"))){
     model.inla <- readRDS(paste0("model_inla_", n, "_", d, ".RDS"))
-    if(n< 1000)
+    if(d < 50)
     {
       simulation <- readRDS("simulation3_n_d.RDS")
       t_inla <- simulation[[paste0("n",n)]][[paste0("d",d)]]$times[2]
     }else{
-      simulation <- readRDS("simulation3_n_d.RDS")
+      simulation <- readRDS("simulation3_n_d2.RDS")
       t_inla <- simulation[[paste0("n",n)]][[paste0("d",d)]]$times[2]
     }
   }else{
@@ -190,16 +191,11 @@ simulations_just_intercepts_nd <- function(n, d)
     }
   }else{
     ## MCMC configuration
-    # ni <- 10000
-    # nb <- 100
-    ni <- 10000
+    ni <- 1000000
     nt <- 5
-    nb <- 1000
+    nb <- 100000
     nc <- 3
-    # ni <- 10000
-    # nb <- 100
-    # ni <- 1000
-    # nb <- 100
+
 
     ## Data set
     data_jags <- list(y = y,
@@ -318,6 +314,9 @@ names(result) <- paste0("n", n)
 saveRDS(result, file = "simulation3_n_d.RDS")
 result <- readRDS(file = "simulation3_n_d.RDS")
 
+
+
+
 ### --- 4. Extracting tables for the paper --- ####
 #Computational times
 result_time <- rbind(result$n100$d5$times,
@@ -336,7 +335,7 @@ result_ratio <- data.frame(ratio1 = round(result$n100$d5$ratio1_intercept, 4),
                                   ratio2 = round(sqrt(result$n100$d5$ratio2_intercept), 4),
                                   label = "C = 5")
 colnames(result_ratio) <- c("ratio1", "ratio2", "dimension")
-for(i in 1:length(d))
+for(i in 2:length(d))
 {
     result_ratio <- rbind(result_ratio,
           data.frame(ratio1 = round(result$n100[[i]]$ratio1_intercept, 4),
@@ -344,20 +343,24 @@ for(i in 1:length(d))
                      dimension = paste0("C = ", d[i])))
 }
 
+result_ratio[,3] <- ordered(as.factor(result_ratio[,3]),
+                            c("C = 5", "C = 10", "C = 15", "C = 20", "C = 30"))
 
 #Geom boxplot
-pdf("boxplot.ratio1.pdf", width = 7, height = 4)
+pdf("boxplot_ratio1.pdf", width = 7, height = 4)
 ggplot(result_ratio, aes(x= dimension, y = ratio1)) +
   geom_boxplot() +
   #ylim(c(0, 0.2)) +
   xlab("")+
+  ylab(expression('ratio'[1])) +
   theme_bw()
 dev.off()
 
-pdf("boxplot.ratio2.pdf", width = 7, height = 4)
+pdf("boxplot_ratio2.pdf", width = 7, height = 4)
 ggplot(result_ratio, aes(x= dimension, y = ratio2)) +
   geom_boxplot() +
   #ylim(c(0.90, 1.1)) +
   xlab("")+
+  ylab(expression('ratio'[2])) +
   theme_bw()
 dev.off()
