@@ -2,10 +2,14 @@
 #'
 #' `summary.dirinlaregmodel` is a function which gives a summary of a dirinlaregmodel object
 #'
-#' @param object Object of class dirinlareg.
+#' @param object Object of class dirinlaregmodel.
+#' @param ... Other arguments.
 #' @return Print summary.
+#' @method summary dirinlaregmodel
 #' @export
-summary.dirinlaregmodel <- function(object) {
+#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+
+summary.dirinlaregmodel <- function(object, ...) {
     cat("\n")
     ## Call
     cat("Call: \n ")

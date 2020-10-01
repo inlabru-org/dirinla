@@ -23,6 +23,7 @@
 #'
 #' @importFrom stats density as.formula sd
 #' @import dplyr
+#' @import INLA
 #' @export
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names_cat,

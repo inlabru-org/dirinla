@@ -50,7 +50,7 @@ model.inla <- dirinlareg(
   y        = y,
   data.cov = V,
   prec     = 0.0001,
-  verbose  = TRUE)
+  verbose  = FALSE)
 
 
 summary(model.inla)

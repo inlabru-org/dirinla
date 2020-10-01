@@ -25,9 +25,8 @@
 #' @return model dirinlaregmodel object
 #'
 #' @examples
-#' ### In this example, we show how to fit a model using the dirinla package ###
+#' #' ### In this example, we show how to fit a model using the dirinla package ###
 #' ### --- 1. Loading the libraries --- ####
-#' library(dirinla)
 #' library(INLA)
 #' library(DirichletReg)
 #'
@@ -73,7 +72,7 @@
 #'   y        = y,
 #'   data.cov = V,
 #'   prec     = 0.0001,
-#'   verbose  = TRUE)
+#'   verbose  = FALSE)
 #'
 #'
 #' summary(model.inla)
@@ -264,10 +263,37 @@ dirinlareg <- function (formula,
                                                verbose    = verbose,
                                                cores      = cores)
 
+  ### --- Prediction --- ####
   if(prediction == TRUE)
   {
+    model.inla <- structure(list(call                           = this.call,
+                   summary_fixed                  = fixed_effects$summary_fixed,
+                   marginals_fixed                = fixed_effects$marginals_fixed,
+                   summary_linear_predictor       = linear_predictor$summary_linear_predictor,
+                   marginals_linear_predictor     = linear_predictor$marginals_linear_predictor,
+                   summary_alphas                 = linear_predictor$summary_alphas,
+                   marginals_alphas               = linear_predictor$marginals_alphas,
+                   summary_precision              = linear_predictor$summary_precision,
+                   marginals_precision            = linear_predictor$marginals_precision,
+                   summary_means                  = linear_predictor$summary_means,
+                   marginals_means                = linear_predictor$marginals_means,
+                   summary_predictive_alphas      = NULL,
+                   marginals_predictive_alphas    = NULL,
+                   summary_predictive_means       = NULL,
+                   marginals_predictive_means     = NULL,
+                   summary_predictive_precision   = NULL,
+                   marginals_predictive_precision = NULL,
+                   dic                            = mod0$dic,
+                   waic                           = mod0$waic,
+                   cpo                            = mod0$cpo,
+                   nobs                           = n,
+                   ncat                           = d,
+                   y                              = y,
+                   data.cov                       = data.cov
+    ), class = "dirinlaregmodel")
+
     model.prediction <-
-      predict(model.inla,
+      predict.dirinlaregmodel(model.inla,
               data.pred.cov = data.pred.cov)
     summary_predictive_alphas       <- model.prediction$summary_predictive_alphas
     marginals_predictive_alphas    <- model.prediction$marginals_predictive_alphas

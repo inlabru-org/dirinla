@@ -4,12 +4,14 @@
 \alias{predict.dirinlaregmodel}
 \title{Finding the mode of the full posterior distribution}
 \usage{
-\method{predict}{dirinlaregmodel}(model, data.pred.cov)
+\method{predict}{dirinlaregmodel}(object, data.pred.cov, ...)
 }
 \arguments{
-\item{model}{dirinlaregmodel object.}
+\item{object}{dirinlaregmodel object.}
 
 \item{data.pred.cov}{Data.frame with the covariate values for the variables to predict.}
+
+\item{...}{Other arguments.}
 }
 \value{
 model dirinlaregmodel object
@@ -20,7 +22,6 @@ model dirinlaregmodel object
 \examples{
 ### In this example, we show how to fit a model using the dirinla package ###
 ### --- 1. Loading the libraries --- ####
-library(dirinla)
 library(INLA)
 library(DirichletReg)
 
@@ -66,12 +67,12 @@ model.inla <- dirinlareg(
   y        = y,
   data.cov = V,
   prec     = 0.0001,
-  verbose  = TRUE)
+  verbose  = FALSE)
 
 
 summary(model.inla)
 ### --- 4. Predicting for v1 = 0.25, v2 = 0.5, v3 = 0.5, v4 = 0.1 --- ####
-model.prediction <- predict.dirinla(model.inla,
+model.prediction <- predict(model.inla,
                 data.pred.cov= data.frame(v1 = 0.25,
                                        v2 = 0.5,
                                        v3 = 0.5,

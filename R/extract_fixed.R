@@ -9,6 +9,8 @@
 #' @return marginals_fixed Marginals for each parameter estimated.
 #'
 #' @export
+#' @importFrom dplyr select
+#' @importFrom plyr ldply
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 extract_fixed <- function(inla_model, names_cat) {
     summary_fixed <- list()  #List to store the summary of fixed effects for the different categories
@@ -54,7 +56,12 @@ extract_fixed <- function(inla_model, names_cat) {
         ### summary fixed Transform the list in data.frame
         summary_fixed_i <- plyr::ldply(summary_fixed_i, data.frame)
         # Removing .id , ID, kld summary_fixed_i <- summary_fixed_i[,- c(1,2,9)]
-        summary_fixed_i <- dplyr::select(summary_fixed_i, mean, sd, X0.025quant, X0.5quant, X0.975quant, mode)
+        #summary_fixed_i <- dplyr::select(summary_fixed_i, mean, sd, X0.025quant, X0.5quant, X0.975quant, mode)
+
+        summary_fixed_i <- summary_fixed_i %>%
+            dplyr::select(.data$mean, .data$sd,
+                          .data$X0.025quant, .data$X0.5quant, .data$X0.975quant,
+                          .data$mode)
 
         # Give the names to the covariates
         rownames(summary_fixed_i) <- names_cov

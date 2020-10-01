@@ -2,7 +2,8 @@
 % Please edit documentation in R/bdiag_m.R
 \name{bdiag_m}
 \alias{bdiag_m}
-\title{Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:}
+\title{Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:
+Copyright (C) 2016 Martin Maechler, ETH Zurich}
 \usage{
 bdiag_m(lmat)
 }
@@ -14,4 +15,5 @@ a sparse (N*k x N*k) matrix of class  \code{"\linkS4class{dgCMatrix}"}.
 }
 \description{
 Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:
+Copyright (C) 2016 Martin Maechler, ETH Zurich
 }

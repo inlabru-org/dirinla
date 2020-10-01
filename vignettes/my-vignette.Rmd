@@ -4,13 +4,16 @@ author: Joaquin Martinez-Minaya
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
+    pandoc_args: [
+      "--number-offset=1,0"
+      ]
     number_sections: true
     toc: true
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{The Integrated nested Laplace approximation for fitting Dirichlet regression models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
----
+  ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -93,16 +96,16 @@ model.inla <- dirinlareg(
 To collect information about the fitted values and marginal posterior distributions of the parameters, we can use the methods **summary** and **plot** directly to the **dirinlaregmodel** object generated.
 
 ## Summary
-```{r, echo = TRUE}
+```{r, echo = TRUE, warning= FALSE, message= FALSE}
 summary(model.inla)
 ```
 
 ## Plot of the posterior distributions
-```{r, echo = FALSE, eval = FALSE}
+```{r, echo = FALSE, eval = FALSE, warning= FALSE, message= FALSE}
   plot(model.inla)
 ```
 
-```{r, echo = FALSE, eval = TRUE, fig.asp=1, warning=FALSE, fig.width = 5, out.width = '70%', fig.cap = 'Posterior predictive distribution in the simplex. Points represent the original data'}
+```{r, echo = FALSE, eval = TRUE, fig.asp=1, , warning= FALSE, message= FALSE, fig.width = 5, out.width = '70%', fig.cap = 'Posterior predictive distribution in the simplex. Points represent the original data'}
 ### --- 5. Posterior predictive density for $y$ in the simplex
 set.seed(4)
 nombres <- names(model.inla$summary_means)
@@ -135,7 +138,7 @@ a <- ggtern::ggtern(data = y_resp,
  print(a)
 ```
 
-```{r, eval = TRUE, echo = FALSE, fig.asp=0.7, warning=FALSE, fig.width = 10, out.width = '100%', fig.cap = 'Posterior distributions of the parameters. Vertical line represents the real value'}
+```{r, eval = TRUE, echo = FALSE, fig.asp=0.7, , warning= FALSE, message= FALSE, fig.width = 10, out.width = '100%', fig.cap = 'Posterior distributions of the parameters. Vertical line represents the real value'}
 ### --- 4. Plotting marginal posterior distributions of the parameters --- ####
 ### ----- 4.1. Marginal posterior distributions of the intercepts --- ####
 p1 <- list()

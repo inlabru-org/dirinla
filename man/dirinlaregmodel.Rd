@@ -75,6 +75,11 @@ dirinlaregmodel(
 \item{nobs}{Number of observations.}
 
 \item{ncat}{Number of categories.}
+
+\item{y}{matrix containing the response variable R^{nxd}, being n number of individuals
+and d the number of categories}
+
+\item{data.cov}{data.frame with the covarites, only the covariates!}
 }
 \value{
 object of list and dirinlaregmodel class.

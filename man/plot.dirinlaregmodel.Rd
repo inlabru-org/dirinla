@@ -2,18 +2,20 @@
 % Please edit documentation in R/plot.dirinlaregmodel.R
 \name{plot.dirinlaregmodel}
 \alias{plot.dirinlaregmodel}
-\title{plot of dirinlaregmodel objects}
+\title{plot of dirinlaregmodel xs}
 \usage{
-plot.dirinlaregmodel(object)
+\method{plot}{dirinlaregmodel}(x, ...)
 }
 \arguments{
-\item{object}{Object of class dirinlareg.}
+\item{x}{Object of class dirinlaregmodel.}
+
+\item{...}{Other arguments.}
 }
 \value{
 Plotting the posterior of the fixed effects.
 }
 \description{
-`summary.dirinlaregmodel` Method which plots a dirinlaregmodel object
+`plot.dirinlaregmodel` Method which plots a dirinlaregmodel x
 }
 \author{
 Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>

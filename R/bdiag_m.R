@@ -1,8 +1,9 @@
-##' Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:
-##' @param lmat list(<mat1>, <mat2>, ....., <mat_N>)  where each mat_j is a  k x k 'matrix'
-##' @return a sparse (N*k x N*k) matrix of class  \code{"\linkS4class{dgCMatrix}"}.
+#' Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:
+#' Copyright (C) 2016 Martin Maechler, ETH Zurich
+#' @param lmat list(<mat1>, <mat2>, ....., <mat_N>)  where each mat_j is a  k x k 'matrix'
+#' @importFrom methods new
+#' @return a sparse (N*k x N*k) matrix of class  \code{"\linkS4class{dgCMatrix}"}.
 bdiag_m <- function(lmat) {
-  ## Copyright (C) 2016 Martin Maechler, ETH Zurich
   if(!length(lmat)) return(new("dgCMatrix"))
   stopifnot(is.list(lmat), is.matrix(lmat[[1]]),
             (k <- (d <- dim(lmat[[1]]))[1]) == d[2], # k x k

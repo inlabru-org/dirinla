@@ -23,8 +23,18 @@ Imports:
   stringr,
   tidyverse,
   stats,
+  ggplot2,
+  Rfast,
+  Rfast2,
+  ggtern,
+  gridExtra,
+  sn,
+  knitr,
+  plyr,
+  methods,
   INLA
 Suggests:
   DirichletReg
 Encoding: UTF-8
+VignetteBuilder: knitr
 RoxygenNote: 7.1.1

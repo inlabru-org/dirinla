@@ -4,14 +4,19 @@
 \alias{summary.dirinlaregmodel}
 \title{Summary of dirinlaregmodel objects}
 \usage{
-summary.dirinlaregmodel(object)
+\method{summary}{dirinlaregmodel}(object, ...)
 }
 \arguments{
-\item{object}{Object of class dirinlareg.}
+\item{object}{Object of class dirinlaregmodel.}
+
+\item{...}{Other arguments.}
 }
 \value{
 Print summary.
 }
 \description{
 `summary.dirinlaregmodel` is a function which gives a summary of a dirinlaregmodel object
+}
+\author{
+Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
 }
