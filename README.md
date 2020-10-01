@@ -88,9 +88,11 @@ summary(model.inla)
 
 ``` r
 model.prediction <-
-  predict_dirinla(model.inla,
+  predict(model.inla,
                   data.pred = data.frame(v1 = 0.25,
                                          v2 = 0.5,
                                          v3 = 0.5,
                                          v4 = 0.1))
+model.prediction$summary_predictive_means
+
 ```
