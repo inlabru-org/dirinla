@@ -19,7 +19,7 @@ plot.dirinlaregmodel <- function(x, ...) {
     warning("Dimension is greater than 3 -> Ternary diagram has not been plotted.")
   }else{
     datos <- as.data.frame(sapply(x$summary_alphas, function(x){x[,"mean"]}))
-
+  set.seed(100)
     #Simulating from response variable
     alpha <- as.matrix(datos)
     y_resp <- as.data.frame(DirichletReg::rdirichlet(dim(datos)[1], alpha))
@@ -34,7 +34,7 @@ plot.dirinlaregmodel <- function(x, ...) {
                             alpha = ..level..),
                         base = "identity") +
       ggtern::theme_rgbw() +
-      guides(color = "none", fill = "none", alpha = "none") +
+      guides(color = "none", alpha = "none") +
       geom_point(data = as.data.frame(x$y),
                  aes_string(x = nombres[1],
                             y = nombres[2],
