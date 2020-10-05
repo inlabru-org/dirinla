@@ -146,7 +146,7 @@ dev.off()
 
 
 ### --- 5. Posterior predictive density for $y$ in the simplex
-set.seed(4)
+set.seed(100)
 nombres <- names(model.inla$summary_means)
 datos <- as.data.frame(sapply(model.inla$summary_alphas, function(x){x[,"mean"]}))
 
@@ -156,6 +156,7 @@ y_resp <- as.data.frame(rdirichlet(dim(datos)[1], alpha))
 
 
 colnames(y_resp) <- colnames(datos)
+
 a <- ggtern::ggtern(data = y_resp,
                     aes_string( x = nombres[1],
                                 y = nombres[2],
@@ -166,7 +167,7 @@ a <- ggtern::ggtern(data = y_resp,
                                 alpha = ..level..),
                             base = "identity") +
   ggtern::theme_rgbw() +
-  guides(color = "none", fill = "none", alpha = "none") +
+  guides(color = "none",  alpha = "none") +
   geom_point(data = as.data.frame(model.inla$y),
              aes_string(x = nombres[1],
                         y = nombres[2],
