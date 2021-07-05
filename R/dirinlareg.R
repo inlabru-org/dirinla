@@ -144,12 +144,14 @@ dirinlareg <- function (formula,
 
   #Checking if there is initial condition
   if(is.null(x0)){
-    x0 <- rep(0, m)
+    #x0 <- rep(0, m)
+    x0 <- rep(0, dim(A)[2])
   }
 
   # Creating precision matrix for the prior
-  Qx <- Matrix(diag(prec, m))
-
+  #Qx <- Matrix(diag(prec, m))
+  #Check this prior. As we are giving priors for any realizations of the Gaussian field
+  Qx <- Matrix(diag(prec, dim(A)[2]))
   cat(paste0("\n \n ----------------------", " Looking for the mode ", "----------------- \n \n "))
 
 
