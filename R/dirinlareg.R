@@ -154,7 +154,8 @@ dirinlareg <- function (formula,
   Qx <- Matrix(diag(prec, dim(A)[2]))
   cat(paste0("\n \n ----------------------", " Looking for the mode ", "----------------- \n \n "))
 
-
+# tol0 <- 1
+# tol1 <- 1
 
   x_hat1 <- look_for_mode_x(A        = A,
                             x0       = as.vector(x0),
@@ -210,7 +211,17 @@ dirinlareg <- function (formula,
                               ", model = 'iid', hyper = list(theta = list(initial = log(",
                               prec,
                               "), fixed = TRUE)))")
+
+  #Mirar aquí cómo incluir ese efecto aleatorio
+  formula.inla.pred <- paste0("f(",
+                              names_inla[-7],
+                              ", model = 'iid', hyper = list(theta = list(initial = log(",
+                              prec,
+                              "), fixed = TRUE)))")
+
   formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
+  formula.inla.pred <- paste0(formula.inla.pred,  " + f(iid1, model = 'iid')")
+
   formula.inla <- as.formula(stringr::str_c(formula.inla, formula.inla.pred, collapse = " " ))
 
 
