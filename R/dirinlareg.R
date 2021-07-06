@@ -124,6 +124,8 @@ dirinlareg <- function (formula,
   ### --- 1. Reading the formula --- ####
   names_cat <- formula_list(formula, y = y)
 
+
+  ### --- 2. Checking if fixed or random --- ####
   # Looking for the covariates in the data.frame for each category
   #data.cov.cat <- lapply(names_cat, function(x){dplyr::select(data.cov, x)} )
 
@@ -152,7 +154,7 @@ dirinlareg <- function (formula,
   #Qx <- Matrix(diag(prec, m))
   #Check this prior. As we are giving priors for any realizations of the Gaussian field
   Qx <- Matrix(diag(prec, dim(A)[2]))
-  cat(paste0("\n \n ----------------------", " Looking for the mode ", "----------------- \n \n "))
+  cat(paste0("\n \n ----------------------", " Looking for the first mode ", "----------------- \n \n "))
 
 # tol0 <- 1
 # tol1 <- 1
@@ -205,7 +207,7 @@ dirinlareg <- function (formula,
 
   ### Names to introduce in INLA
   names_inla <- names(data_stack_2$effects$data)
-
+  #Determinar si hay efectos aleatorios, para modificar la fórmula. Si no los hay, no añadimos nada
   formula.inla.pred <- paste0("f(",
                               names_inla,
                               ", model = 'iid', hyper = list(theta = list(initial = log(",
@@ -213,16 +215,33 @@ dirinlareg <- function (formula,
                               "), fixed = TRUE)))")
 
   #Mirar aquí cómo incluir ese efecto aleatorio
-  formula.inla.pred <- paste0("f(",
-                              names_inla[-7],
-                              ", model = 'iid', hyper = list(theta = list(initial = log(",
-                              prec,
-                              "), fixed = TRUE)))")
+  pos_fixed <- names_inla %>% stringr::str_starts("cat")
+  names_inla_fixed <- names_inla[pos_fixed]
+  formula.inla.pred <- character()
+  if(length(names_inla_fixed) >=1){
+    formula.inla.pred <- c(formula.inla.pred, paste0("f(",
+                                names_inla_fixed,
+                                ", model = 'iid', hyper = list(theta = list(initial = log(",
+                                prec,
+                                "), fixed = TRUE)))"))
+    formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
 
-  formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
-  formula.inla.pred <- paste0(formula.inla.pred,  " + f(iid1, model = 'iid')")
+  }
 
-  formula.inla <- as.formula(stringr::str_c(formula.inla, formula.inla.pred, collapse = " " ))
+  names_inla_random <- names_inla[!pos_fixed]
+  if(length(names_inla_random) >=1)
+  {
+    terms_random <- sapply(names_inla_random, function(x){
+      unlist(names_cat) %>% grep(pattern = x, .) %>% unlist(names_cat)[.] -> res
+    res[1] %>% as.character()
+    })
+
+    #Check for the effects which has the index
+    terms_random %>% paste(., collapse = "+") %>%
+      paste(formula.inla.pred, ., sep = "+") -> formula.inla.pred
+  }
+
+  formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
 
 
 
@@ -236,7 +255,7 @@ dirinlareg <- function (formula,
   #   names(a) <- c(paste0("lc", x))
   #   a})
 
-  mod0<-inla(formula.inla,
+  mod0 <- inla(formula.inla,
              family            = "gaussian",
              data              = inla.stack.data(data_stack_2),
              control.predictor = list(A = t(Lk_eta) %*% inla.stack.A(data_stack_2), compute = TRUE),
@@ -258,6 +277,7 @@ dirinlareg <- function (formula,
   #rownames(x_hat2) <- paste0("category", 1:d)
   #colnames(x_hat2)[1:(m)] <- names_cat[[1]]
 
+  summary(mod0)
 
   ### --- 5 Extracting posterior distributions --- ####
   ### --- 5.1. Extracting fixed effects --- ####

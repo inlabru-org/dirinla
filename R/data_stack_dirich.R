@@ -51,10 +51,7 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
         x[logic1]
     }) -> notcommon
 
-    ### Random effect
-    covariates %>% lapply(., function(x){
-        logic1 <- x %>% str_starts("f\\(") %>% x[.]
-    }) -> random_eff
+
 
 
     ### Fixed effects
@@ -82,21 +79,32 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     names(A) <- A.names
 
     ### Random effects
-    ### iid
-    B <- diag(1, dim(data)[1])
-    #Not sharing
-    Biid <- list()
-    for (j in 1:length(data_cov_notcommon)) {
-        pos <- rep(0, d)
-        pos[j] <- 1
-        Biid[[j]] <- Matrix::Matrix(kronecker(B, pos))
-    }
-    effectsiid <- lapply(1:d, function(x){1:dim(data)[1]})
-    names(effectsiid) <- paste0("iid", 1:d)
+    covariates %>% lapply(., function(x){
+        logic1 <- x %>% str_starts("f\\(") %>% x[.]
+    }) -> random_eff
 
-    #sharing
-    Biid <- Matrix::Matrix(kronecker(B, rep(1, d)))
-    effectsiid <- list(iid1 = 1:dim(data)[1])
+    if(any(random_eff %>% sapply(., length) >=1))
+    {
+        ### iid
+        B <- diag(1, dim(data)[1])
+
+        #Not sharing
+        Biid <- list()
+        for (j in 1:length(data_cov_notcommon)) {
+            pos <- rep(0, d)
+            pos[j] <- 1
+            Biid[[j]] <- Matrix::Matrix(kronecker(B, pos))
+        }
+        effectsiid <- lapply(1:d, function(x){1:dim(data)[1]})
+        names(effectsiid) <- paste0("id", 1:d)
+
+        #sharing
+        Biid <- Matrix::Matrix(kronecker(B, rep(1, d)))
+        effectsiid <- list(id1 = 1:dim(data)[1])
+    }
+
+
+
 
     inla.stack(data = list(y = y), A = c(A, Biid), effects = c(effects, effectsiid))
 }

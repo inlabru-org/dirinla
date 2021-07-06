@@ -71,7 +71,7 @@ look_for_mode_x <- function(A = A,
 
     if (any(!is.finite(gk))) {
       gk[which(!is.finite(gk))] <- exp(100)
-      print("You should apply the transformation DR_data")
+      stop("You should apply the transformation DR_data to your data")
     }
     ### Expected Hessian ####
     ### --- Diagonal matrix dim=dn x dn with the expected hessian in the diagonal
