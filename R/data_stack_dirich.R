@@ -78,6 +78,11 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     }
     names(A) <- A.names
 
+    #############################################################################
+    #### If we want to include more steps for random effects here is the part ###
+    #############################################################################
+
+
     ### Random effects
     covariates %>% lapply(., function(x){
         logic1 <- x %>% str_starts("f\\(") %>% x[.]

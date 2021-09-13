@@ -214,7 +214,7 @@ dirinlareg <- function (formula,
                               prec,
                               "), fixed = TRUE)))")
 
-  #Mirar aquí cómo incluir ese efecto aleatorio
+  #Including fixed effects
   pos_fixed <- names_inla %>% stringr::str_starts("cat")
   names_inla_fixed <- names_inla[pos_fixed]
   formula.inla.pred <- character()
@@ -228,6 +228,9 @@ dirinlareg <- function (formula,
 
   }
 
+  ############################################################################3
+  ####### Revisar: incluyendo por defecto un efecto aleatorio compartido ######
+  #Including random effects
   names_inla_random <- names_inla[!pos_fixed]
   if(length(names_inla_random) >=1)
   {
@@ -239,8 +242,10 @@ dirinlareg <- function (formula,
     #Check for the effects which has the index
     terms_random %>% paste(., collapse = "+") %>%
       paste(formula.inla.pred, ., sep = "+") -> formula.inla.pred
-  }
 
+
+  }
+  #formula.inla.pred <- paste(formula.inla.pred, "f(iid1, model = 'iid')", sep = "+")
   formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
 
 
@@ -255,6 +260,7 @@ dirinlareg <- function (formula,
   #   names(a) <- c(paste0("lc", x))
   #   a})
 
+  #Faltaría multiplicar pos las realizaciones del efecto aleatorio
   mod0 <- inla(formula.inla,
              family            = "gaussian",
              data              = inla.stack.data(data_stack_2),
@@ -263,7 +269,7 @@ dirinlareg <- function (formula,
                                       dic    = TRUE,
                                       waic   = TRUE,
                                       cpo    = TRUE),
-             control.inla      = list(strategy = "gaussian"),
+             #control.inla      = list(strategy = "gaussian"),
              control.family    = list(hyper =
                                         list(prec =
                                                list(initial = log(1),
@@ -278,6 +284,7 @@ dirinlareg <- function (formula,
   #colnames(x_hat2)[1:(m)] <- names_cat[[1]]
 
   summary(mod0)
+
 
   ### --- 5 Extracting posterior distributions --- ####
   ### --- 5.1. Extracting fixed effects --- ####

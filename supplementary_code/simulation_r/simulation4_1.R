@@ -35,10 +35,10 @@ set.seed(1000)
 #Covariates
 V <- as.data.frame(matrix(runif((10)*n, 0, 1), ncol=10))
 names(V) <- paste0('v', 1:(10))
-id1 <- 1:dim(V)[1]
+iid1 <- 1:dim(V)[1]
 
 # Formula that we want to fit
-formula <- y ~ 1 + v1 + f(id1, model = 'iid') | 1 + v2 + f(id1, model = 'iid') | 1 + v3 + f(id1, model = 'iid') | 1 + v4 + f(id1, model = 'iid')
+formula <- y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid')
 names_cat <- formula_list(formula)
 
 # Parameters to fit
@@ -77,11 +77,13 @@ colnames(y_o) <- paste0("y", 1:d)
 
 
 y <- y_o
+#y <- DirichletReg::DR_data(y)
+summary(y)
 
 ### ----- 3.2. Fitting the model with INLA --- ####
 cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
 t <- proc.time() # Measure the time
-model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(id1, model = 'iid') | 1 + v2 + f(id1, model = 'iid') | 1 + v3 + f(id1, model = 'iid') | 1 + v4 + f(id1, model = 'iid'),
+model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid'),
                           y        = y,
                           data.cov = V,
                           prec     = 0.0001,
