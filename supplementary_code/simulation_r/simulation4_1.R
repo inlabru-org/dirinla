@@ -41,6 +41,10 @@ iid1 <- 1:dim(V)[1]
 formula <- y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid')
 names_cat <- formula_list(formula)
 
+formula <- y ~ 1 + v1  | 1 + v2  | 1 + v3  | 1 + v4
+names_cat <- formula_list(formula)
+
+
 # Parameters to fit
 # x <- c(-1.5, 1, -3, 1.5,
 #        2, -3 , -1, 5)
@@ -52,10 +56,10 @@ x <- c(-1.5, 2,
        1.5, 5)
 
 #random effect
-prec_w <- 10
-w <- rnorm(n, sd = sqrt(1/prec_w))
+#prec_w <- 10
+#w <- rnorm(n, sd = sqrt(1/prec_w))
 
-x <- c(x, w)
+#x <- c(x, w)
 
 d <- length(names_cat)
 data_stack_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
@@ -84,6 +88,13 @@ summary(y)
 cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
 t <- proc.time() # Measure the time
 model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid'),
+                          y        = y,
+                          data.cov = V,
+                          prec     = 0.0001,
+                          verbose  = TRUE)
+
+
+model.inla <- dirinlareg( formula  = y ~ 1 + v1 | 1 + v2  | 1 + v3  | 1 + v4 ,
                           y        = y,
                           data.cov = V,
                           prec     = 0.0001,

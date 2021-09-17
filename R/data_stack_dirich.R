@@ -106,6 +106,9 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
         #sharing
         Biid <- Matrix::Matrix(kronecker(B, rep(1, d)))
         effectsiid <- list(id1 = 1:dim(data)[1])
+    }else{
+        effectsiid <- NULL
+        Biid <- NULL
     }
 
 

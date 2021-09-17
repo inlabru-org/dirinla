@@ -172,11 +172,14 @@ dirinlareg <- function (formula,
                             Qx       = Qx,
                             verbose  = verbose,
                             cores    = cores)
-
-
+####################################################################################
+####################################################################################
   ### --- 4. Second step : Include it in INLA.  --- ####
-
-  ### --- The Hessian in the mode --- ###
+  # La forma de introducir los datos en INLA la vamos a cambiar, ya que es un poco lioso
+  # a la hora de introducir efectos aleatorios multiplicar por la matriz A
+####################################################################################
+####################################################################################
+    ### --- The Hessian in the mode --- ###
   Hk_eta <- x_hat1$Hk
 
   ### --- Cholesky decomposition --- ###
@@ -192,18 +195,27 @@ dirinlareg <- function (formula,
   z_eta <- x_hat1$z
 
 
+  ##############################################################################
 
-  data_stack_2 <- data_stack_dirich(y          = as.vector(z_eta),
-                                    covariates = names_cat,
-                                    share      = share,
-                                    data       = data.cov,
-                                    d          = d,
-                                    n          = n )
+
+
+
+
+  #############################################################################
+
+  #
+  data_stack_2 <- data_stack_dirich_formula(y          = as.vector(z_eta),
+                                            covariates = names_cat,
+                                            share      = share,
+                                            data       = data.cov,
+                                            d          = d,
+                                            n          = n )
 
 
   ### ------- 4.1. Using the A matrix --- ####
   ### Create the formula
   formula.inla <- "y ~ -1 + "
+
 
   ### Names to introduce in INLA
   names_inla <- names(data_stack_2$effects$data)
