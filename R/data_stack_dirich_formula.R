@@ -51,28 +51,29 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
 
   ### All the varibles required in the model
-  unlist(covariatesall) %>%
-    base::unique(.) %>%
-    data[,.] %>%
-    slice(rep(1:n(), each = d)) -> data
+  # unlist(covariatesall) %>%
+  #   base::unique(.) %>%
+  #   data[,.] %>%
+  #   slice(rep(1:n(), each = d)) -> data
 
   ### Falta añadir las covariables correspondientes
   #Añadimos covariables
   ### We assign the index to include it in the model
   1:length(covariatesall)  %>%
     lapply(., function(x){
-    categories <- paste0("cat", x,  "_", "idx_", covariatesall[[x]])
-    index <- rep(NA, n*d)
-    index[seq(1, n*d, 4)+x -1] <- rep(1, n)
-    index_df <- matrix(ncol = length(covariatesall[[x]]), nrow = n*d) %>% data.frame()
-    index_df[,] <- index
-    colnames(index_df) <- categories
-    index_df
+    data_x <- data %>% dplyr::select(covariatesall[[x]])
+    categories <- paste0("cat", x,  "_", covariatesall[[x]])
+    index <- rep(NA, d)
+    index[x] <- 1
+    data_x <- kronecker(as.matrix(data_x), index)
+    colnames(data_x) <- categories
+    data_x
   }) %>%
     do.call(cbind.data.frame, .) %>%
     cbind(data,.) -> data
 
-  A <- diag(1, n*d)
+  #A <- diag(1, n*d)
+  A <- 1
 
 #
 #

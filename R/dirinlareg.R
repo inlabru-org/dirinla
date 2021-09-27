@@ -219,12 +219,6 @@ dirinlareg <- function (formula,
 
   ### Names to introduce in INLA
   names_inla <- names(data_stack_2$effects$data)
-  #Determinar si hay efectos aleatorios, para modificar la fórmula. Si no los hay, no añadimos nada
-  formula.inla.pred <- paste0("f(",
-                              names_inla,
-                              ", model = 'iid', hyper = list(theta = list(initial = log(",
-                              prec,
-                              "), fixed = TRUE)))")
 
   #Including fixed effects
   pos_fixed <- names_inla %>% stringr::str_starts("cat")
@@ -236,6 +230,10 @@ dirinlareg <- function (formula,
                                 ", model = 'iid', hyper = list(theta = list(initial = log(",
                                 prec,
                                 "), fixed = TRUE)))"))
+    formula.inla.pred <- c(formula.inla.pred, paste0("f(",
+                                                     names_inla_fixed,
+                                                     ", model = 'linear')"))
+
     formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
 
   }
@@ -276,7 +274,7 @@ dirinlareg <- function (formula,
   mod0 <- inla(formula.inla,
              family            = "gaussian",
              data              = inla.stack.data(data_stack_2),
-             control.predictor = list(A = t(Lk_eta) %*% inla.stack.A(data_stack_2), compute = TRUE),
+             control.predictor = list(A = t(Lk_eta), compute = TRUE),
              control.compute   = list(config = TRUE, #Compute marginals
                                       dic    = TRUE,
                                       waic   = TRUE,
@@ -295,6 +293,7 @@ dirinlareg <- function (formula,
   #rownames(x_hat2) <- paste0("category", 1:d)
   #colnames(x_hat2)[1:(m)] <- names_cat[[1]]
 
+  mod0$summary.random$cat1_intercept
   summary(mod0)
 
 

@@ -28,7 +28,7 @@ library(xtable)
 
 
 ### --- 2. Simulating using a random effect --- ####
-n <- 100
+n <- 10000
 cat("n = ", n, " -----> Simulating data \n")
 set.seed(1000)
 
