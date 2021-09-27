@@ -28,7 +28,7 @@ library(xtable)
 
 
 ### --- 2. Simulating using a random effect --- ####
-n <- 10000
+n <- 100
 cat("n = ", n, " -----> Simulating data \n")
 set.seed(1000)
 
@@ -87,11 +87,11 @@ summary(y)
 ### ----- 3.2. Fitting the model with INLA --- ####
 cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
 t <- proc.time() # Measure the time
-model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid'),
-                          y        = y,
-                          data.cov = V,
-                          prec     = 0.0001,
-                          verbose  = TRUE)
+# model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid'),
+#                           y        = y,
+#                           data.cov = V,
+#                           prec     = 0.0001,
+#                           verbose  = TRUE)
 
 
 model.inla <- dirinlareg( formula  = y ~ 1 + v1 | 1 + v2  | 1 + v3  | 1 + v4 ,

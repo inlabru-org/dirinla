@@ -226,35 +226,29 @@ dirinlareg <- function (formula,
   formula.inla.pred <- character()
   if(length(names_inla_fixed) >=1){
     formula.inla.pred <- c(formula.inla.pred, paste0("f(",
-                                names_inla_fixed,
-                                ", model = 'iid', hyper = list(theta = list(initial = log(",
-                                prec,
-                                "), fixed = TRUE)))"))
-    formula.inla.pred <- c(formula.inla.pred, paste0("f(",
                                                      names_inla_fixed,
                                                      ", model = 'linear')"))
 
     formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
-
   }
 
   ############################################################################3
   ####### Revisar: incluyendo por defecto un efecto aleatorio compartido ######
   #Including random effects
-  names_inla_random <- names_inla[!pos_fixed]
-  if(length(names_inla_random) >=1)
-  {
-    terms_random <- sapply(names_inla_random, function(x){
-      unlist(names_cat) %>% grep(pattern = x, .) %>% unlist(names_cat)[.] -> res
-    res[1] %>% as.character()
-    })
-
-    #Check for the effects which has the index
-    terms_random %>% paste(., collapse = "+") %>%
-      paste(formula.inla.pred, ., sep = "+") -> formula.inla.pred
-
-
-  }
+  # names_inla_random <- names_inla[!pos_fixed]
+  # if(length(names_inla_random) >=1)
+  # {
+  #   terms_random <- sapply(names_inla_random, function(x){
+  #     unlist(names_cat) %>% grep(pattern = x, .) %>% unlist(names_cat)[.] -> res
+  #   res[1] %>% as.character()
+  #   })
+  #
+  #   #Check for the effects which has the index
+  #   terms_random %>% paste(., collapse = "+") %>%
+  #     paste(formula.inla.pred, ., sep = "+") -> formula.inla.pred
+  #
+  #
+  # }
   #formula.inla.pred <- paste(formula.inla.pred, "f(iid1, model = 'iid')", sep = "+")
   formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
 
@@ -293,7 +287,6 @@ dirinlareg <- function (formula,
   #rownames(x_hat2) <- paste0("category", 1:d)
   #colnames(x_hat2)[1:(m)] <- names_cat[[1]]
 
-  mod0$summary.random$cat1_intercept
   summary(mod0)
 
 

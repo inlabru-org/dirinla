@@ -14,53 +14,69 @@
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 extract_fixed <- function(inla_model, names_cat) {
     summary_fixed <- list()  #List to store the summary of fixed effects for the different categories
-    names_inla <- names(inla_model$summary.random)  #
+    #names_inla <- names(inla_model$summary.random)  #
+    names_inla <- rownames(inla_model$summary.fixed)
     marginals_fixed <- list()
 
     for (i in 1:length(names_cat)) {
         # Auxiliar variables
         names_cat_ind <- names_cat[[i]]
         names_cov <- NULL
-        summary_fixed_i <- list()
+        summary_fixed_i <- data.frame(matrix(ncol =7 ))
+        summary_fixed_i <- summary_fixed_i[-1,]
         marginals_fixed_i <- list()
 
         for (j in 1:length(names_cat_ind)) {
-            # Look for common variables (not common parameters)
-            if (length(grep(paste0("^", names_cat_ind[j], "$"), names_inla)) != 0) {
-                pos <- grep(paste0("^", names_cat_ind[j], "$"), names_inla)
-                ### Summary
-                summary_fixed_i <- c(summary_fixed_i, list(inla_model$summary.random[[pos]][i, ]))
+            pos <- grep(paste0("^", "cat", i, "_", names_cat_ind[j], "$"), names_inla)
 
-                ### Marginals
-                marginals_fixed_i <- c(marginals_fixed_i, list(inla_model$marginals.random[[pos]][[i]]))
+            ### Summary
+            summary_fixed_i <- rbind(summary_fixed_i, inla_model$summary.fixed[pos,])
 
-                ### Names cov
-                names_cov <- c(names_cov, names_cat_ind[j])
+            ### Marginals
+            marginals_fixed_i <- c(marginals_fixed_i, inla_model$marginals.fixed[pos])
 
-            } else {
-                # Look for not common covariates
-                pos <- grep(paste0("^", "cat", i, "_", names_cat_ind[j], "$"), names_inla)
+            ### Names cov
+            names_cov <- c(names_cov, names_cat_ind[j])
 
-                ### Summary
-                summary_fixed_i <- c(summary_fixed_i, inla_model$summary.random[pos])
-
-                ### Marginals
-                marginals_fixed_i <- c(marginals_fixed_i, inla_model$marginals.random[[pos]])
-
-                ### Names cov
-                names_cov <- c(names_cov, names_cat_ind[j])
-
-            }
         }
 
+
+        #     # Look for common variables (not common parameters)
+        #     if (length(grep(paste0("^", names_cat_ind[j], "$"), names_inla)) != 0) {
+        #         pos <- grep(paste0("^", names_cat_ind[j], "$"), names_inla)
+        #         ### Summary
+        #         summary_fixed_i <- c(summary_fixed_i, list(inla_model$summary.random[[pos]][i, ]))
+        #
+        #         ### Marginals
+        #         marginals_fixed_i <- c(marginals_fixed_i, list(inla_model$marginals.random[[pos]][[i]]))
+        #
+        #         ### Names cov
+        #         names_cov <- c(names_cov, names_cat_ind[j])
+        #
+        #     } else {
+        #         # Look for not common covariates
+        #         pos <- grep(paste0("^", "cat", i, "_", names_cat_ind[j], "$"), names_inla)
+        #
+        #         ### Summary
+        #         summary_fixed_i <- c(summary_fixed_i, inla_model$summary.random[pos])
+        #
+        #         ### Marginals
+        #         marginals_fixed_i <- c(marginals_fixed_i, inla_model$marginals.random[[pos]])
+        #
+        #         ### Names cov
+        #         names_cov <- c(names_cov, names_cat_ind[j])
+        #
+        #     }
+        # }
+
         ### summary fixed Transform the list in data.frame
-        summary_fixed_i <- plyr::ldply(summary_fixed_i, data.frame)
+        #summary_fixed_i <- plyr::ldply(summary_fixed_i, data.frame)
         # Removing .id , ID, kld summary_fixed_i <- summary_fixed_i[,- c(1,2,9)]
         #summary_fixed_i <- dplyr::select(summary_fixed_i, mean, sd, X0.025quant, X0.5quant, X0.975quant, mode)
 
         summary_fixed_i <- summary_fixed_i %>%
             dplyr::select(.data$mean, .data$sd,
-                          .data$X0.025quant, .data$X0.5quant, .data$X0.975quant,
+                          .data$`0.025quant`, .data$`0.5quant`, .data$`0.975quant`,
                           .data$mode)
 
         # Give the names to the covariates
