@@ -116,9 +116,9 @@ look_for_mode_x <- function(A = A,
     {
       cat(paste0(
         "Iter = ", k,
-        ", |grad| = ", round(abs(sum(gk)), 2),
+        ", |grad| = ", round(max(abs(gk)), 2),
         ", log.post = ", round(f_new, 2),
-        ", |x_new - x_old| = ", round(abs(sum(x_hat_new - x_hat[k, ])), 5),
+        ", |x_new - x_old| = ", round(max(abs(x_hat_new - x_hat[k, ])), 5),
         ", |f_new - f_old| = ", round(abs(f_new - f_old), 5),
         "\n"
         #", x = ", paste(round(x_hat_new, 2), collapse = " ")
