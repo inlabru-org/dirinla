@@ -108,9 +108,9 @@ look_for_mode_x <- function(A = A,
 
 
     ### Checking condition
-    less <- (as.logical(abs(sum(x_hat_new - x_hat[k, ])) < tol0) && #Condition in x
+    less <- (as.logical(max(abs(x_hat_new - x_hat[k, ])) < tol0) && #Condition in x
       as.logical(abs(f_new - f_old) < tol0)) && #Condition in f
-      as.logical(abs(sum(gk)) < tol1 * max(1, abs(f_new)))
+      as.logical(max(abs(gk)) < tol1 * max(1, abs(f_new)))
 
     if(verbose == TRUE)
     {
