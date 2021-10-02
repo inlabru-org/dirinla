@@ -11,6 +11,7 @@
 #' @param tol0 tolerance
 #' @param tol1 tolerance for the gradient such that |grad| < tol1 * max(1, |f|)
 #' @param k0 number of iterations
+#' @param k1 number of iterations including the calling to inla
 #' @param a step length in the optimization algorithm
 #' @param strategy strategy to use to optimize
 #' @param prec precision for the prior of the fixed effects
@@ -88,9 +89,10 @@ dirinlareg <- function (formula,
                         data.cov,
                         share    = NULL,
                         x0       = NULL,
-                        tol0     = 1e-8,
+                        tol0     = 1e-5,
                         tol1     = 0.01,
-                        k0       = 100,
+                        k0       = 20,
+                        k1       = 5,
                         a        = 0.5,
                         strategy = "ls-quasi-newton",
                         prec     = prec,
@@ -154,147 +156,152 @@ dirinlareg <- function (formula,
   #Qx <- Matrix(diag(prec, m))
   #Check this prior. As we are giving priors for any realizations of the Gaussian field
   Qx <- Matrix(diag(prec, dim(A)[2]))
+  diag(Qx)[-c(1:8)] <- 1
   cat(paste0("\n \n ----------------------", " Looking for the first mode ", "----------------- \n \n "))
-
+  #x0 <- c(mod0$summary.fixed$mode, mod0$summary.random$iid1$mode)
 # tol0 <- 1
 # tol1 <- 1
+  j <- 1
+  less <- FALSE
+  while ((less != TRUE) && (j <= k1))
+  {
+    x_hat1 <- look_for_mode_x(A        = A,
+                              x0       = as.vector(x0),
+                              tol0     = tol0,
+                              tol1     = tol1,
+                              k0       = k0,
+                              a        = a,
+                              y        = y,
+                              d        = d,
+                              n        = n,
+                              strategy = strategy,
+                              Qx       = Qx,
+                              verbose  = verbose,
+                              cores    = cores)
 
-  x_hat1 <- look_for_mode_x(A        = A,
-                            x0       = as.vector(x0),
-                            tol0     = tol0,
-                            tol1     = tol1,
-                            k0       = k0,
-                            a        = a,
-                            y        = y,
-                            d        = d,
-                            n        = n,
-                            strategy = strategy,
-                            Qx       = Qx,
-                            verbose  = verbose,
-                            cores    = cores)
-####################################################################################
-####################################################################################
-  ### --- 4. Second step : Include it in INLA.  --- ####
-  # La forma de introducir los datos en INLA la vamos a cambiar, ya que es un poco lioso
-  # a la hora de introducir efectos aleatorios multiplicar por la matriz A
-####################################################################################
-####################################################################################
+    ### --- 4. Second step : Include it in INLA.  --- ####
     ### --- The Hessian in the mode --- ###
-  Hk_eta <- x_hat1$Hk
+    Hk_eta <- x_hat1$Hk
 
-  ### --- Cholesky decomposition --- ###
-  Lk_eta <- x_hat1$Lk
+    ### --- Cholesky decomposition --- ###
+    Lk_eta <- x_hat1$Lk
 
-  ### --- The gradient in the mode --- ###
-  gk_eta <- x_hat1$gk
+    ### --- The gradient in the mode --- ###
+    gk_eta <- x_hat1$gk
 
-  ### --- eta --- ###
-  eta_eta <- x_hat1$eta
+    ### --- eta --- ###
+    eta_eta <- x_hat1$eta
 
-  ### --- The new variables conditioned to eta --- ###
-  z_eta <- x_hat1$z
+    ### --- The new variables conditioned to eta --- ###
+    z_eta <- x_hat1$z
 
-
-  ##############################################################################
-
-
+    ### Condition
+    less <- x_hat1$less
 
 
+    #Preparing data for the INLA call
+    data_stack_2 <- data_stack_dirich_formula(y          = as.vector(z_eta),
+                                              covariates = names_cat,
+                                              share      = share,
+                                              data       = data.cov,
+                                              d          = d,
+                                              n          = n )
 
-  #############################################################################
-
-  #
-  data_stack_2 <- data_stack_dirich_formula(y          = as.vector(z_eta),
-                                            covariates = names_cat,
-                                            share      = share,
-                                            data       = data.cov,
-                                            d          = d,
-                                            n          = n )
-
-
-  ### ------- 4.1. Using the A matrix --- ####
-  ### Create the formula
-  formula.inla <- "y ~ -1 + "
+    ### ------- 4.1. Using the A matrix --- ####
+    ### Create the formula
+    formula.inla <- "y ~ -1 + "
 
 
-  ### Names to introduce in INLA
-  names_inla <- names(data_stack_2$effects$data)
+    ### Names to introduce in INLA
+    names_inla <- names(data_stack_2$effects$data)
 
-  #Including fixed effects
-  pos_fixed <- names_inla %>% stringr::str_starts("cat")
-  names_inla_fixed <- names_inla[pos_fixed]
-  formula.inla.pred <- character()
-  if(length(names_inla_fixed) >=1){
-    formula.inla.pred <- c(formula.inla.pred, paste0("f(",
-                                                     names_inla_fixed,
-                                                     ", model = 'linear')"))
+    #Including fixed effects
+    pos_fixed <- names_inla %>% stringr::str_starts("cat")
+    names_inla_fixed <- names_inla[pos_fixed]
+    formula.inla.pred <- character()
+    if(length(names_inla_fixed) >=1){
+      formula.inla.pred <- c(formula.inla.pred, paste0("f(",
+                                                       names_inla_fixed,
+                                                       ", model = 'linear')"))
 
-    formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
+      formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
+    }
+
+    ############################################################################3
+    ####### Revisar: incluyendo por defecto un efecto aleatorio compartido ######
+    #Including random effects
+    # names_inla_random <- names_inla[!pos_fixed]
+    # if(length(names_inla_random) >=1)
+    # {
+    #   terms_random <- sapply(names_inla_random, function(x){
+    #     unlist(names_cat) %>% grep(pattern = x, .) %>% unlist(names_cat)[.] -> res
+    #   res[1] %>% as.character()
+    #   })
+    #
+    #   #Check for the effects which has the index
+    #   terms_random %>% paste(., collapse = "+") %>%
+    #     paste(formula.inla.pred, ., sep = "+") -> formula.inla.pred
+    #
+    #
+    # }
+    formula.inla.pred <- paste(formula.inla.pred, "f(iid1, model = 'iid')", sep = "+")
+    formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
+
+
+
+    cat(paste0("\n ----------------------", "    INLA call    ", "----------------- \n"))
+
+    ### This is for the linear predictor using lincomb
+    #Inverse of Lk_eta
+    # Lk_eta_inv <- solve(t(Lk_eta))
+    # all3 <- sapply(1:dim(Lk_eta_inv)[2], function(x){
+    #   a <- inla.make.lincomb(APredictor = Lk_eta_inv[x,])
+    #   names(a) <- c(paste0("lc", x))
+    #   a})
+
+    #Faltaría multiplicar pos las realizaciones del efecto aleatorio
+    mod0 <- inla(formula.inla,
+                 family            = "gaussian",
+                 data              = inla.stack.data(data_stack_2),
+                 control.predictor = list(A = t(Lk_eta), compute = TRUE),
+                 control.compute   = list(config = TRUE, #Compute marginals
+                                          dic    = TRUE,
+                                          waic   = TRUE,
+                                          cpo    = TRUE),
+                 #control.inla      = list(strategy = "gaussian"),
+                 control.family    = list(hyper =
+                                            list(prec =
+                                                   list(initial = log(1),
+                                                        fixed   = TRUE))),
+                 verbose           = verbose,
+                 num.threads = cores)
+
+
+    if(verbose == TRUE)
+    {
+      cat(paste0(
+        "INLA-Iter = ", j,
+        ", fixed.effects = ", dim(mod0$summary.fixed)[1],
+        ", hyperparameters = ", ifelse(is.null(dim(mod0$summary.hyperpar)[1]), 0, dim(mod0$summary.hyperpar)[1]),
+        " ---> ", ifelse(less == TRUE, "PASS", "NO PASS"),
+        "\n"
+        #", x = ", paste(round(x_hat_new, 2), collapse = " ")
+      ))
+    }
+    if(less != TRUE)
+    {
+      x0 <- c(mod0$summary.fixed$mode, mod0$summary.random$iid1$mode)
+      Qx <- Matrix(diag(prec, dim(A)[2]))
+      diag(Qx)[-c(1:length(names_inla_fixed))] <- mod0$summary.hyperpar$mode
+      j <- j + 1
+    }
   }
-
-  ############################################################################3
-  ####### Revisar: incluyendo por defecto un efecto aleatorio compartido ######
-  #Including random effects
-  # names_inla_random <- names_inla[!pos_fixed]
-  # if(length(names_inla_random) >=1)
-  # {
-  #   terms_random <- sapply(names_inla_random, function(x){
-  #     unlist(names_cat) %>% grep(pattern = x, .) %>% unlist(names_cat)[.] -> res
-  #   res[1] %>% as.character()
-  #   })
-  #
-  #   #Check for the effects which has the index
-  #   terms_random %>% paste(., collapse = "+") %>%
-  #     paste(formula.inla.pred, ., sep = "+") -> formula.inla.pred
-  #
-  #
-  # }
-  #formula.inla.pred <- paste(formula.inla.pred, "f(iid1, model = 'iid')", sep = "+")
-  formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
-
-
-
-  cat(paste0("\n ----------------------", "    INLA call    ", "----------------- \n"))
-
-  ### This is for the linear predictor using lincomb
-  #Inverse of Lk_eta
-  # Lk_eta_inv <- solve(t(Lk_eta))
-  # all3 <- sapply(1:dim(Lk_eta_inv)[2], function(x){
-  #   a <- inla.make.lincomb(APredictor = Lk_eta_inv[x,])
-  #   names(a) <- c(paste0("lc", x))
-  #   a})
-
-  #Faltaría multiplicar pos las realizaciones del efecto aleatorio
-  mod0 <- inla(formula.inla,
-             family            = "gaussian",
-             data              = inla.stack.data(data_stack_2),
-             control.predictor = list(A = t(Lk_eta), compute = TRUE),
-             control.compute   = list(config = TRUE, #Compute marginals
-                                      dic    = TRUE,
-                                      waic   = TRUE,
-                                      cpo    = TRUE),
-             #control.inla      = list(strategy = "gaussian"),
-             control.family    = list(hyper =
-                                        list(prec =
-                                               list(initial = log(1),
-                                                    fixed   = TRUE))),
-             verbose           = verbose,
-             num.threads = cores)
-
-  #Checking
-  # ## --- New modes
-  #x_hat2 <- sapply(mod0$summary.random, function(x){x$mean})
-  #rownames(x_hat2) <- paste0("category", 1:d)
-  #colnames(x_hat2)[1:(m)] <- names_cat[[1]]
-
-  summary(mod0)
-
-
   ### --- 5 Extracting posterior distributions --- ####
   ### --- 5.1. Extracting fixed effects --- ####
   fixed_effects <- extract_fixed(inla_model = mod0,
                                  names_cat  = names_cat)
 
+  ### --- 5.2. Extracting random effects --- ####
   cat(paste0("\n ----------------------", " Obtaining linear predictor ", "----------------- \n"))
 
   ### --- 5.2. Extracting linear predictor --- ####
@@ -358,6 +365,10 @@ dirinlareg <- function (formula,
   structure(list(call                           = this.call,
                  summary_fixed                  = fixed_effects$summary_fixed,
                  marginals_fixed                = fixed_effects$marginals_fixed,
+                 summary_random                 = random_effects$summary_random,
+                 marginals_random               = random_effects$marginals_random,
+                 summary_hyperpar               = random_effects$summary_hyperpar,
+                 marginals_hyperpar             = random_effects$marginals_hyperpar,
                  summary_linear_predictor       = linear_predictor$summary_linear_predictor,
                  marginals_linear_predictor     = linear_predictor$marginals_linear_predictor,
                  summary_alphas                 = linear_predictor$summary_alphas,

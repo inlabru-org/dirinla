@@ -42,8 +42,8 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
 
   covariatesall <- covariates
-  covariates
-  ### Fixed effect
+
+    ### Fixed effect
   covariates %>% lapply(., function(x){
     logic1 <- x %>% str_starts("f\\(") %>% !.
     x[logic1]
@@ -56,9 +56,8 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
   #   data[,.] %>%
   #   slice(rep(1:n(), each = d)) -> data
 
-  ### Falta añadir las covariables correspondientes
-  #Añadimos covariables
-  ### We assign the index to include it in the model
+
+  ### Prepare covariates
   1:length(covariatesall)  %>%
     lapply(., function(x){
     data_x <- data %>% dplyr::select(covariatesall[[x]])
@@ -72,6 +71,7 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
     do.call(cbind.data.frame, .) %>%
     cbind(data,.) -> data
 
+  effects <- data
   #A <- diag(1, n*d)
   A <- 1
 
@@ -120,22 +120,20 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
     B <- diag(1, dim(data)[1])
 
     #Not sharing
-    Biid <- list()
-    for (j in 1:length(data_cov_covariatesall)) {
-      pos <- rep(0, d)
-      pos[j] <- 1
-      Biid[[j]] <- Matrix::Matrix(kronecker(B, pos))
-    }
-    effectsiid <- lapply(1:d, function(x){1:dim(data)[1]})
-    names(effectsiid) <- paste0("id", 1:d)
+    # Biid <- list()
+    # for (j in 1:length(data_cov_covariatesall)) {
+    #   pos <- rep(0, d)
+    #   pos[j] <- 1
+    #   Biid[[j]] <- Matrix::Matrix(kronecker(B, pos))
+    # }
+    # effectsiid <- lapply(1:d, function(x){1:dim(data)[1]})
+    # names(effectsiid) <- paste0("id", 1:d)
 
     #sharing
-    Biid <- Matrix::Matrix(kronecker(B, rep(1, d)))
-    effectsiid <- list(id1 = 1:dim(data)[1])
-  }else{
-    effectsiid <- NULL
-    Biid <- NULL
+    Biid <- 1
+    #### Esto hay que arreglarlo
+    effectsiid <- data.frame(iid1 = rep(1:n, rep(d,n)))
+    effects <- cbind(data, effectsiid)
   }
-
-  inla.stack(data = list(y = y), A = c(A, Biid), effects = data)
+  inla.stack(data = list(y = y), A = c(A), effects = effects)
 }

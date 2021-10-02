@@ -10,9 +10,10 @@ dirinlareg(
   data.cov,
   share = NULL,
   x0 = NULL,
-  tol0 = 1e-08,
+  tol0 = 1e-05,
   tol1 = 0.01,
-  k0 = 100,
+  k0 = 20,
+  k1 = 5,
   a = 0.5,
   strategy = "ls-quasi-newton",
   prec = prec,
@@ -41,6 +42,8 @@ and d the number of categories}
 \item{tol1}{tolerance for the gradient such that |grad| < tol1 * max(1, |f|)}
 
 \item{k0}{number of iterations}
+
+\item{k1}{number of iterations including the calling to inla}
 
 \item{a}{step length in the optimization algorithm}
 

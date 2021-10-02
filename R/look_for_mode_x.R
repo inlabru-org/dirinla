@@ -223,7 +223,8 @@ look_for_mode_x <- function(A = A,
     gk    = gk,
     Lk    = Lk,
     eta   = as.vector(eta),
-    z     = z
+    z     = z,
+    less  = less
   )
 }
 
