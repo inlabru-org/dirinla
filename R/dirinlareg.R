@@ -132,14 +132,13 @@ dirinlareg <- function (formula,
   #data.cov.cat <- lapply(names_cat, function(x){dplyr::select(data.cov, x)} )
 
   ### --- 2. Store the data in a inla.stack --- ####
-  data_stack <- data_stack_dirich(y          = as.vector(t(y)),
+  A <- data_stack_dirich(y          = as.vector(t(y)),
                                   covariates = names_cat,
                                   share      = share,
                                   data       = data.cov,
                                   d          = d,
                                   n          = n )
 
-  A <- inla.stack.A(data_stack)
 
 
   ### --- 3. First step : Looking for the mode --- ####
@@ -302,6 +301,11 @@ dirinlareg <- function (formula,
                                  names_cat  = names_cat)
 
   ### --- 5.2. Extracting random effects --- ####
+  random_effects <- list(summary_hyperpar   = mod0$summary.hyperpar,
+                         marginals_hyperpar = mod0$marginals.hyperpar,
+                         summary_random     = mod0$summary.random,
+                         marginals_random   = mod0$marginals.random)
+
   cat(paste0("\n ----------------------", " Obtaining linear predictor ", "----------------- \n"))
 
   ### --- 5.2. Extracting linear predictor --- ####
