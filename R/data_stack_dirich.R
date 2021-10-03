@@ -109,7 +109,7 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
 
         if(cond1 && cond2){
             cat("Shared random effect")
-            data %>% dplyr::select(random_eff_args$`category 1`$term) %>%
+            data %>% dplyr::select(random_eff_args[[1]]$term) %>%
                 dplyr::pull() %>%
                 table(.) -> index
             if(all(index == index[1])){ #Same elements for each index value

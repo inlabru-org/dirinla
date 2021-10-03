@@ -20,7 +20,7 @@ data_stack_dirich(y, covariates, share = NULL, data, d, n)
 \item{n}{Number of locations.}
 }
 \value{
-Object of class inla.stack
+Matrix A such as eta = A %*%x
 }
 \description{
 `data_stack_dirich` prepares the data using inla.stack from the package INLA.
@@ -49,5 +49,5 @@ data_stack_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
 
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
 }

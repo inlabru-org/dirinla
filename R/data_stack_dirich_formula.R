@@ -68,10 +68,9 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
     colnames(data_x) <- categories
     data_x
   }) %>%
-    do.call(cbind.data.frame, .) %>%
-    cbind(data,.) -> data
+    do.call(cbind.data.frame, .) -> effects
+  #%>%  cbind(data,.) -> data
 
-  effects <- data
   #A <- diag(1, n*d)
   A <- 1
 
@@ -114,6 +113,8 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
     logic1 <- x %>% str_starts("f\\(") %>% x[.]
   }) -> random_eff
 
+
+
   if(any(random_eff %>% sapply(., length) >=1))
   {
     ### iid
@@ -132,8 +133,7 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
     #sharing
     Biid <- 1
     #### Esto hay que arreglarlo
-    effectsiid <- data.frame(iid1 = rep(1:n, rep(d,n)))
-    effects <- cbind(data, effectsiid)
+    effectsiid <- data.frame(iid1 = kronecker(data$iid1, rep(1, d)))
   }
-  inla.stack(data = list(y = y), A = c(A), effects = effects)
+  inla.stack(data = list(y = y), A = c(A), effects = cbind(effects, effectsiid))
 }
