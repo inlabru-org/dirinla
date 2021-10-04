@@ -20,7 +20,9 @@ data_stack_dirich_formula(y, covariates, share = NULL, data, d, n)
 \item{n}{Number of locations.}
 }
 \value{
-Object of class inla.stack
+List with two objects
+- Object of class inla.stack
+- Object with class formula
 }
 \description{
 `data_stack_dirich_formula` prepares the data using inla.stack from the package INLA.

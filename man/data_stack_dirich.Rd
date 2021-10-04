@@ -11,7 +11,7 @@ data_stack_dirich(y, covariates, share = NULL, data, d, n)
 
 \item{covariates}{String with the name of covariates.}
 
-\item{share}{Covariates to share in all the cateogries. Not implemented yet.}
+\item{share}{Covariates to share in all the cateogries. TODO}
 
 \item{data}{Data.frame which contains all the covariates.}
 

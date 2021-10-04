@@ -4,7 +4,7 @@
 #'
 #' @param y Response variable in a matrix format.
 #' @param covariates String with the name of covariates.
-#' @param share Covariates to share in all the cateogries. Not implemented yet.
+#' @param share Covariates to share in all the cateogries. TODO
 #' @param data Data.frame which contains all the covariates.
 #' @param d Number of categories.
 #' @param n Number of locations.
@@ -82,20 +82,22 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     #############################################################################
     #### If we want to include more steps for random effects here is the part ###
     #############################################################################
-
+    #TODO: tHIS is constructed just for one shared random effect
+          # - Include more random effects
+          # - Include not shared random effects
 
     ### Random effects
     covariates %>% lapply(., function(x){
         logic1 <- x %>% str_starts("f\\(") %>% x[.]
     }) -> random_eff
 
-    ### Extract arguments from formula. We use INLA
-    random_eff_args <- lapply(random_eff, function(x){
-        x %>% paste0("INLA::", .) %>% parse(text = .) %>% eval(.)
-    })
-
     if(any(random_eff %>% sapply(., length) >=1))
     {
+        ### Extract arguments from formula. We use INLA
+        random_eff_args <- lapply(random_eff, function(x){
+            x %>% paste0("INLA::", .) %>% parse(text = .) %>% eval(.)
+        })
+
         ### Check if they are going to share components
         #All terms are equal
         cond1 <- unlist(lapply(random_eff_args, function(x) x$term)) %>%
@@ -122,25 +124,11 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
 
             #Categories
             Biid <- Matrix::Matrix(kronecker(Biid, rep(1, d)))
-
-            # if(all(index == index[1])){ #Same elements for each index value
-            #     B <- diag(1, length(index))
-            #     Biid <- kronecker(B, rep(1, index[1]))
-            #     Biid <- Matrix::Matrix(kronecker(Biid, rep(1, d)))
-            # }
-
-
-            #TODO: else: different elements for different index value (non-balanced effect)
-        }
+         }
         A <- c(A, Biid)
-        effectsiid <- list(iid1 = rep(1, dim(Biid)[2]))
-    }else{
-        effectsiid <- NULL
-        Biid <- NULL
     }
 
     A <- do.call(cbind, A)
 
-    #inla.stack(data = list(y = y), A = c(A, Biid), effects = c(effects, effectsiid)) -> a
     A
 }

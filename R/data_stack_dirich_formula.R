@@ -9,7 +9,9 @@
 #' @param d Number of categories.
 #' @param n Number of locations.
 #'
-#' @return Object of class inla.stack
+#' @return List with two objects
+#' - Object of class inla.stack
+#' - Object with class formula
 #'
 #' @examples
 #' n <- 100
@@ -43,36 +45,42 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
   covariatesall <- covariates
 
-    ### Fixed effect
+  ### Fixed effect
   covariates %>% lapply(., function(x){
     logic1 <- x %>% str_starts("f\\(") %>% !.
     x[logic1]
   }) -> covariatesall
 
+  if(length(unlist(covariatesall)) >=1){
+    ### Prepare covariates
+    1:length(covariatesall)  %>%
+      lapply(., function(x){
+        data_x <- data %>% dplyr::select(covariatesall[[x]])
+        categories <- paste0("cat", x,  "_", covariatesall[[x]])
+        index <- rep(NA, d)
+        index[x] <- 1
+        data_x <- kronecker(as.matrix(data_x), index)
+        colnames(data_x) <- categories
+        data_x
+      }) %>%
+      do.call(cbind.data.frame, .) -> effects
 
-  ### All the varibles required in the model
-  # unlist(covariatesall) %>%
-  #   base::unique(.) %>%
-  #   data[,.] %>%
-  #   slice(rep(1:n(), each = d)) -> data
+    ### Matrix A
+    A <- 1
+
+    ### Terms for the formula
+    names_inla_fixed <- names(effects)
+    formula.inla.pred <- character()
+
+    formula.inla.pred <- c(formula.inla.pred, paste0("f(",
+                                                     names_inla_fixed,
+                                                     ", model = 'linear')"))
+
+    formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
+  }
 
 
-  ### Prepare covariates
-  1:length(covariatesall)  %>%
-    lapply(., function(x){
-    data_x <- data %>% dplyr::select(covariatesall[[x]])
-    categories <- paste0("cat", x,  "_", covariatesall[[x]])
-    index <- rep(NA, d)
-    index[x] <- 1
-    data_x <- kronecker(as.matrix(data_x), index)
-    colnames(data_x) <- categories
-    data_x
-  }) %>%
-    do.call(cbind.data.frame, .) -> effects
-  #%>%  cbind(data,.) -> data
 
-  #A <- diag(1, n*d)
-  A <- 1
 
 #
 #
@@ -113,27 +121,44 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
     logic1 <- x %>% str_starts("f\\(") %>% x[.]
   }) -> random_eff
 
-
-
   if(any(random_eff %>% sapply(., length) >=1))
   {
-    ### iid
-    B <- diag(1, dim(data)[1])
+    ### Extract arguments from formula. We use INLA
+    random_eff_args <- lapply(random_eff, function(x){
+      x %>% paste0("INLA::", .) %>% parse(text = .) %>% eval(.)
+    })
 
-    #Not sharing
-    # Biid <- list()
-    # for (j in 1:length(data_cov_covariatesall)) {
-    #   pos <- rep(0, d)
-    #   pos[j] <- 1
-    #   Biid[[j]] <- Matrix::Matrix(kronecker(B, pos))
-    # }
-    # effectsiid <- lapply(1:d, function(x){1:dim(data)[1]})
-    # names(effectsiid) <- paste0("id", 1:d)
+    ### Check if they are going to share components
+    #All terms are equal
+    cond1 <- unlist(lapply(random_eff_args, function(x) x$term)) %>%
+      sapply(., function(x) x == .[1]) %>%
+      all(.)
 
-    #sharing
-    Biid <- 1
-    #### Esto hay que arreglarlo
-    effectsiid <- data.frame(iid1 = kronecker(data$iid1, rep(1, d)))
+    #All models are equal
+    cond2 <- unlist(lapply(random_eff_args, function(x) x$model)) %>%
+      sapply(., function(x) x == .[1]) %>%
+      all(.)
+
+    if(cond1 && cond2){
+      cat("Shared random effect")
+      #sharing
+      effectsiid <- kronecker(data[[random_eff_args[[1]]$term]], rep(1, d)) %>% data.frame(.)
+      colnames(effectsiid) <- random_eff_args[[1]]$term
+      formula.inla.pred <- paste(formula.inla.pred, random_eff[[1]], sep = "+")
+    }
+  }else{
+    effectsiid <- rep(NA, n*d)
   }
-  inla.stack(data = list(y = y), A = c(A), effects = cbind(effects, effectsiid))
+
+  formula.inla <- covariatesall %>% names() %>% str_remove(., "1") %>% .[1] %>% paste0(., " ~ -1 + ")
+  formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
+  effects <- cbind(effects, effectsiid)
+  if(all(is.na(effects[,dim(effects)[2]])))
+  {
+    effects <- effects[,-dim(effects)[2]]
+
+  }
+
+  list(inla.stack(data = list(y = y), A = c(A), effects = effects),
+       formula.inla = formula.inla)
 }

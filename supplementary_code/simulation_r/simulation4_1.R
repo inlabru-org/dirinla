@@ -4,10 +4,10 @@
 # simulations to guarantee convergence of the method, and with long r-jags,   #
 # which has a large amount of simulations. The model that we try to fit is :  #
 # --- Y \sim Dirich(exp(eta_1), exp(eta_2), ... , exp(eta_4))                 #
-# --- --- eta_1 = beta_{01} + X1 beta1,                                       #
-# --- --- eta_2 = beta_{02} + X2 beta2,                                       #
-# --- --- eta_3 = beta_{03} + X3 beta3,                                       #
-# --- --- eta_4 = beta_{04} + X4 beta4,                                       #
+# --- --- eta_1 = beta_{01} + X1 beta1 + f(iid, model = "iid"),               #
+# --- --- eta_2 = beta_{02} + X2 beta2 + f(iid, model = "iid"),               #
+# --- --- eta_3 = beta_{03} + X3 beta3 + f(iid, model = "iid"),               #
+# --- --- eta_4 = beta_{04} + X4 beta4 + f(iid, model = "iid"),               #
 # ----------------------------------------------------------------------------#
 
 ### --- 1. Libraries ---- #####
@@ -32,21 +32,24 @@ library(dplyr)
 n <- 500
 cat("n = ", n, " -----> Simulating data \n")
 set.seed(100)
-cat_elem <- 20
+cat_elem <- 5
 
 #Covariates
 V <- as.data.frame(matrix(runif((10)*n, 0, 1), ncol=10))
 names(V) <- paste0('v', 1:(10))
-#iid1 <- 1:n
+#iid2 <- 1:n
 
-iid1 <- rep(1:(n/cat_elem), rep(cat_elem, n/cat_elem))
-V <- cbind(V, iid1)
+iid2 <- rep(1:(n/cat_elem), rep(cat_elem, n/cat_elem))
+V <- cbind(V, iid2)
 #Desordenamos para el índice
 V <- V[sample(1:dim(V)[1]),]
-V$iid1
+V$iid2
 # Formula that we want to fit
-formula <- y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid')
+formula <- y ~ 1 + v1 + f(iid2, model = 'iid') | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid')
 names_cat <- formula_list(formula)
+
+# formula <- y ~ -1 + v1 + f(iid2, model = 'iid') | -1 + v2 + f(iid2, model = 'iid') | -1 + v3 + f(iid2, model = 'iid') | -1 + v4 + f(iid2, model = 'iid')
+# names_cat <- formula_list(formula)
 
 # formula <- y ~ 1 + v1  | 1 + v2  | 1 + v3  | 1 + v4
 # names_cat <- formula_list(formula)
@@ -62,6 +65,10 @@ x <- c(-1.5, 2,
        -3, -1,
        1.5, 5)
 
+
+# x <- c(-1.5, 2,
+#        1, -3)
+
 #random effect
 prec_w <- 10
 w <- rnorm(n/cat_elem, sd = sqrt(1/prec_w)) %>% rep(., rep(cat_elem, n/cat_elem))
@@ -72,11 +79,11 @@ x <- c(x, unique(w))
 
 d <- length(names_cat)
 A_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
-                                          covariates = names_cat,
-                                          share      = NULL,
-                                          data       = V,
-                                          d          = d,
-                                          n          = n )
+                                 covariates = names_cat,
+                                 share      = NULL,
+                                 data       = V,
+                                 d          = d,
+                                 n          = n )
 
 # Ordering the data with covariates --- ###
 eta <- A_construct %*% x
@@ -97,7 +104,13 @@ summary(y)
 ### --- 3. Fitting the model with INLA --- ####
 cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
 t <- proc.time() # Measure the time
-model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid'),
+model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid2, model = 'iid') | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid'),
+                          y        = y,
+                          data.cov = V,
+                          prec     = 0.01,
+                          verbose  = TRUE)
+
+model.inla <- dirinlareg( formula  = y ~ 1 + v1  | 1 + v2  | 1 + v3  | 1 + v4,
                           y        = y,
                           data.cov = V,
                           prec     = 0.01,
@@ -111,9 +124,9 @@ model.inla$summary_hyperpar
 
 
 ### --- 4. Fitting the model using JAGS --- ####
-ni <- 1000
+ni <- 20000
 nt <- 5
-nb <- 200
+nb <- 1000
 nc <- 3
 
 ## Data set
@@ -177,5 +190,5 @@ print(model.jags)
 t_jags
 t_inla
 hist(model.jags$BUGSoutput$sims.matrix[, c("tau1")], breaks = 200, freq = FALSE, xlim = c(0,40))
-plot(model.inla$marginals_hyperpar$`Precision for iid1`, col = "red", xlim = c(0,40))
+plot(model.inla$marginals_hyperpar$`Precision for iid2`, col = "red", xlim = c(0,40), type = "l")
 abline(v = 10, lwd = 3, col = "blue")

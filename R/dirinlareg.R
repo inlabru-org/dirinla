@@ -142,9 +142,10 @@ dirinlareg <- function (formula,
 
 
   ### --- 3. First step : Looking for the mode --- ####
-  # m is the number of parameters to approximate
+  # m is the number of elements of the gaussian field
   m <- dim(A)[2]
 
+  #### Initital conditions
   #Checking if there is initial condition
   if(is.null(x0)){
     #x0 <- rep(0, m)
@@ -154,16 +155,23 @@ dirinlareg <- function (formula,
   # Creating precision matrix for the prior
   #Qx <- Matrix(diag(prec, m))
   #Check this prior. As we are giving priors for any realizations of the Gaussian field
-  Qx <- Matrix(diag(prec, dim(A)[2]))
-  diag(Qx)[-c(1:8)] <- 1
-  cat(paste0("\n \n ----------------------", " Looking for the first mode ", "----------------- \n \n "))
-  #x0 <- c(mod0$summary.fixed$mode, mod0$summary.random$iid1$mode)
-# tol0 <- 1
-# tol1 <- 1
+
+
+  #Random effect. We use 1 in this moment
+  n_fixed <- names_cat %>% unlist() %>% length(.) - names_cat %>% unlist() %>% stringr::str_count(., "^f\\(") %>% sum(.)
+    #Fixed effects, we use prior precision
+    Qx <- Matrix(diag(prec, dim(A)[2]))
+
+    #Random effects, we use median of the prior precision
+    diag(Qx)[-c(1:n_fixed)] <- 1
+
+
+
   j <- 1
   less <- FALSE
   while ((less != TRUE) && (j <= k1))
   {
+    cat(paste0("\n \n ----------------------", " Looking for the mode ", "----------------- \n \n "))
     x_hat1 <- look_for_mode_x(A        = A,
                               x0       = as.vector(x0),
                               tol0     = tol0,
@@ -206,46 +214,8 @@ dirinlareg <- function (formula,
                                               d          = d,
                                               n          = n )
 
-    ### ------- 4.1. Using the A matrix --- ####
-    ### Create the formula
-    formula.inla <- "y ~ -1 + "
-
-
-    ### Names to introduce in INLA
-    names_inla <- names(data_stack_2$effects$data)
-
-    #Including fixed effects
-    pos_fixed <- names_inla %>% stringr::str_starts("cat")
-    names_inla_fixed <- names_inla[pos_fixed]
-    formula.inla.pred <- character()
-    if(length(names_inla_fixed) >=1){
-      formula.inla.pred <- c(formula.inla.pred, paste0("f(",
-                                                       names_inla_fixed,
-                                                       ", model = 'linear')"))
-
-      formula.inla.pred <- stringr::str_c(formula.inla.pred, collapse=" + ")
-    }
-
-    ############################################################################3
-    ####### Revisar: incluyendo por defecto un efecto aleatorio compartido ######
-    #Including random effects
-    # names_inla_random <- names_inla[!pos_fixed]
-    # if(length(names_inla_random) >=1)
-    # {
-    #   terms_random <- sapply(names_inla_random, function(x){
-    #     unlist(names_cat) %>% grep(pattern = x, .) %>% unlist(names_cat)[.] -> res
-    #   res[1] %>% as.character()
-    #   })
-    #
-    #   #Check for the effects which has the index
-    #   terms_random %>% paste(., collapse = "+") %>%
-    #     paste(formula.inla.pred, ., sep = "+") -> formula.inla.pred
-    #
-    #
-    # }
-    formula.inla.pred <- paste(formula.inla.pred, "f(iid1, model = 'iid')", sep = "+")
-    formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
-
+    formula.inla <- data_stack_2$formula.inla
+    data_stack_2 <- data_stack_2[[1]]
 
 
     cat(paste0("\n ----------------------", "    INLA call    ", "----------------- \n"))
@@ -289,9 +259,13 @@ dirinlareg <- function (formula,
     }
     if(less != TRUE)
     {
-      x0 <- c(mod0$summary.fixed$mode, mod0$summary.random$iid1$mode)
+      if(length(mod0$summary.random) == 0){
+        x0 <- c(mod0$summary.fixed$mode)
+      }else{
+        x0 <- c(mod0$summary.fixed$mode, mod0$summary.random[[1]]$mode)
+      }
       Qx <- Matrix(diag(prec, dim(A)[2]))
-      diag(Qx)[-c(1:length(names_inla_fixed))] <- mod0$summary.hyperpar$mode
+      diag(Qx)[-c(1:n_fixed)] <- mod0$summary.hyperpar$mode
       j <- j + 1
     }
   }
