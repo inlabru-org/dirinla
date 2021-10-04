@@ -109,14 +109,28 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
 
         if(cond1 && cond2){
             cat("Shared random effect")
+            # different elements for different index value (non-balanced effect)
             data %>% dplyr::select(random_eff_args[[1]]$term) %>%
                 dplyr::pull() %>%
                 table(.) -> index
-            if(all(index == index[1])){ #Same elements for each index value
-                B <- diag(1, length(index))
-                Biid <- kronecker(B, rep(1, index[1]))
-                Biid <- Matrix::Matrix(kronecker(Biid, rep(1, d)))
-            } #TODO: else: different elements for different index value (non-balanced effect)
+            lapply(1:length(index), function(x){
+                vec <- rep(0, length(data[[random_eff_args[[1]]$term]]))
+                vec[data[[random_eff_args[[1]]$term]] == x] <- 1
+                Matrix::Matrix(vec)
+            }) %>%
+            do.call(cbind, .) -> Biid
+
+            #Categories
+            Biid <- Matrix::Matrix(kronecker(Biid, rep(1, d)))
+
+            # if(all(index == index[1])){ #Same elements for each index value
+            #     B <- diag(1, length(index))
+            #     Biid <- kronecker(B, rep(1, index[1]))
+            #     Biid <- Matrix::Matrix(kronecker(Biid, rep(1, d)))
+            # }
+
+
+            #TODO: else: different elements for different index value (non-balanced effect)
         }
         A <- c(A, Biid)
         effectsiid <- list(iid1 = rep(1, dim(Biid)[2]))

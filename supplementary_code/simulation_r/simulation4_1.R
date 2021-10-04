@@ -32,7 +32,7 @@ library(dplyr)
 n <- 500
 cat("n = ", n, " -----> Simulating data \n")
 set.seed(100)
-cat_elem <- 5
+cat_elem <- 20
 
 #Covariates
 V <- as.data.frame(matrix(runif((10)*n, 0, 1), ncol=10))
@@ -41,6 +41,9 @@ names(V) <- paste0('v', 1:(10))
 
 iid1 <- rep(1:(n/cat_elem), rep(cat_elem, n/cat_elem))
 V <- cbind(V, iid1)
+#Desordenamos para el índice
+V <- V[sample(1:dim(V)[1]),]
+V$iid1
 # Formula that we want to fit
 formula <- y ~ 1 + v1 + f(iid1, model = 'iid') | 1 + v2 + f(iid1, model = 'iid') | 1 + v3 + f(iid1, model = 'iid') | 1 + v4 + f(iid1, model = 'iid')
 names_cat <- formula_list(formula)
@@ -108,7 +111,7 @@ model.inla$summary_hyperpar
 
 
 ### --- 4. Fitting the model using JAGS --- ####
-ni <- 2000
+ni <- 1000
 nt <- 5
 nb <- 200
 nc <- 3
@@ -171,5 +174,8 @@ t_jags <- proc.time()-t    # Stop the time
 t_jags <- t_jags[3]
 print(model.jags)
 
-hist(model.jags$BUGSoutput$sims.matrix[, c("tau1")])
-
+t_jags
+t_inla
+hist(model.jags$BUGSoutput$sims.matrix[, c("tau1")], breaks = 200, freq = FALSE, xlim = c(0,40))
+plot(model.inla$marginals_hyperpar$`Precision for iid1`, col = "red", xlim = c(0,40))
+abline(v = 10, lwd = 3, col = "blue")
