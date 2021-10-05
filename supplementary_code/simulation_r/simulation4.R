@@ -4,10 +4,10 @@
 # simulations to guarantee convergence of the method, and with long r-jags,   #
 # which has a large amount of simulations. The model that we try to fit is :  #
 # --- Y \sim Dirich(exp(eta_1), exp(eta_2), ... , exp(eta_4))                 #
-# --- --- eta_1 = beta_{01} + X1 beta1,                                       #
-# --- --- eta_2 = beta_{02} + X2 beta2,                                       #
-# --- --- eta_3 = beta_{03} + X3 beta3,                                       #
-# --- --- eta_4 = beta_{04} + X4 beta4,                                       #
+# --- --- eta_1 = beta_{01} + X1 beta1 + f(iid, model = "iid"),               #
+# --- --- eta_2 = beta_{02} + X2 beta2 + f(iid, model = "iid"),               #
+# --- --- eta_3 = beta_{03} + X3 beta3 + f(iid, model = "iid"),               #
+# --- --- eta_4 = beta_{04} + X4 beta4 + f(iid, model = "iid"),               #
 # ----------------------------------------------------------------------------#
 
 ### --- 1. Libraries ---- #####
@@ -26,44 +26,49 @@ library(R2jags)
 #Generating latex table
 library(xtable)
 
+library(dplyr)
+
 ### --- 2. Function for simulation --- ####
-simulations_with_slopes <- function(n)
+simulations_with_slopes_iid <- function(n)
 {
   ### --- 2. Simulation data --- ####
   cat("n = ", n, " -----> Simulating data \n")
-  set.seed(1000)
+  set.seed(100)
+  cat_elem <- 10
 
   #Covariates
   V <- as.data.frame(matrix(runif((10)*n, 0, 1), ncol=10))
   names(V) <- paste0('v', 1:(10))
+  #iid2 <- 1:n
 
+  iid2 <- rep(1:(n/cat_elem), rep(cat_elem, n/cat_elem))
+  V <- cbind(V, iid2)
+  #Desordenamos para el índice
+  # V <- V[sample(1:dim(V)[1]),]
+  # V$iid2
   # Formula that we want to fit
-  formula <- y ~ 1 + v1 | 1 + v2 | 1 + v3 | 1 + v4
-
+  formula <- y ~ 1 + v1 + f(iid2, model = 'iid') | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid')
   names_cat <- formula_list(formula)
-
-  # Parameters to fit
-  # x <- c(-1.5, 1, -3, 1.5,
-  #        2, -3 , -1, 5)
-
 
   x <- c(-1.5, 2,
          1, -3,
          -3, -1,
          1.5, 5)
 
+  #random effect
+  prec_w <- 10
+  w <- rnorm(n/cat_elem, sd = sqrt(1/prec_w)) %>% rep(., rep(cat_elem, n/cat_elem))
+  x <- c(x, unique(w))
 
-  mus <- exp(x)/sum(exp(x))
   d <- length(names_cat)
-  data_stack_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
-                                            covariates = names_cat,
-                                            share      = NULL,
-                                            data       = V,
-                                            d          = d,
-                                            n          = n )
+  A_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
+                                   covariates = names_cat,
+                                   share      = NULL,
+                                   data       = V,
+                                   d          = d,
+                                   n          = n )
 
   # Ordering the data with covariates --- ###
-  A_construct <- data_stack_construct$A
   eta <- A_construct %*% x
   alpha <- exp(eta)
   alpha <- matrix(alpha,
@@ -74,6 +79,8 @@ simulations_with_slopes <- function(n)
 
 
   y <- y_o
+  #y <- DirichletReg::DR_data(y)
+
 
 
 
@@ -85,32 +92,36 @@ simulations_with_slopes <- function(n)
     model.jags <- readRDS(paste0("model_jags_", n,".RDS"))
     if(n < 1000)
     {
-      simulation <- readRDS("simulation2_50-500.RDS")
+      simulation <- readRDS("simulation4_50-500.RDS")
       t_jags <- simulation[[paste0("n",n)]]$times[1]
     }else{
-      simulation <- readRDS("simulation2_1000-10000.RDS")
+      simulation <- readRDS("simulation4_1000-10000.RDS")
       t_jags <- simulation[[paste0("n",n)]]$times[1]
     }
 
   }else{
     ## MCMC configuration
-    ni <- 2000
+    ni <- 5000
     nt <- 5
-    nb <- 200
+    nb <- 1000
     nc <- 3
 
     ## Data set
+    table(V$iid2) %>%length() -> niv_length
     data_jags <- list(y = y,
                       N = dim(y)[1],
                       d = d,
-                      V = V)
+                      V = V,
+                      niv = V$iid2,
+                      niv_length = niv_length)
 
     ## Initial values
     inits <- function(){list(beta0 = rnorm(d, 0, 1),
-                             beta1 = rnorm(d, 0, 1))}
+                             beta1 = rnorm(d, 0, 1),
+                             tau1  = runif(1, 0.1, 20))}
 
     ## Parameters of interest
-    parameters <- c('beta0', 'beta1')
+    parameters <- c('beta0', 'beta1', 'tau1')
 
     cat("
     model {
@@ -118,19 +129,27 @@ simulations_with_slopes <- function(n)
     for (i in 1:N){
     y[i, ] ~ ddirch(alpha[i,])
 
-    log(alpha[i,1]) <- beta0[1] + beta1[1]*V[i,1]
-    log(alpha[i,2]) <- beta0[2] + beta1[2]*V[i,2]
-    log(alpha[i,3]) <- beta0[3] + beta1[3]*V[i,3]
-    log(alpha[i,4]) <- beta0[4] + beta1[4]*V[i,4]
+    log(alpha[i,1]) <- beta0[1] + beta1[1]*V[i,1] + w[niv[i]]
+    log(alpha[i,2]) <- beta0[2] + beta1[2]*V[i,2] + w[niv[i]]
+    log(alpha[i,3]) <- beta0[3] + beta1[3]*V[i,3] + w[niv[i]]
+    log(alpha[i,4]) <- beta0[4] + beta1[4]*V[i,4] + w[niv[i]]
+    }
+
+    for(j in 1:niv_length){
+        w[j] ~ dnorm(0, tau1)
     }
 
     #priors
+    tau1 ~ dgamma(1, 0.01) ## convert to precision
+
+
     for (c in 1:d)
     {
-    beta0[c]  ~ dnorm(0, 0.0001)
-    beta1[c] ~ dnorm(0, 0.0001)
+    beta0[c]  ~ dnorm(0, 0.01)
+    beta1[c] ~ dnorm(0, 0.01)
     }
     }", file="model_cov.jags" )
+
 
 
 
@@ -160,19 +179,19 @@ simulations_with_slopes <- function(n)
     model.inla <- readRDS(paste0("model_inla_", n,".RDS"))
     if(n< 1000)
     {
-      simulation <- readRDS("simulation2_50-500.RDS")
+      simulation <- readRDS("simulation4_50-500.RDS")
       t_inla <- simulation[[paste0("n",n)]]$times[2]
     }else{
-      simulation <- readRDS("simulation2_1000-10000.RDS")
+      simulation <- readRDS("simulation4_1000-10000.RDS")
       t_inla <- simulation[[paste0("n",n)]]$times[2]
     }
   }else{
     t <- proc.time() # Measure the time
-    model.inla <- dirinlareg( formula  = y ~ 1 + v1 | 1 + v2 | 1 + v3 | 1 + v4  ,
-                              y        = y,
-                              data.cov = V,
-                              prec     = 0.0001,
-                              verbose  = TRUE)
+    model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.01)))) | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid'),
+                y        = y,
+                data.cov = V,
+                prec     = 0.01,
+                verbose  = TRUE)
 
     t_inla <- proc.time()-t    # Stop the time
     t_inla <- t_inla[3]
@@ -186,32 +205,38 @@ simulations_with_slopes <- function(n)
     model.jags.2 <- readRDS(paste0("model_jags_long_", n,".RDS"))
     if(n< 1000)
     {
-      simulation <- readRDS("simulation2_50-500.RDS")
+      simulation <- readRDS("simulation4_50-500.RDS")
       t_jags_2 <- simulation[[paste0("n",n)]]$times[3]
     }else{
-      simulation <- readRDS("simulation2_1000-10000.RDS")
+      simulation <- readRDS("simulation4_1000-10000.RDS")
       t_jags_2 <-simulation[[paste0("n",n)]]$times[3]
     }
   }else{
     ## MCMC configuration
-    # ni <- 1000
-    # nb <- 100
-    ni <- 1000000
+     ni <- 20000
+     nb <- 2000
+    #ni <- 1000000
     nt <- 5
-    nb <- 100000
+    #nb <- 100000
     nc <- 3
 
     ## Data set
+    ## Data set
+    table(V$iid2) %>%length() -> niv_length
     data_jags <- list(y = y,
                       N = dim(y)[1],
                       d = d,
-                      V = V)
+                      V = V,
+                      niv = V$iid2,
+                      niv_length = niv_length)
 
     ## Initial values
-    inits <- function(){list(beta0 = rnorm(d, 0, 1))}
+    inits <- function(){list(beta0 = rnorm(d, 0, 1),
+                             beta1 = rnorm(d, 0, 1),
+                             tau1  = runif(1, 0.1, 20))}
 
     ## Parameters of interest
-    parameters <- c('beta0', 'beta1')
+    parameters <- c('beta0', 'beta1', 'tau1')
 
     cat("
     model {
@@ -219,18 +244,28 @@ simulations_with_slopes <- function(n)
     for (i in 1:N){
     y[i, ] ~ ddirch(alpha[i,])
 
-    log(alpha[i,1]) <- beta0[1] + beta1[1]*V[i,1]
-    log(alpha[i,2]) <- beta0[2] + beta1[2]*V[i,2]
-    log(alpha[i,3]) <- beta0[3] + beta1[3]*V[i,3]
-    log(alpha[i,4]) <- beta0[4] + beta1[4]*V[i,4]
-  }
+    log(alpha[i,1]) <- beta0[1] + beta1[1]*V[i,1] + w[niv[i]]
+    log(alpha[i,2]) <- beta0[2] + beta1[2]*V[i,2] + w[niv[i]]
+    log(alpha[i,3]) <- beta0[3] + beta1[3]*V[i,3] + w[niv[i]]
+    log(alpha[i,4]) <- beta0[4] + beta1[4]*V[i,4] + w[niv[i]]
+    }
+
+    for(j in 1:niv_length){
+        w[j] ~ dnorm(0, tau1)
+    }
 
     #priors
+    tau1 ~ dgamma(1, 0.01) ## convert to precision
+
+
     for (c in 1:d)
     {
-      beta0[c]  ~ dnorm(0, 0.0001)
-      beta1[c] ~ dnorm(0, 0.0001)    }
+    beta0[c]  ~ dnorm(0, 0.01)
+    beta1[c] ~ dnorm(0, 0.01)
+    }
     }", file="model_cov.jags" )
+
+
 
 
 
@@ -248,10 +283,10 @@ simulations_with_slopes <- function(n)
     t_jags_2<-proc.time()-t    # Stop the time
     t_jags_2 <- t_jags_2[3]
   }
-    ### ----- 3.4. Saving models --- ####
-    saveRDS(file = paste0("model_jags_", n,".RDS"), model.jags)
-    saveRDS(file = paste0("model_jags_long_", n, ".RDS"), model.jags.2)
-    saveRDS(file = paste0("model_inla_", n, ".RDS"), model.inla)
+  ### ----- 3.4. Saving models --- ####
+  saveRDS(file = paste0("model_jags_", n,".RDS"), model.jags)
+  saveRDS(file = paste0("model_jags_long_", n, ".RDS"), model.jags.2)
+  saveRDS(file = paste0("model_inla_", n, ".RDS"), model.inla)
 
   t_inla
   t_jags
@@ -290,6 +325,11 @@ simulations_with_slopes <- function(n)
     ratio2_beta1 <- c(ratio2_beta1, sd(inla.rmarginal(10000, model.inla$marginals_fixed[[i]][[2]]))^2/(sd_jags_2^2))
   }
 
+  mean_jags_2_tau <- mean(model.jags.2$BUGSoutput$sims.list$tau1)
+  sd_jags_2_tau <- sd(model.jags.2$BUGSoutput$sims.list$tau1)
+  ratio1_tau <- (model.inla$summary_hyperpar$mean - mean_jags_2_tau)/sd_jags_2_tau
+  ratio2_tau <- sd(inla.rmarginal(10000, model.inla$marginals_hyperpar[[1]]))^2/sd_jags_2_tau^2
+
   ### ----- 4.3. Mean and sd of the posterior distributions --- ####
   ### Intercepts
   result_beta0 <- numeric()
@@ -319,7 +359,7 @@ simulations_with_slopes <- function(n)
   colnames(result_beta1) <- c(paste0("JAGS", c("_mean", "_sd")),
                               paste0("INLA", c("_mean", "_sd")),
                               paste0("LONG_JAGS", c("_mean", "_sd")))
-  ### --- 5. Plotting ---
+  ### --- 5. Plotting --- ####
   ### ----- 5.1. intercepts --- ####
   ## Intercept
   p1 <- list()
@@ -392,7 +432,7 @@ simulations_with_slopes <- function(n)
   }
 
   #
-  # pdf("example_simulation2_intercepts_50.pdf", width = 18, height = 4)
+  # pdf("example_simulation4_intercepts_50.pdf", width = 18, height = 4)
   #   gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]], ncol = 4)
   # dev.off()
 
@@ -469,44 +509,111 @@ simulations_with_slopes <- function(n)
   }
 
 
-  # pdf("example_simulation2_slopes_50.pdf", width = 18, height = 4)
+
+  #### Hyperparemeters
+  tau1 <- expression(paste("p(", tau, "|", "y)"))
+
+  #jags1
+  dens <- density(model.jags$BUGSoutput$sims.matrix[,c("tau1")], adjust = 2)
+  dens <- as.data.frame(cbind(dens$x, dens$y))
+  colnames(dens) <- c("x", "y")
+
+  #jags2
+  dens2 <- density(model.jags.2$BUGSoutput$sims.matrix[,c("tau1")], adjust = 2)
+  dens2 <- as.data.frame(cbind(dens2$x, dens2$y))
+  colnames(dens2) <- c("x", "y")
+
+  #Data combining jags (1) and inla (2)
+  dens <- rbind(cbind(dens, group = 1),
+                cbind(as.data.frame(model.inla$marginals_hyperpar$`Precision for iid2`), group = 2),
+                cbind(dens2, group = 3))
+  dens$group <- factor(dens$group,
+                       labels = c("R-JAGS", "dirinla", "long R-JAGS"))
+
+  ### ----- 5.3. hyperpar --- ####
+  p3 <- ggplot(dens,
+               aes(x = x,
+                   y = y,
+                   group = group
+                   #colour = factor(group)
+               ))  +
+    geom_line(size = 0.6, aes(linetype = group ,
+                              color    = group)) +
+    xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
+    theme_bw() + #Show axes
+    xlab(expression(tau)) + #xlab
+    ylab(tau1) #ylab
+
+
+  #Frequentist approach
+  p3 <- p3 + geom_vline(xintercept = prec_w)
+
+
+
+  ### --- legend --- ###
+  p3 <- p3 + theme(legend.position   = c(0.8, 0.8),
+                            legend.title      = element_blank(),
+                            legend.background = element_rect(colour = "gray"),
+                            legend.key        = element_rect(colour = "white", fill="white"),
+                            legend.key.size   = unit(0.5, "cm")) +
+    theme(legend.text = element_text(size = 9)) +
+    # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
+    #                   values = c("darkgreen", "red4", "blue4" )) +
+    scale_colour_manual (
+      values= c("darkgreen", "red4", "blue4")) +
+    scale_linetype_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
+                          values=c("dotted", "twodash",  "solid")) +
+    xlim(0, 100)
+
+
+
+  # pdf("example_simulation4_slopes_50.pdf", width = 18, height = 4)
   #   gridExtra::grid.arrange(p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
   # dev.off()
 
 
 
-  pdf(paste0("examples_simualtion2_slopes_intercepts_", n ,".pdf"), width = 15, height = 6)
+  pdf(paste0("examples_simulation4_slopes_intercepts_", n ,".pdf"), width = 15, height = 6)
   gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]],
                           p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
   dev.off()
+
+  pdf(paste0("examples_simulation4_tau_", n ,".pdf"), width = 6, height = 6)
+  gridExtra::grid.arrange(p3, ncol = 1)
+  dev.off()
+
+
   list(times = times,
        intercepts = result_beta0,
        slopes     = result_beta1,
        ratio1_intercepts = ratio1_beta0,
        ratio1_slopes = ratio1_beta1,
        ratio2_intercepts = ratio2_beta0,
-       ratio2_slopes = ratio2_beta1)
+       ratio2_slopes = ratio2_beta1,
+       ratio1_tau = ratio1_tau,
+       ratio2_tau = ratio2_tau)
 }
 
 
 ### --- 3. Calling the function --- ####
 n <- c(50, 100, 500)
-a <- parallel::mclapply(n, simulations_with_slopes,
+a <- parallel::mclapply(n, simulations_with_slopes_iid,
                         mc.cores = 3)
+a <- lapply(n, simulations_with_slopes_iid)
 names(a) <- paste0("n", n)
-saveRDS(a, file = "simulation2_50-500.RDS")
-a <- readRDS(file = "simulation2_50-500.RDS")
+saveRDS(a, file = "simulation4_50-500.RDS")
+a <- readRDS(file = "simulation4_50-500.RDS")
 
 n <- c(1000, 10000)
 a <- parallel::mclapply(n, simulations_with_slopes,
                         mc.cores = 2)
 names(a) <- paste0("n", n)
-saveRDS(a, file = "simulation2_1000-10000.RDS")
-b <- readRDS(file = "simulation2_1000-10000.RDS")
+saveRDS(a, file = "simulation4_1000-10000.RDS")
+b <- readRDS(file = "simulation4_1000-10000.RDS")
 results <- c(a,b)
 
 ### --- 4. Extracting tables for the paper --- ####
-# results <- readRDS(file = "simulation2_50-500.RDS")
+# results <- readRDS(file = "simulation4_50-500.RDS")
 results$n50$times
 results$n50$intercepts
 results$n50$times

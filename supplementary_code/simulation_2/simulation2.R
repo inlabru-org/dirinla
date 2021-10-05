@@ -63,7 +63,7 @@ simulations_with_slopes <- function(n)
                                             n          = n )
 
   # Ordering the data with covariates --- ###
-  A_construct <- data_stack_construct$A
+  A_construct <- data_stack_construct
   eta <- A_construct %*% x
   alpha <- exp(eta)
   alpha <- matrix(alpha,
@@ -194,11 +194,11 @@ simulations_with_slopes <- function(n)
     }
   }else{
     ## MCMC configuration
-    # ni <- 1000
-    # nb <- 100
-    ni <- 1000000
+     ni <- 10000
+     nb <- 1000
+    #ni <- 1000000
     nt <- 5
-    nb <- 100000
+    #nb <- 100000
     nc <- 3
 
     ## Data set
@@ -493,6 +493,9 @@ simulations_with_slopes <- function(n)
 n <- c(50, 100, 500)
 a <- parallel::mclapply(n, simulations_with_slopes,
                         mc.cores = 3)
+
+prueba <- lapply(n, simulations_with_slopes)
+
 names(a) <- paste0("n", n)
 saveRDS(a, file = "simulation2_50-500.RDS")
 a <- readRDS(file = "simulation2_50-500.RDS")

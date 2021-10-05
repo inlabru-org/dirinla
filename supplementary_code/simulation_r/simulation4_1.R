@@ -32,7 +32,7 @@ library(dplyr)
 n <- 500
 cat("n = ", n, " -----> Simulating data \n")
 set.seed(100)
-cat_elem <- 5
+cat_elem <- 10
 
 #Covariates
 V <- as.data.frame(matrix(runif((10)*n, 0, 1), ncol=10))
@@ -42,8 +42,8 @@ names(V) <- paste0('v', 1:(10))
 iid2 <- rep(1:(n/cat_elem), rep(cat_elem, n/cat_elem))
 V <- cbind(V, iid2)
 #Desordenamos para el índice
-V <- V[sample(1:dim(V)[1]),]
-V$iid2
+# V <- V[sample(1:dim(V)[1]),]
+# V$iid2
 # Formula that we want to fit
 formula <- y ~ 1 + v1 + f(iid2, model = 'iid') | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid')
 names_cat <- formula_list(formula)
@@ -104,17 +104,17 @@ summary(y)
 ### --- 3. Fitting the model with INLA --- ####
 cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
 t <- proc.time() # Measure the time
-model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid2, model = 'iid') | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid'),
+model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid'),
                           y        = y,
                           data.cov = V,
                           prec     = 0.01,
                           verbose  = TRUE)
 
-model.inla <- dirinlareg( formula  = y ~ 1 + v1  | 1 + v2  | 1 + v3  | 1 + v4,
-                          y        = y,
-                          data.cov = V,
-                          prec     = 0.01,
-                          verbose  = TRUE)
+# model.inla <- dirinlareg( formula  = y ~ 1 + v1  | 1 + v2  | 1 + v3  | 1 + v4,
+#                           y        = y,
+#                           data.cov = V,
+#                           prec     = 0.01,
+#                           verbose  = TRUE)
 
 
 t_inla <- proc.time()-t    # Stop the time
@@ -124,16 +124,19 @@ model.inla$summary_hyperpar
 
 
 ### --- 4. Fitting the model using JAGS --- ####
-ni <- 20000
+ni <- 3000
 nt <- 5
 nb <- 1000
 nc <- 3
 
 ## Data set
+table(V$iid2) %>%length() -> niv_length
 data_jags <- list(y = y,
                   N = dim(y)[1],
                   d = d,
-                  V = V)
+                  V = V,
+                  niv = V$iid2,
+                  niv_length = niv_length)
 
 ## Initial values
 inits <- function(){list(beta0 = rnorm(d, 0, 1),
@@ -149,18 +152,18 @@ cat("
     for (i in 1:N){
     y[i, ] ~ ddirch(alpha[i,])
 
-    log(alpha[i,1]) <- beta0[1] + beta1[1]*V[i,1] + w[i]
-    log(alpha[i,2]) <- beta0[2] + beta1[2]*V[i,2] + w[i]
-    log(alpha[i,3]) <- beta0[3] + beta1[3]*V[i,3] + w[i]
-    log(alpha[i,4]) <- beta0[4] + beta1[4]*V[i,4] + w[i]
+    log(alpha[i,1]) <- beta0[1] + beta1[1]*V[i,1] + w[niv[i]]
+    log(alpha[i,2]) <- beta0[2] + beta1[2]*V[i,2] + w[niv[i]]
+    log(alpha[i,3]) <- beta0[3] + beta1[3]*V[i,3] + w[niv[i]]
+    log(alpha[i,4]) <- beta0[4] + beta1[4]*V[i,4] + w[niv[i]]
     }
 
-    for(j in 1:N){
+    for(j in 1:niv_length){
         w[j] ~ dnorm(0, tau1)
     }
 
     #priors
-    tau1 ~ dunif(0.1,100) ## convert to precision
+    tau1 ~ dgamma(1, 0.01) ## convert to precision
 
 
     for (c in 1:d)
@@ -189,6 +192,20 @@ print(model.jags)
 
 t_jags
 t_inla
-hist(model.jags$BUGSoutput$sims.matrix[, c("tau1")], breaks = 200, freq = FALSE, xlim = c(0,40))
 plot(model.inla$marginals_hyperpar$`Precision for iid2`, col = "red", xlim = c(0,40), type = "l")
+hist(model.jags$BUGSoutput$sims.matrix[, c("tau1")], breaks = 500, freq = FALSE, xlim = c(0,40), add = TRUE)
+
 abline(v = 10, lwd = 3, col = "blue")
+
+
+
+hist(model.jags$BUGSoutput$sims.matrix[,c("beta1[1]")],  freq = FALSE, breaks = 100)
+lines(model.inla$marginals_fixed$y1$v1, col = "red", xlim = c(0,40), type = "l")
+
+hist(model.jags$BUGSoutput$sims.matrix[,c("beta0[3]")],  freq = FALSE, breaks = 30)
+lines(model.inla$marginals_fixed$y3$intercept, col = "red", xlim = c(0,40), type = "l")
+
+model.inla3 <- model.inla
+plot(model.inla2$marginals_hyperpar$`Precision for iid2`, col = "red", xlim = c(0,40), type = "l")
+lines(model.inla3$marginals_hyperpar$`Precision for iid2`, col = "blue", xlim = c(0,40), type = "l")
+
