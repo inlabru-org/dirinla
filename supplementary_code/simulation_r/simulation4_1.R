@@ -29,10 +29,10 @@ library(xtable)
 library(dplyr)
 
 ### --- 2. Simulating using a random effect --- ####
-n <- 500
+n <- 50
 cat("n = ", n, " -----> Simulating data \n")
 set.seed(100)
-cat_elem <- 10
+cat_elem <- 25
 
 #Covariates
 V <- as.data.frame(matrix(runif((10)*n, 0, 1), ncol=10))
@@ -42,10 +42,10 @@ names(V) <- paste0('v', 1:(10))
 iid2 <- rep(1:(n/cat_elem), rep(cat_elem, n/cat_elem))
 V <- cbind(V, iid2)
 #Desordenamos para el índice
-# V <- V[sample(1:dim(V)[1]),]
+#V <- V[sample(1:dim(V)[1]),]
 # V$iid2
 # Formula that we want to fit
-formula <- y ~ 1 + v1 + f(iid2, model = 'iid') | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid')
+formula <- y ~ -1 + v1 + f(iid2, model = 'iid') | -1 + v2 + f(iid2, model = 'iid') | -1 + v3 + f(iid2, model = 'iid') | -1 + v4 + f(iid2, model = 'iid')
 names_cat <- formula_list(formula)
 
 # formula <- y ~ -1 + v1 + f(iid2, model = 'iid') | -1 + v2 + f(iid2, model = 'iid') | -1 + v3 + f(iid2, model = 'iid') | -1 + v4 + f(iid2, model = 'iid')
@@ -61,9 +61,9 @@ names_cat <- formula_list(formula)
 
 
 x <- c(-1.5, 2,
-       1, -3,
-       -3, -1,
-       1.5, 5)
+       1, -3)
+      # -3, -1,
+      # 1.5, 5)
 
 
 # x <- c(-1.5, 2,
@@ -104,7 +104,11 @@ summary(y)
 ### --- 3. Fitting the model with INLA --- ####
 cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
 t <- proc.time() # Measure the time
-model.inla <- dirinlareg( formula  = y ~ 1 + v1 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) | 1 + v2 + f(iid2, model = 'iid') | 1 + v3 + f(iid2, model = 'iid') | 1 + v4 + f(iid2, model = 'iid'),
+model.inla <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper = list(theta=list(prior="loggamma",param=c(1,0.01)))) |
+                             # hyper = list(prec = list(prior = "pc.prec", param = c(0.5, 0.01))))
+                              -1 + v2 + f(iid2, model = 'iid') |
+                              -1 + v3 + f(iid2, model = 'iid') |
+                              -1 + v4 + f(iid2, model = 'iid'),
                           y        = y,
                           data.cov = V,
                           prec     = 0.01,
@@ -121,7 +125,8 @@ t_inla <- proc.time()-t    # Stop the time
 t_inla <- t_inla[3]
 summary(model.inla)
 model.inla$summary_hyperpar
-
+plot(model.inla$marginals_hyperpar$`Precision for iid2`, col = "blue", xlim = c(0,100), type = "l")
+abline(v= prec_w)
 
 ### --- 4. Fitting the model using JAGS --- ####
 ni <- 3000
@@ -139,12 +144,11 @@ data_jags <- list(y = y,
                   niv_length = niv_length)
 
 ## Initial values
-inits <- function(){list(beta0 = rnorm(d, 0, 1),
-                         beta1 = rnorm(d, 0, 1),
+inits <- function(){list(beta1 = rnorm(d, 0, 1),
                          tau1  = runif(1, 0.1, 20))}
 
 ## Parameters of interest
-parameters <- c('beta0', 'beta1', 'tau1')
+parameters <- c('beta1', 'tau1')
 
 cat("
     model {
@@ -152,10 +156,10 @@ cat("
     for (i in 1:N){
     y[i, ] ~ ddirch(alpha[i,])
 
-    log(alpha[i,1]) <- beta0[1] + beta1[1]*V[i,1] + w[niv[i]]
-    log(alpha[i,2]) <- beta0[2] + beta1[2]*V[i,2] + w[niv[i]]
-    log(alpha[i,3]) <- beta0[3] + beta1[3]*V[i,3] + w[niv[i]]
-    log(alpha[i,4]) <- beta0[4] + beta1[4]*V[i,4] + w[niv[i]]
+    log(alpha[i,1]) <- beta1[1]*V[i,1] + w[niv[i]]
+    log(alpha[i,2]) <- beta1[2]*V[i,2] + w[niv[i]]
+    log(alpha[i,3]) <- beta1[3]*V[i,3] + w[niv[i]]
+    log(alpha[i,4]) <- beta1[4]*V[i,4] + w[niv[i]]
     }
 
     for(j in 1:niv_length){
@@ -190,10 +194,98 @@ t_jags <- proc.time()-t    # Stop the time
 t_jags <- t_jags[3]
 print(model.jags)
 
+
+
+### --- 5. Sensitivity analysis --- ####
+
+### ----- 5.1. Fitting 4 models --- ####
+model.inla <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper = list(theta=list(prior="loggamma",param=c(1,1)))) |
+                              -1 + v2 + f(iid2, model = 'iid') |
+                              -1 + v3 + f(iid2, model = 'iid') |
+                              -1 + v4 + f(iid2, model = 'iid'),
+                          y        = y,
+                          data.cov = V,
+                          prec     = 0.01,
+                          verbose  = TRUE)
+
+model.inla2 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper = list(theta=list(prior="loggamma",param=c(1,0.1)))) |
+                              -1 + v2 + f(iid2, model = 'iid') |
+                              -1 + v3 + f(iid2, model = 'iid') |
+                              -1 + v4 + f(iid2, model = 'iid'),
+                          y        = y,
+                          data.cov = V,
+                          prec     = 0.01,
+                          verbose  = TRUE)
+
+
+model.inla3 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper = list(theta=list(prior="loggamma",param=c(1,0.01)))) |
+                              -1 + v2 + f(iid2, model = 'iid') |
+                              -1 + v3 + f(iid2, model = 'iid') |
+                              -1 + v4 + f(iid2, model = 'iid'),
+                          y        = y,
+                          data.cov = V,
+                          prec     = 0.01,
+                          verbose  = TRUE)
+
+
+model.inla4 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper = list(theta=list(prior="loggamma",param=c(1,0.001)))) |
+                               -1 + v2 + f(iid2, model = 'iid') |
+                               -1 + v3 + f(iid2, model = 'iid') |
+                               -1 + v4 + f(iid2, model = 'iid'),
+                           y        = y,
+                           data.cov = V,
+                           prec     = 0.01,
+                           verbose  = TRUE)
+
+### ----- 5.2. Priors used --- ####
+x <- seq(0, 100, 0.01)
+prior1 <- dgamma(x, 1, 1)
+prior2 <- dgamma(x, 1, 0.1)
+prior3 <- dgamma(x, 1, 0.01)
+prior4 <- dgamma(x, 1, 0.001)
+plot(x, prior1)
+
+
+### ----- 5.3. Ploting priors against posteriors --- ####
+pdf("priors_vs_posteriors_tau_slope_100.pdf", width = 10, height = 8)
+par(mfrow = c(2,2))
+plot(x, prior1, type = "l", col = "red", xlab = expression(tau), main= "Gamma(1,1)")
+lines(model.inla$marginals_hyperpar$`Precision for iid2`, col = "blue")
+abline(v = prec_w)
+legend(60, 0.8, legend=c("Prior", "Posterior", "Real Value"),
+       col=c("red", "blue", "black"), lty=1, cex=0.8)
+
+
+plot(x, prior2, type = "l", col = "red", xlab = expression(tau),
+     #ylim = c(0,0.1),
+     ylim = c(0,0.2),
+     main= "Gamma(1,0.1)")
+lines(model.inla2$marginals_hyperpar$`Precision for iid2`, col = "blue")
+abline(v = prec_w)
+
+plot(x, prior3, type = "l",
+     #ylim = c(0, 0.01),
+     ylim = c(0,0.2),
+     col = "red", xlab = expression(tau),  main= "Gamma(1,0.01)")
+lines(model.inla3$marginals_hyperpar$`Precision for iid2`, col = "blue")
+abline(v = prec_w)
+
+plot(x, prior4, type = "l",
+     #ylim = c(0, 0.002),
+     ylim = c(0,0.2),
+     col = "red", xlab = expression(tau),  main= "Gamma(1,0.001)")
+lines(model.inla4$marginals_hyperpar$`Precision for iid2`, col = "blue")
+abline(v = prec_w)
+
+dev.off()
+
+### --- 6. Some plots --- ####
 t_jags
 t_inla
-plot(model.inla$marginals_hyperpar$`Precision for iid2`, col = "red", xlim = c(0,40), type = "l")
+par(mfrow=c(1,1))
+plot(model.inla$marginals_hyperpar$`Precision for iid2`, col = "blue", xlim = c(0,40), type = "l")
 hist(model.jags$BUGSoutput$sims.matrix[, c("tau1")], breaks = 500, freq = FALSE, xlim = c(0,40), add = TRUE)
+hist(model.jags$BUGSoutput$sims.matrix[, c("tau1")], breaks = 500, freq = FALSE, xlim = c(0,40))
 
 abline(v = 10, lwd = 3, col = "blue")
 
