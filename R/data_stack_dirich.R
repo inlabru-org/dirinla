@@ -34,7 +34,7 @@
 #'                                           n          = n )
 #'
 #' @export
-#' @import dplyr
+#' @import dplyr purrr
 #' @import Matrix
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 
@@ -91,41 +91,54 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
         logic1 <- x %>% str_starts("f\\(") %>% x[.]
     }) -> random_eff
 
+
+
     if(any(random_eff %>% sapply(., length) >=1))
     {
         ### Extract arguments from formula. We use INLA
         random_eff_args <- lapply(random_eff, function(x){
-            x %>% paste0("INLA::", .) %>% parse(text = .) %>% eval(.)
+            list1 <- lapply(x, function(x1){
+                form1 <- paste0("INLA::", x1) %>% parse(text = .) %>% eval(.)
+                form1
+                })
+            names(list1) <- purrr::map(list1, "term")
+            list1
         })
 
-        ### Check if they are going to share components
-        #All terms are equal
-        cond1 <- unlist(lapply(random_eff_args, function(x) x$term)) %>%
-            sapply(., function(x) x == .[1]) %>%
-            all(.)
 
-        #All models are equal
-        cond2 <- unlist(lapply(random_eff_args, function(x) x$model)) %>%
-            sapply(., function(x) x == .[1]) %>%
-            all(.)
+        ### Check if same index is used in different categories.
+        ## All the names for index
+        index_random_names <- purrr::map(random_eff_args, names) %>% unlist(.) %>% unique(.)
 
-        if(cond1 && cond2){
-            cat("Shared random effect")
-            # different elements for different index value (non-balanced effect)
-            data %>% dplyr::select(random_eff_args[[1]]$term) %>%
-                dplyr::pull() %>%
-                table(.) -> index
-            lapply(1:length(index), function(x){
-                vec <- rep(0, length(data[[random_eff_args[[1]]$term]]))
-                vec[data[[random_eff_args[[1]]$term]] == x] <- 1
-                Matrix::Matrix(vec)
-            }) %>%
-            do.call(cbind, .) -> Biid
+        ## Checking where are common effects
+        index_mat <- purrr::map(random_eff_args, names) %>%
+            lapply(., function(x){(index_random_names %in% x) %>% as.numeric()}) %>%
+            do.call(rbind, .) %>% Matrix(.)
+        colnames(index_mat) <- index_random_names
 
-            #Categories
-            Biid <- Matrix::Matrix(kronecker(Biid, rep(1, d)))
-         }
-        A <- c(A, Biid)
+        ## For common effect we have to check it they have the same arguments!
+        #Esto falta por hacer
+
+        ## Constructing the matrix for the effects (withouth having in mind categories)
+        index_random_names %>% lapply(., function(x){
+            dat <- data.frame(x = 1:n,
+                              y = data[,x])
+            A_random <- Matrix(data = 0, nrow = n, ncol = length(data[,x] %>% table(.)),
+                               dimnames = list(as.character(1:n), names(table(data[, x]))))
+            A_random[as.matrix(dat)] <- 1
+            A_random
+        }) -> A_random
+        names(A_random) <- index_random_names
+
+
+        ### Mixing categories with random effects, index_mat and A_random
+        index_random_names %>% lapply(., function(x){
+            kronecker(A_random[[x]], index_mat[,x] )
+        }) -> A_random
+        names(A_random) <- index_random_names
+
+        #Joining_matrix
+        A <- c(A, A_random)
     }
 
     A <- do.call(cbind, A)

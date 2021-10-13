@@ -65,8 +65,7 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
       }) %>%
       do.call(cbind.data.frame, .) -> effects
 
-    ### Matrix A
-    A <- 1
+
 
     ### Terms for the formula
     names_inla_fixed <- names(effects)
@@ -123,42 +122,59 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
   if(any(random_eff %>% sapply(., length) >=1))
   {
+
     ### Extract arguments from formula. We use INLA
     random_eff_args <- lapply(random_eff, function(x){
-      x %>% paste0("INLA::", .) %>% parse(text = .) %>% eval(.)
+      list1 <- lapply(x, function(x1){
+        form1 <- paste0("INLA::", x1) %>% parse(text = .) %>% eval(.)
+        form1
+      })
+      names(list1) <- purrr::map(list1, "term")
+      list1
     })
 
-    ### Check if they are going to share components
-    #All terms are equal
-    cond1 <- unlist(lapply(random_eff_args, function(x) x$term)) %>%
-      sapply(., function(x) x == .[1]) %>%
-      all(.)
 
-    #All models are equal
-    cond2 <- unlist(lapply(random_eff_args, function(x) x$model)) %>%
-      sapply(., function(x) x == .[1]) %>%
-      all(.)
+    ### Check if same index is used in different categories.
+    ## All the names for index
+    index_random_names <- purrr::map(random_eff_args, names) %>% unlist(.) %>% unique(.)
 
-    if(cond1 && cond2){
-      cat("Shared random effect")
-      #sharing
-      effectsiid <- kronecker(data[[random_eff_args[[1]]$term]], rep(1, d)) %>% data.frame(.)
-      colnames(effectsiid) <- random_eff_args[[1]]$term
-      formula.inla.pred <- paste(formula.inla.pred, random_eff[[1]], sep = "+")
-    }
+    ## Checking where are common effects
+    index_mat <- purrr::map(random_eff_args, names) %>%
+      lapply(., function(x){(index_random_names %in% x) %>% as.numeric()}) %>%
+      do.call(rbind, .) %>% Matrix(.)
+    colnames(index_mat) <- index_random_names
+    index_mat[index_mat == 0] <- NA
+
+    ## For common effect we have to check it they have the same arguments!
+    #Esto falta por hacer
+
+
+    ### Mixing categories with random effects, index_mat and A_random
+    index_random_names %>% lapply(., function(x){
+      kronecker(data[,x], index_mat[,x] )
+    }) -> effects_random
+    names(effects_random) <- index_random_names
+
+
+    #Formula
+    formula.inla.pred2 <- random_eff %>% unlist(.) %>% unique(.) %>% paste(., collapse = "+")
+    formula.inla.pred <- paste(formula.inla.pred, formula.inla.pred2, sep = "+")
+
   }else{
-    effectsiid <- rep(NA, n*d)
+    effects_random <- rep(NA, n*d)
   }
 
+  ### Mixing two formulas
   formula.inla <- covariatesall %>% names() %>% str_remove(., "1") %>% .[1] %>% paste0(., " ~ -1 + ")
   formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
-  effects <- cbind(effects, effectsiid)
+  effects <- cbind(effects, effects_random)
   if(all(is.na(effects[,dim(effects)[2]])))
   {
     effects <- effects[,-dim(effects)[2]]
-
   }
 
+  A <- 1
+  #Giving back the inla.stack
   list(inla.stack(data = list(y = y), A = c(A), effects = effects),
        formula.inla = formula.inla)
 }

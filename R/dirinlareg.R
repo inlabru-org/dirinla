@@ -157,7 +157,7 @@ dirinlareg <- function (formula,
   #Check this prior. As we are giving priors for any realizations of the Gaussian field
 
 
-  #Random effect. We use 1 in this moment
+  #Random effect.
   n_fixed <- names_cat %>% unlist() %>% length(.) - names_cat %>% unlist() %>% stringr::str_count(., "^f\\(") %>% sum(.)
     #Fixed effects, we use prior precision
     Qx <- Matrix(diag(prec, dim(A)[2]))
@@ -243,7 +243,7 @@ dirinlareg <- function (formula,
                                                    list(initial = log(1),
                                                         fixed   = TRUE))),
                  verbose           = verbose,
-                 num.threads = cores)
+                 num.threads = cores, ...)
 
 
     if(verbose == TRUE)
@@ -256,17 +256,25 @@ dirinlareg <- function (formula,
         "\n"
         #", x = ", paste(round(x_hat_new, 2), collapse = " ")
       ))
+
+
     }
     if(less != TRUE)
     {
       if(length(mod0$summary.random) == 0){
         x0 <- c(mod0$summary.fixed$mode)
       }else{
-        x0 <- c(mod0$summary.fixed$mode, mod0$summary.random[[1]]$mode)
+        x0 <- c(mod0$summary.fixed$mode, unlist(lapply(mod0$summary.random, '[[', "mode")))
+        Qx <- Matrix(diag(prec, dim(A)[2]))
+        diag(Qx)[-c(1:n_fixed)] <- rep(mod0$summary.hyperpar$mode, unlist(lapply(mod0$summary.random, function(x)dim(x)[1])))
+        j <- j + 1
       }
-      Qx <- Matrix(diag(prec, dim(A)[2]))
-      diag(Qx)[-c(1:n_fixed)] <- mod0$summary.hyperpar$mode
-      j <- j + 1
+
+
+      #########################################################################
+      ################### ME HE QUEDADO AQUÍ ###################################
+      ##########################################################################
+
     }
   }
   ### --- 5 Extracting posterior distributions --- ####
