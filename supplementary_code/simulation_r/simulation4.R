@@ -4,10 +4,10 @@
 # simulations to guarantee convergence of the method, and with long r-jags,   #
 # which has a large amount of simulations. The model that we try to fit is :  #
 # --- Y \sim Dirich(exp(eta_1), exp(eta_2), ... , exp(eta_4))                 #
-# --- --- eta_1 = X1 beta1 + f(iid, model = "iid"),               #
-# --- --- eta_2 = X2 beta2 + f(iid, model = "iid"),               #
-# --- --- eta_3 = X3 beta3 + f(iid, model = "iid"),               #
-# --- --- eta_4 = X4 beta4 + f(iid, model = "iid"),               #
+# --- --- eta_1 = X1 beta1 + f(iid1, model = "iid"),               #
+# --- --- eta_2 = X2 beta2 + f(iid1, model = "iid"),               #
+# --- --- eta_3 = X3 beta3 + f(iid2, model = "iid"),               #
+# --- --- eta_4 = X4 beta4 + f(iid2, model = "iid"),               #
 # ----------------------------------------------------------------------------#
 
 ### --- 1. Libraries ---- #####
@@ -27,38 +27,57 @@ library(R2jags)
 library(xtable)
 
 library(dplyr)
+library(parallel)
 
 ### --- 2. Function for simulation --- ####
-simulations_with_slopes_iid <- function(n, levels_factor = NULL)
+simulations_with_slopes_iid <- function(n, levels_factor = NA)
 {
   ### --- 2. Simulation data --- ####
   cat("n = ", n, " -----> Simulating data \n")
+
   set.seed(100)
-  if(is.null(levels_factor)){
+  if(is.na(levels_factor)){
     levels_factor <- n
   }
   cat_elem <- n/levels_factor
+  cat(paste0(n, "-", levels_factor, "\n"))
   #Covariates
   V <- as.data.frame(matrix(runif((10)*n, -1, 1), ncol=10))
   #V <- as.data.frame(matrix(rnorm((10)*n, 0, 1), ncol=10))
   names(V) <- paste0('v', 1:(10))
 
-  iid2 <- rep(1:levels_factor, rep(n/levels_factor, levels_factor))
-  V <- cbind(V, iid2)
+  ### 4 random effects
+  iid1 <- iid2  <- rep(1:levels_factor, rep(n/levels_factor, levels_factor))
+  #Desorder index 3
+  # pos <- sample(1:length(iid3))
+  # iid3 <- iid3[pos]
+
+  V <- cbind(V, iid1, iid2)
 
   # Formula that we want to fit
-  formula <- y ~ -1 + v1 + f(iid2, model = 'iid') | -1 + v2 + f(iid2, model = 'iid') | -1 + v3 + f(iid2, model = 'iid') | -1 + v4 + f(iid2, model = 'iid')
+  formula <- y ~ -1 + v1 + f(iid1, model = 'iid') |
+    -1 + v2 + f(iid1, model = 'iid') |
+    -1 + v3 + f(iid2, model = 'iid') |
+    -1 + v4 + f(iid2, model = 'iid')
   names_cat <- formula_list(formula)
 
   x <- c(-1.5, 2,
          1, -3)
 
   #random effect
-  prec_w <- 10
-  sd_w <- 1/sqrt(10)
-  w <- rnorm(levels_factor, sd = sqrt(1/prec_w)) %>% rep(., rep(n/levels_factor, levels_factor))
+  prec_w <- c(4, 9)
+  (sd_w <- 1/sqrt(prec_w))
 
-  x <- c(x, unique(w))
+  w1 <- rnorm(levels_factor, sd = sqrt(1/prec_w[1])) %>% rep(., rep(n/levels_factor, levels_factor))
+  w2 <- w1
+  w3 <- rnorm(levels_factor, sd = sqrt(1/prec_w[2])) %>% rep(., rep(n/levels_factor, levels_factor))
+  w4 <- w2
+
+
+  #w3 <- w3[pos]
+  x <- c(x, c(unique(w1),
+              unique(w3)))
+
 
   d <- length(names_cat)
   A_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
@@ -99,26 +118,32 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
 
   }else{
     ## MCMC configuration
-    ni <- 5000
+    ni <- 20000
     nt <- 5
-    nb <- 1000
+    nt <- 5
+    #nb <- 20
+    nb <- 2000
     nc <- 3
 
     ## Data set
-    table(V$iid2) %>%length() -> niv_length
+    table(V$iid1) %>%length() -> niv_length1
+    table(V$iid2) %>%length() -> niv_length2
+
     data_jags <- list(y = y,
                       N = dim(y)[1],
                       d = d,
                       V = V,
-                      niv = V$iid2,
-                      niv_length = niv_length)
+                      niv1 = V$iid1,
+                      niv2 = V$iid2,
+                      niv_length1 = niv_length1,
+                      niv_length2 = niv_length2)
 
     ## Initial values
     inits <- function(){list(beta1 = rnorm(d, 0, 1),
-                             sd1  = runif(1, 0.1, 10))}
+                             sigma1  = runif(1, 0.1, 10))}
 
     ## Parameters of interest
-    parameters <- c('beta1', 'sd1')
+    parameters <- c('beta1', 'sigma1', 'sigma2')
 
     cat("
     model {
@@ -126,24 +151,30 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
     for (i in 1:N){
     y[i, ] ~ ddirch(alpha[i,])
 
-    log(alpha[i,1]) <- beta1[1]*V[i,1] + w[niv[i]]
-    log(alpha[i,2]) <- beta1[2]*V[i,2] + w[niv[i]]
-    log(alpha[i,3]) <- beta1[3]*V[i,3] + w[niv[i]]
-    log(alpha[i,4]) <- beta1[4]*V[i,4] + w[niv[i]]
+    log(alpha[i,1]) <- beta1[1]*V[i,1] + w1[niv1[i]]
+    log(alpha[i,2]) <- beta1[2]*V[i,2] + w1[niv1[i]]
+    log(alpha[i,3]) <- beta1[3]*V[i,3] + w2[niv2[i]]
+    log(alpha[i,4]) <- beta1[4]*V[i,4] + w2[niv2[i]]
     }
 
-    for(j in 1:niv_length){
-        w[j] ~ dnorm(0, tau1)
+    for(j in 1:niv_length1){
+        w1[j] ~ dnorm(0, tau1)
+    }
+
+     for(j in 1:niv_length2){
+        w2[j] ~ dnorm(0, tau2)
     }
 
     #priors
-    tau1 <- 1/(sd1*sd1)
-    sd1 ~ dunif(0, 10)
+    tau1 <- 1/(sigma1*sigma1)
+    sigma1 ~ dunif(0, 10)
+
+    tau2 <- 1/(sigma2*sigma2)
+    sigma2 ~ dunif(0, 10)
 
 
     for (c in 1:d)
     {
-    beta0[c]  ~ dnorm(0, 0.01)
     beta1[c] ~ dnorm(0, 0.01)
     }
     }", file="model_cov.jags" )
@@ -185,14 +216,17 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
     }
   }else{
     t <- proc.time() # Measure the time
-    model.inla <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
-                                 -1 + v2 + f(iid2, model = 'iid') |
-                                 -1 + v3 + f(iid2, model = 'iid') |
-                                 -1 + v4 + f(iid2, model = 'iid'),
+    model.inla <- dirinlareg( formula  = y ~
+                                 -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
+                                 -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
+                                 -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
+                                 -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))),
                 y        = y,
                 data.cov = V,
                 prec     = 0.01,
-                verbose  = TRUE)
+                verbose  = FALSE,
+                control.inla = list(strategy = "laplace", int.strategy = "grid"),
+)
 
     t_inla <- proc.time()-t    # Stop the time
     t_inla <- t_inla[3]
@@ -213,14 +247,15 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
     }
   }else{
     t <- proc.time() # Measure the time
-    model.inla.2 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
-                                -1 + v2 + f(iid2, model = 'iid') |
-                                -1 + v3 + f(iid2, model = 'iid') |
-                                -1 + v4 + f(iid2, model = 'iid'),
-                              y        = y,
-                              data.cov = V,
-                              prec     = 0.01,
-                              verbose  = TRUE)
+    model.inla.2 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+                                  -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+                                  -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+                                  -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))),
+                                y        = y,
+                                data.cov = V,
+                                prec     = 0.01,
+                                verbose  = FALSE,
+                                control.inla = list(strategy = "laplace", int.strategy = "grid"))
 
     t_inla_2 <- proc.time()-t    # Stop the time
     t_inla_2 <- t_inla_2[3]
@@ -243,29 +278,31 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
     }
   }else{
     ## MCMC configuration
-     ni <- 20000
-     nb <- 2000
-    #ni <- 1000000
+     ni <- 100000
+     nb <- 10000
+    #ni <- 1000
     nt <- 5
-    #nb <- 100000
+    #nb <- 10
     nc <- 3
 
-    ## Data set
-    ## Data set
-    table(V$iid2) %>%length() -> niv_length
+    table(V$iid1) %>%length() -> niv_length1
+    table(V$iid2) %>%length() -> niv_length2
+
     data_jags <- list(y = y,
                       N = dim(y)[1],
                       d = d,
                       V = V,
-                      niv = V$iid2,
-                      niv_length = niv_length)
+                      niv1 = V$iid1,
+                      niv2 = V$iid2,
+                      niv_length1 = niv_length1,
+                      niv_length2 = niv_length2)
 
     ## Initial values
     inits <- function(){list(beta1 = rnorm(d, 0, 1),
-                             sd1  = runif(1, 0.1, 10))}
+                             sigma1  = runif(1, 0.1, 10))}
 
     ## Parameters of interest
-    parameters <- c('beta1', 'sd1')
+    parameters <- c('beta1', 'sigma1', 'sigma2')
 
     cat("
     model {
@@ -273,28 +310,33 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
     for (i in 1:N){
     y[i, ] ~ ddirch(alpha[i,])
 
-    log(alpha[i,1]) <- beta1[1]*V[i,1] + w[niv[i]]
-    log(alpha[i,2]) <- beta1[2]*V[i,2] + w[niv[i]]
-    log(alpha[i,3]) <- beta1[3]*V[i,3] + w[niv[i]]
-    log(alpha[i,4]) <- beta1[4]*V[i,4] + w[niv[i]]
+    log(alpha[i,1]) <- beta1[1]*V[i,1] + w1[niv1[i]]
+    log(alpha[i,2]) <- beta1[2]*V[i,2] + w1[niv1[i]]
+    log(alpha[i,3]) <- beta1[3]*V[i,3] + w2[niv2[i]]
+    log(alpha[i,4]) <- beta1[4]*V[i,4] + w2[niv2[i]]
     }
 
-    for(j in 1:niv_length){
-        w[j] ~ dnorm(0, tau1)
+    for(j in 1:niv_length1){
+        w1[j] ~ dnorm(0, tau1)
+    }
+
+     for(j in 1:niv_length2){
+        w2[j] ~ dnorm(0, tau2)
     }
 
     #priors
-    tau1 <- 1/(sd1*sd1)
-    sd1 ~ dunif(0, 10)
+    tau1 <- 1/(sigma1*sigma1)
+    sigma1 ~ dunif(0, 10)
+
+    tau2 <- 1/(sigma2*sigma2)
+    sigma2 ~ dunif(0, 10)
+
 
     for (c in 1:d)
     {
-    beta0[c]  ~ dnorm(0, 0.01)
     beta1[c] ~ dnorm(0, 0.01)
     }
     }", file="model_cov.jags" )
-
-
 
 
 
@@ -313,10 +355,10 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
     t_jags_2 <- t_jags_2[3]
   }
   ### ----- 3.4. Saving models --- ####
-  saveRDS(file = paste0("model_jags_", n,".RDS"), model.jags)
-  saveRDS(file = paste0("model_jags_long_", n, ".RDS"), model.jags.2)
-  saveRDS(file = paste0("model_inla_", n, ".RDS"), model.inla)
-  saveRDS(file = paste0("model_inla_2_", n, ".RDS"), model.inla.2)
+  saveRDS(file = paste0("model_jags_", n,"_", levels_factor, ".RDS"), model.jags)
+  saveRDS(file = paste0("model_jags_long_", n,"_", levels_factor, ".RDS"), model.jags.2)
+  saveRDS(file = paste0("model_inla_", n,"_", levels_factor, ".RDS"), model.inla)
+  saveRDS(file = paste0("model_inla_2_", n,"_", levels_factor, ".RDS"), model.inla.2)
 
 
 
@@ -356,21 +398,36 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
 
   }
 
-  mean_jags_2_sigma <- mean(model.jags.2$BUGSoutput$sims.list$sd1)
-  sd_jags_2_sigma <- sd(model.jags.2$BUGSoutput$sims.list$sd1)
+  mean_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
+  sd_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
 
-  inla_sigma_sim <- 1/sqrt(inla.rmarginal(10000, model.inla$marginals_hyperpar$`Precision for iid2`))
-  inla_sigma_sim_2 <- 1/sqrt(inla.rmarginal(10000, model.inla.2$marginals_hyperpar$`Precision for iid2`))
+  inla_sigma_sim <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla$marginals_hyperpar[[x]])))
+  inla_sigma_sim_2 <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla.2$marginals_hyperpar[[x]])))
+  names(inla_sigma_sim) <- c("sigma1", "sigma2")
+  names(inla_sigma_sim_2) <- c("sigma1", "sigma2")
 
-  inla_sigma <- inla.tmarginal(function(x)1/sqrt(x), model.inla$marginals_hyperpar$`Precision for iid2`)
-  inla_sigma_2 <- inla.tmarginal(function(x)1/sqrt(x), model.inla.2$marginals_hyperpar$`Precision for iid2`)
+  inla_sigma <- lapply(1:2, function(x) inla.tmarginal(function(x) 1/sqrt(x), inla.smarginal(model.inla$marginals_hyperpar[[x]], factor = 100)))
+  inla_sigma_2 <- lapply(1:2, function(x) inla.tmarginal(function(x) 1/sqrt(x), inla.smarginal(model.inla.2$marginals_hyperpar[[x]], factor = 100)))
+  names(inla_sigma) <- c("sigma1", "sigma2")
+  names(inla_sigma_2) <- c("sigma1", "sigma2")
+
+  inla_sigma_log <- lapply(1:2, function(x) inla.tmarginal(function(x) log(1/sqrt(x)), inla.smarginal(model.inla$marginals_hyperpar[[x]], factor = 100)))
+  inla_sigma_log_2 <- lapply(1:2, function(x) inla.tmarginal(function(x) log(1/sqrt(x)), inla.smarginal(model.inla.2$marginals_hyperpar[[x]], factor = 100)))
+  names(inla_sigma_log) <- c("log(sigma1)", "log(sigma2)")
+  names(inla_sigma_log_2) <- c("log(sigma1)", "log(sigma2)")
 
 
-  ratio1_sigma <- (mean(inla_sigma_sim) - mean_jags_2_sigma)/sd_jags_2_sigma
-  ratio2_sigma <- sd(inla_sigma_sim)^2/sd_jags_2_sigma^2
 
-  ratio1_sigma_pc <- (mean(inla_sigma_sim_2) - mean_jags_2_sigma)/sd_jags_2_sigma
-  ratio2_sigma_pc <- sd(inla_sigma_sim_2)^2/sd_jags_2_sigma^2
+  ratio1_sigma <- (lapply(inla_sigma_sim, mean) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
+  ratio2_sigma <- (lapply(inla_sigma_sim, sd) %>% unlist())^2/(sd_jags_2_sigma^2)
+
+
+  ratio1_sigma_pc <- (lapply(inla_sigma_sim_2, mean) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
+  ratio2_sigma_pc <- (lapply(inla_sigma_sim_2, sd) %>% unlist())^2/(sd_jags_2_sigma^2)
+
+
+
+
 
 
   ### ----- 4.3. Mean and sd of the posterior distributions --- ####
@@ -558,73 +615,150 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
 
 
   #### Hyperparemeters
-  sd1 <- expression(paste("p(", sigma, "|", "y)"))
 
   #jags1
-  model.jags$BUGSoutput$sims.matrix[,c("sd1")] %>%
-    log(.) %>%
-    density(., adjust = 2) %>%
-    inla.tmarginal(fun = function(x)exp(x), .) %>%
-    do.call(data.frame, .) -> dens
+  #logSigma1 and logSigma2
+  lapply(c("sigma1", "sigma2"), function(x){
+    model.jags$BUGSoutput$sims.matrix[,c(x)] %>%
+      log(.) %>%
+      density(., adjust = 2) %>%
+      .[1:2] %>%
+      do.call(data.frame, .) -> dens
+    colnames(dens) <- c("x", "y")
+    dens
+  }) -> dens_log
+  names(dens_log) <- c("log(sigma1)", "log(sigma2)")
+
+
+  #Sigma1 and Sigma2
+  lapply(c("sigma1", "sigma2"), function(x){
+    model.jags$BUGSoutput$sims.matrix[,c(x)] %>%
+      log(.) %>%
+      density(., adjust = 2) %>%
+      .[1:2] %>%
+      inla.tmarginal(fun = function(x)exp(x), .) %>%
+      do.call(data.frame, .) -> dens
+    colnames(dens) <- c("x", "y")
+    dens
+  }) -> dens
+  names(dens) <- c("sigma1", "sigma2")
   #
-  # dens <- density(model.jags$BUGSoutput$sims.matrix[,c("sd1")], adjust = 2)
+  # dens <- density(model.jags$BUGSoutput$sims.matrix[,c("sigma1")], adjust = 2)
   # dens <- as.data.frame(cbind(dens$x, dens$y))
-  colnames(dens) <- c("x", "y")
 
 
 
   #jags2
-  model.jags.2$BUGSoutput$sims.matrix[,c("sd1")] %>%
-    log(.) %>%
-    density(., adjust = 2) %>%
-    inla.tmarginal(fun = function(x)exp(x), .) %>%
-    do.call(data.frame, .)-> dens2
+  #logSigma1 and logSigma2
+  lapply(c("sigma1", "sigma2"), function(x){
+    model.jags.2$BUGSoutput$sims.matrix[,c(x)] %>%
+      log(.) %>%
+      density(., adjust = 2) %>%
+      .[1:2] %>%
+      do.call(data.frame, .) -> dens
+    colnames(dens) <- c("x", "y")
+    dens
+  }) -> dens_log2
+  names(dens_log2) <- c("log(sigma1)", "log(sigma2)")
 
-  colnames(dens2) <- c("x", "y")
 
-  #Data combining jags (1) and inla (2)
-  dens <- rbind(cbind(dens, group = 1),
-                cbind(as.data.frame(inla_sigma), group = 2),
-                cbind(dens2, group = 3),
-                cbind(as.data.frame(inla_sigma_2), group = 4))
-  dens$group <- factor(dens$group,
-                       labels = c("R-JAGS", "dirinla", "long R-JAGS", "dirinla pc"))
+
+  lapply(c("sigma1", "sigma2"), function(x){
+    model.jags.2$BUGSoutput$sims.matrix[,c(x)] %>%
+      log(.) %>%
+      density(., adjust = 2) %>%
+      .[1:2] %>%
+      inla.tmarginal(fun = function(x)exp(x), .) %>%
+      do.call(data.frame, .) -> dens
+    colnames(dens) <- c("x", "y")
+    dens
+  }) -> dens2
+  names(dens2) <- c("sigma1", "sigma2")
+
+# plot(dens2$sigma1, xlim = c(0.1, 2))
+# plot(dens2$sigma2, xlim = c(0.1, 2))
+# (dens2$sigma1$x < 0.05) %>% table(.)
+
+# lapply(dens2, function(a){
+#   a %>% dplyr::filter(x > 0.07)
+# }) -> dens2
+
+  dens <- c(dens, dens_log)
+  dens2 <- c(dens2, dens_log2)
+  inla_sigma <- c(inla_sigma, inla_sigma_log)
+  inla_sigma_2 <- c(inla_sigma_2, inla_sigma_log_2)
+
 
   ### ----- 5.3. hyperpar --- ####
-  p3 <- ggplot(dens,
-               aes(x = x,
-                   y = y,
-                   group = group
-                   #colour = factor(group)
-               ))  +
-    geom_line(size = 0.6, aes(linetype = group ,
-                              color    = group)) +
-    xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
-    theme_bw() + #Show axes
-    xlab(expression(sigma)) + #xlab
-    ylab(sd1) #ylab
+  sd_name <- list(expression(paste("p(", sigma_1, "|", "y)")),
+                  expression(paste("p(", sigma_2, "|", "y)")),
+                  expression(paste("p(", "log(sigma_1)", "|", "y)")),
+                  expression(paste("p(", "log(sigma_2)", "|", "y)")))
+  sd_name2 <- list(expression(sigma_1), expression(sigma_2),
+                   expression("log(sigma_1)"),
+                   expression("log(sigma_2)"))
+
+  p3 <- list()
+  for(i in 1:length(dens))
+  {
+    #Data combining jags (1) and inla (2)
+    dens_sigma <- rbind(cbind(dens[[i]], group = 1),
+                         cbind(as.data.frame(inla_sigma[[i]]), group = 2),
+                         cbind(dens2[[i]], group = 3),
+                         cbind(as.data.frame(inla_sigma_2[[i]]), group = 4))
+    dens_sigma$group <- factor(dens_sigma$group,
+                                labels = c("R-JAGS", "dirinla", "long R-JAGS", "dirinla pc"))
 
 
-  #Frequentist approach
-  p3 <- p3 + geom_vline(xintercept = 1/sqrt(prec_w))
+    p3[[i]] <- ggplot(dens_sigma,
+                 aes(x = x,
+                     y = y,
+                     group = group
+                     #colour = factor(group)
+                 ))  +
+      geom_line(size = 0.6, aes(linetype = group ,
+                                color    = group)) +
+      xlim(c(min(dens_sigma$x[dens_sigma$group=="R-JAGS"]), max(dens_sigma$x[dens_sigma$group=="R-JAGS"]))) +
+      theme_bw() + #Show axes
+      xlab(sd_name2[[i]]) + #xlab
+      ylab(sd_name[[i]]) #ylab
 
 
-  xmax <- ifelse(n <= 100, 100, 50)
-  xmax <- 5
-  ### --- legend --- ###
-  p3 <- p3 + theme(legend.position   = c(0.8, 0.8),
-                            legend.title      = element_blank(),
-                            legend.background = element_rect(colour = "gray"),
-                            legend.key        = element_rect(colour = "white", fill="white"),
-                            legend.key.size   = unit(0.5, "cm")) +
-    theme(legend.text = element_text(size = 9)) +
-    # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
-    #                   values = c("darkgreen", "red4", "blue4" )) +
-    scale_colour_manual (
-      values= c("darkgreen", "red4", "blue4", "orange2")) +
-    scale_linetype_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS", "dirinla_pc"),
-                          values=c("dotted", "twodash",  "solid", "longdash")) +
-    xlim(0, xmax)
+    #Frequentist approach
+    constant <- c(1/sqrt(prec_w), log(1/sqrt(prec_w)))
+    p3[[i]] <- p3[[i]] + geom_vline(xintercept = constant[i])
+
+
+    #xmax <- ifelse(n <= 100, 100, 50)
+    xmax <- 2
+    ### --- legend --- ###
+    p3[[i]] <- p3[[i]] + theme(legend.position   = c(0.8, 0.8),
+                     legend.title      = element_blank(),
+                     legend.background = element_rect(colour = "gray"),
+                     legend.key        = element_rect(colour = "white", fill="white"),
+                     legend.key.size   = unit(0.5, "cm")) +
+      theme(legend.text = element_text(size = 9)) +
+      # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
+      #                   values = c("darkgreen", "red4", "blue4" )) +
+      scale_colour_manual (
+        values= c("darkgreen", "red4", "blue4", "orange2")) +
+      scale_linetype_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS", "dirinla pc"),
+                            values=c("dotted", "twodash",  "solid", "longdash"))
+
+
+    if(i!=1)
+    {
+      p3[[i]] <- p3[[i]] + theme(legend.position="none")
+    }
+
+    p3[[i]] <- p3[[i]] + ggtitle("") +
+      theme(
+        plot.title = element_text(color = "black",
+                                  size  = 15,
+                                  face  = "bold.italic",
+                                  hjust = 0.5))
+  }
+
 
 
 
@@ -634,15 +768,23 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
 
 
 
-  pdf(paste0("examples_simulation4_slopes_", n ,".pdf"), width = 15, height = 4)
+  # pdf(paste0("examples_simulation4_slopes_", n ,"_", levels_factor, ".pdf"), width = 15, height = 4)
+  # gridExtra::grid.arrange(
+  #                         p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+  # dev.off()
+  #
+  # pdf(paste0("examples_simulation4_sigma_", n ,"_", levels_factor,".pdf"), width = 15, height = 4)
+  # gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
+  # dev.off()
+
+  png(paste0("examples_simulation4_slopes_", n ,"_", levels_factor, ".png"), width = 2000, height = 600, res = 150)
   gridExtra::grid.arrange(
-                          p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+    p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
   dev.off()
 
-  pdf(paste0("examples_simulation4_sigma_", n ,".pdf"), width = 7, height = 5)
-  gridExtra::grid.arrange(p3, ncol = 1)
+  png(paste0("examples_simulation4_sigma_", n ,"_", levels_factor,".png"), width = 2000, height = 600, res = 120)
+  gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
   dev.off()
-
 
   check_jags1 <- print(model.jags)
   check_jags2 <- print(model.jags.2)
@@ -668,16 +810,39 @@ simulations_with_slopes_iid <- function(n, levels_factor = NULL)
 
 
  ### --- 3. Calling the function --- ####
-n <- c(50, 100, 300)
-a <- parallel::mclapply(n, simulations_with_slopes_iid,
+n <- c(50, 100, 500)
+n <- c(50)
+levels_factor <- c(5, 10, 25, NA)
+
+arguments <- expand.grid(n, levels_factor)
+n <- arguments[,1]
+levels_factor <- arguments[,2]
+a <- mapply(simulations_with_slopes_iid,
+       n = n,
+       levels_factor = levels_factor)
+
+simulations_with_slopes_iid(50, 10)
+
+
+a[,1]
+a <- parallel::mcmapply(simulations_with_slopes_iid,
+                        n = n,
+                        levels_factor = levels_factor,
                         mc.cores = 3)
-n<-100
-a <- lapply(n, simulations_with_slopes_iid, levels_factor = 1)
+
+a <- parallel::mclapply(n, simulations_with_slopes_iid, level_factor = 2,
+                        mc.cores = 3)
+#n <- c(50, 100)
+a <- lapply(n, simulations_with_slopes_iid, levels_factor = 10)
 names(a) <- paste0("n", n)
 saveRDS(a, file = "simulation4_50-500.RDS")
 a <- readRDS(file = "simulation4_50-500.RDS")
 
 a$n50$times
+a$n50$ratio1_slopes
+a
+
+
 n <- c(1000, 10000)
 a <- parallel::mclapply(n, simulations_with_slopes_iid,
                         mc.cores = 2)
