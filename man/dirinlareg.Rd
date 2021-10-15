@@ -11,7 +11,7 @@ dirinlareg(
   share = NULL,
   x0 = NULL,
   tol0 = 1e-05,
-  tol1 = 0.01,
+  tol1 = 0.1,
   k0 = 20,
   k1 = 5,
   a = 0.5,
