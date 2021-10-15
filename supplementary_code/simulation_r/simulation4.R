@@ -33,7 +33,7 @@ library(parallel)
 simulations_with_slopes_iid <- function(n, levels_factor = NA)
 {
   ### --- 2. Simulation data --- ####
-  cat("n = ", n, " -----> Simulating data \n")
+  cat("n = ", n, " - levels_factor = ", levels_factor," -----> Simulating data \n")
 
   set.seed(100)
   if(is.na(levels_factor)){
@@ -103,7 +103,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
   ### --- 3. Comparing posterior distributions. jags vs INLA --- ####
   ### ----- 3.1. Fitting the model with jags --- ####
-  cat(paste0("n = ", n, " -----> Fitting using SHORT JAGS \n"))
+  cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using SHORT JAGS \n"))
 
   if(file.exists(paste0("model_jags_", n,".RDS"))){
     model.jags <- readRDS(paste0("model_jags_", n,".RDS"))
@@ -120,10 +120,13 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     ## MCMC configuration
     ni <- 20000
     nt <- 5
-    nt <- 5
     #nb <- 20
     nb <- 2000
     nc <- 3
+
+    # ni <- 1000
+    # nb <- 100
+
 
     ## Data set
     table(V$iid1) %>%length() -> niv_length1
@@ -203,7 +206,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
   ### ----- 3.2. Fitting the model with INLA --- ####
-  cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
+  cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using INLA \n"))
   if(file.exists(paste0("model_inla_", n,".RDS"))){
     model.inla <- readRDS(paste0("model_inla_", n,".RDS"))
     if(n< 1000)
@@ -234,7 +237,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   }
 
   ### ----- 3.2. Fitting the model with INLA pc prior--- ####
-  cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
+  cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using INLA \n"))
   if(file.exists(paste0("model_inla_", n,".RDS"))){
     model.inla.2 <- readRDS(paste0("model_inla_pc_", n,".RDS"))
     if(n< 1000)
@@ -264,7 +267,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
   ### ----- 3.3. Fitting the model with long jags --- ####
-  cat(paste0("n = ", n, " -----> Fitting using long JAGS \n"))
+  cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using long JAGS \n"))
 
   if(file.exists(paste0("model_jags_long_", n,".RDS"))){
     model.jags.2 <- readRDS(paste0("model_jags_long_", n,".RDS"))
@@ -284,6 +287,10 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     nt <- 5
     #nb <- 10
     nc <- 3
+
+
+    # ni <- 1000
+    # nb <- 100
 
     table(V$iid1) %>%length() -> niv_length1
     table(V$iid2) %>%length() -> niv_length2
@@ -363,7 +370,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
   ### --- 4. Comparing methodologies --- ####
-  cat(paste0("n = ", n, " -----> Comparing methodologies \n"))
+  cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Comparing methodologies \n"))
 
   ### ----- 4.1. Computational times --- ####
   times <- c(t_jags, t_inla, t_jags_2, t_inla_2)
@@ -401,16 +408,16 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   mean_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
   sd_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
 
-  inla_sigma_sim <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla$marginals_hyperpar[[x]])))
-  inla_sigma_sim_2 <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla.2$marginals_hyperpar[[x]])))
-  names(inla_sigma_sim) <- c("sigma1", "sigma2")
-  names(inla_sigma_sim_2) <- c("sigma1", "sigma2")
+  mean_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
+  sd_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
 
+  #inla_sigma
   inla_sigma <- lapply(1:2, function(x) inla.tmarginal(function(x) 1/sqrt(x), inla.smarginal(model.inla$marginals_hyperpar[[x]], factor = 100)))
   inla_sigma_2 <- lapply(1:2, function(x) inla.tmarginal(function(x) 1/sqrt(x), inla.smarginal(model.inla.2$marginals_hyperpar[[x]], factor = 100)))
   names(inla_sigma) <- c("sigma1", "sigma2")
   names(inla_sigma_2) <- c("sigma1", "sigma2")
 
+  #inla sigma log
   inla_sigma_log <- lapply(1:2, function(x) inla.tmarginal(function(x) log(1/sqrt(x)), inla.smarginal(model.inla$marginals_hyperpar[[x]], factor = 100)))
   inla_sigma_log_2 <- lapply(1:2, function(x) inla.tmarginal(function(x) log(1/sqrt(x)), inla.smarginal(model.inla.2$marginals_hyperpar[[x]], factor = 100)))
   names(inla_sigma_log) <- c("log(sigma1)", "log(sigma2)")
@@ -418,12 +425,26 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
 
-  ratio1_sigma <- (lapply(inla_sigma_sim, mean) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
-  ratio2_sigma <- (lapply(inla_sigma_sim, sd) %>% unlist())^2/(sd_jags_2_sigma^2)
+  # inla_sigma_sim <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla$marginals_hyperpar[[x]])))
+  # inla_sigma_sim_2 <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla.2$marginals_hyperpar[[x]])))
+  # names(inla_sigma_sim) <- c("sigma1", "sigma2")
+  # names(inla_sigma_sim_2) <- c("sigma1", "sigma2")
+
+  #Ratios sigma
+  ratio1_sigma <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
+  ratio2_sigma <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
 
 
-  ratio1_sigma_pc <- (lapply(inla_sigma_sim_2, mean) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
-  ratio2_sigma_pc <- (lapply(inla_sigma_sim_2, sd) %>% unlist())^2/(sd_jags_2_sigma^2)
+  ratio1_sigma_pc <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
+  ratio2_sigma_pc <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
+
+  #Ratios logarithm
+  ratio1_sigma_log <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
+  ratio2_sigma_log <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
+
+
+  ratio1_sigma_log_pc <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
+  ratio2_sigma_log_pc <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
 
 
 
@@ -804,19 +825,24 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
        ratio2_sigma = ratio2_sigma,
        ratio1_sigma_pc = ratio1_sigma_pc,
        ratio2_sigma_pc = ratio2_sigma_pc,
+       ratio1_sigma_log = ratio1_sigma_log,
+       ratio2_sigma_log = ratio2_sigma_log,
+       ratio1_sigma_log_pc = ratio1_sigma_log_pc,
+       ratio2_sigma_log_pc = ratio2_sigma_log_pc,
        res_check_jags1 = res_check_jags1,
-       res_check_jags2 = res_check_jags2)
+       res_check_jags2 = res_check_jags2,
+       n_levels = paste0(n, "-", levels_factor))
 }
 
 
  ### --- 3. Calling the function --- ####
 n <- c(50, 100, 500)
-n <- c(50)
 levels_factor <- c(5, 10, 25, NA)
 
 arguments <- expand.grid(n, levels_factor)
 n <- arguments[,1]
 levels_factor <- arguments[,2]
+
 a <- mapply(simulations_with_slopes_iid,
        n = n,
        levels_factor = levels_factor)
@@ -824,24 +850,30 @@ a <- mapply(simulations_with_slopes_iid,
 simulations_with_slopes_iid(50, 10)
 
 
-a[,1]
-a <- parallel::mcmapply(simulations_with_slopes_iid,
-                        n = n,
-                        levels_factor = levels_factor,
-                        mc.cores = 3)
-
-a <- parallel::mclapply(n, simulations_with_slopes_iid, level_factor = 2,
-                        mc.cores = 3)
+# a[,1]
+# a <- parallel::mcmapply(simulations_with_slopes_iid,
+#                         n = n,
+#                         levels_factor = levels_factor,
+#                         mc.cores = 3)
+#
+# a <- parallel::mclapply(n, simulations_with_slopes_iid, level_factor = 2,
+#                         mc.cores = 3)
 #n <- c(50, 100)
-a <- lapply(n, simulations_with_slopes_iid, levels_factor = 10)
+#a <- lapply(n, simulations_with_slopes_iid, levels_factor = 10)
 names(a) <- paste0("n", n)
 saveRDS(a, file = "simulation4_50-500.RDS")
 a <- readRDS(file = "simulation4_50-500.RDS")
 
+levels_factor[c(10,11,12)] <- c(50, 100, 500)
+colnames(a) <- paste0(n, "-", levels_factor)
+a[, c("50-5")]
+
+a[, c("50-5")]
 a$n50$times
 a$n50$ratio1_slopes
 a
 
+paste0()
 
 n <- c(1000, 10000)
 a <- parallel::mclapply(n, simulations_with_slopes_iid,
