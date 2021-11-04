@@ -4,7 +4,7 @@
 \alias{plot.dirinlaregmodel}
 \title{plot of dirinlaregmodel xs}
 \usage{
-plot.dirinlaregmodel(x, ...)
+\method{plot}{dirinlaregmodel}(x, ...)
 }
 \arguments{
 \item{x}{Object of class dirinlaregmodel.}
