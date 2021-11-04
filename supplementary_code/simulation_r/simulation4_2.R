@@ -32,7 +32,7 @@ library(dplyr)
 ### --- 2. Simulation data --- ####
 cat("n = ", n, " -----> Simulating data \n")
 set.seed(100)
-n <- 50
+n <- 100
 levels_factor <- n
 cat_elem <- n/levels_factor
 
@@ -47,7 +47,7 @@ iid1 <- iid2  <- rep(1:levels_factor, rep(n/levels_factor, levels_factor))
 # pos <- sample(1:length(iid3))
 # iid3 <- iid3[pos]
 
-V <- cbind(V, iid1, iid2, iid3, iid4)
+V <- cbind(V, iid1, iid2)
 
 # Formula that we want to fit
 formula <- y ~ -1 + v1 + f(iid1, model = 'iid') |
@@ -60,7 +60,7 @@ x <- c(-1.5, 2,
        1, -3)
 
 #random effect
-prec_w <- c(1, 20)
+prec_w <- c(4, 3)
 (sd_w <- 1/sqrt(prec_w))
 
 w1 <- rnorm(levels_factor, sd = sqrt(1/prec_w[1])) %>% rep(., rep(n/levels_factor, levels_factor))
@@ -123,146 +123,97 @@ model.inla.2$summary_hyperpar
 
 
 ### --- 3. Comparing posterior distributions. jags vs INLA --- ####
-### ----- 3.1. Fitting the model with jags --- ####
+### ----- 3.1. Fitting the model with jags with pc-prior for sd --- ####
 cat(paste0("n = ", n, " -----> Fitting using SHORT JAGS \n"))
 
-if(file.exists(paste0("model_jags_", n,".RDS"))){
-  model.jags <- readRDS(paste0("model_jags_", n,".RDS"))
-  if(n < 1000)
-  {
-    simulation <- readRDS("simulation4_50-500.RDS")
-    t_jags <- simulation[[paste0("n",n)]]$times[1]
-  }else{
-    simulation <- readRDS("simulation4_1000-10000.RDS")
-    t_jags <- simulation[[paste0("n",n)]]$times[1]
-  }
+x_pc <- seq(0.01,15, length.out = 1000)
+y_pc <- inla.pc.dprec(x_pc, u = 10, alpha = 0.01, log = FALSE)
+prec_pc <- list(x_pc = x_pc, y_pc = y_pc)
 
-}else{
-  ## MCMC configuration
-  ni <- 5000
-  nt <- 5
-  nb <- 1000
-  nc <- 3
 
-  ## Data set
-  table(V$iid2) %>%length() -> niv_length
-  data_jags <- list(y = y,
-                    N = dim(y)[1],
-                    d = d,
-                    V = V,
-                    niv = V$iid2,
-                    niv_length = niv_length)
+## MCMC configuration
+ni <- 5000
+nt <- 5
+nb <- 1000
+nc <- 3
 
-  ## Initial values
-  inits <- function(){list(beta1 = rnorm(d, 0, 1),
-                           sd1  = runif(1, 0.1, 10))}
+## Data set
+table(V$iid1) %>%length() -> niv_length1
+table(V$iid2) %>%length() -> niv_length2
+data_jags <- list(y = y,
+                  N = dim(y)[1],
+                  d = d,
+                  V = V,
+                  niv1 = V$iid1,
+                  niv2 = V$iid2,
+                  niv_length1 = niv_length1,
+                  niv_length2 = niv_length2,
+                  x_pc = prec_pc$x_pc,
+                  y_pc = prec_pc$y_pc)
 
-  ## Parameters of interest
-  parameters <- c('beta1', 'sd1')
+## Initial values
+inits <- function(){list(beta1 = rnorm(d, 0, 1))}
 
-  cat("
+## Parameters of interest
+parameters <- c('beta1', 'tau1', 'tau2')
+
+cat("
     model {
     #model
     for (i in 1:N){
     y[i, ] ~ ddirch(alpha[i,])
 
-    log(alpha[i,1]) <- beta1[1]*V[i,1] + w[niv[i]]
-    log(alpha[i,2]) <- beta1[2]*V[i,2] + w[niv[i]]
-    log(alpha[i,3]) <- beta1[3]*V[i,3] + w[niv[i]]
-    log(alpha[i,4]) <- beta1[4]*V[i,4] + w[niv[i]]
+    log(alpha[i,1]) <- beta1[1]*V[i,1] + w1[niv1[i]]
+    log(alpha[i,2]) <- beta1[2]*V[i,2] + w1[niv1[i]]
+    log(alpha[i,3]) <- beta1[3]*V[i,3] + w2[niv2[i]]
+    log(alpha[i,4]) <- beta1[4]*V[i,4] + w2[niv2[i]]
     }
 
-    for(j in 1:niv_length){
-        w[j] ~ dnorm(0, tau1)
+    for(j in 1:niv_length1){
+        w1[j] ~ dnorm(0, tau1)
+    }
+
+     for(j in 1:niv_length2){
+        w2[j] ~ dnorm(0, tau2)
     }
 
     #priors
-    tau1 <- 1/(sd1*sd1)
-    sd1 ~ dunif(0, 10)
+    tau1 <- x_pc[index1]
+    index1 ~ dcat(y_pc)
 
+    #priors
+    tau2 <- x_pc[index2]
+    index2 ~ dcat(y_pc)
 
     for (c in 1:d)
     {
-    beta0[c]  ~ dnorm(0, 0.01)
     beta1[c] ~ dnorm(0, 0.01)
     }
     }", file="model_cov.jags" )
 
 
 
-
-  ## Call jags
-  t <- proc.time() # Measure the time
-  model.jags <- jags(data_jags,
-                     inits,
-                     parameters,
-                     "model_cov.jags",
-                     n.chains          = nc,
-                     n.thin            = nt,
-                     n.iter            = ni,
-                     n.burnin          = nb,
-                     working.directory = getwd()) #
-  t_jags <- proc.time()-t    # Stop the time
-  t_jags <- t_jags[3]
-  print(model.jags)
-}
+## Call jags
+t <- proc.time() # Measure the time
+model.jags <- jags(data_jags,
+                   inits,
+                   parameters,
+                   "model_cov.jags",
+                   n.chains          = nc,
+                   n.thin            = nt,
+                   n.iter            = ni,
+                   n.burnin          = nb,
+                   working.directory = getwd()) #
+t_jags <- proc.time()-t    # Stop the time
+t_jags <- t_jags[3]
+print(model.jags)
 
 
 
+hist(model.jags$BUGSoutput$sims.list$tau1, breaks = 100, freq = FALSE)
+lines(model.inla.2$marginals_hyperpar$`Precision for iid1`)
+
+hist(model.jags$BUGSoutput$sims.list$tau2, breaks = 100, freq = FALSE)
+lines(model.inla.2$marginals_hyperpar$`Precision for iid2`)
 
 
-### ----- 3.2. Fitting the model with INLA --- ####
-cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
-if(file.exists(paste0("model_inla_", n,".RDS"))){
-  model.inla <- readRDS(paste0("model_inla_", n,".RDS"))
-  if(n< 1000)
-  {
-    simulation <- readRDS("simulation4_50-500.RDS")
-    t_inla <- simulation[[paste0("n",n)]]$times[2]
-  }else{
-    simulation <- readRDS("simulation4_1000-10000.RDS")
-    t_inla <- simulation[[paste0("n",n)]]$times[2]
-  }
-}else{
-  t <- proc.time() # Measure the time
-  model.inla <- dirinlareg( formula  = y ~ -1 + v1 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
-                              -1 + v2 + f(iid2, model = 'iid') |
-                              -1 + v3 + f(iid2, model = 'iid') |
-                              -1 + v4 + f(iid2, model = 'iid'),
-                            y        = y,
-                            data.cov = V,
-                            prec     = 0.01,
-                            verbose  = TRUE)
-
-  t_inla <- proc.time()-t    # Stop the time
-  t_inla <- t_inla[3]
-  summary(model.inla)
-}
-
-### ----- 3.2. Fitting the model with INLA pc prior--- ####
-cat(paste0("n = ", n, " -----> Fitting using INLA \n"))
-if(file.exists(paste0("model_inla_", n,".RDS"))){
-  model.inla.2 <- readRDS(paste0("model_inla_pc_", n,".RDS"))
-  if(n< 1000)
-  {
-    simulation <- readRDS("simulation4_50-500.RDS")
-    t_inla <- simulation[[paste0("n",n)]]$times[2]
-  }else{
-    simulation <- readRDS("simulation4_1000-10000.RDS")
-    t_inla <- simulation[[paste0("n",n)]]$times[2]
-  }
-}else{
-  t <- proc.time() # Measure the time
-  model.inla.2 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
-                                -1 + v2 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
-                                -1 + v3 + f(iid3, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
-                                -1 + v4 + f(iid4, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))),
-                              y        = y,
-                              data.cov = V,
-                              prec     = 0.01,
-                              verbose  = TRUE)
-
-  t_inla_2 <- proc.time()-t    # Stop the time
-  t_inla_2 <- t_inla_2[3]
-  summary(model.inla.2)
-}
