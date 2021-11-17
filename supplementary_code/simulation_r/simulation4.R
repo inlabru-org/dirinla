@@ -787,8 +787,45 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
                          cbind(as.data.frame(inla_sigma[[i]]), group = 2),
                          cbind(dens2[[i]], group = 3),
                          cbind(as.data.frame(inla_sigma_2[[i]]), group = 4))
-    dens_sigma$group <- factor(dens_sigma$group,
-                                labels = c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn"))
+
+    #Adding priors on standar deviation
+    hn_inla <- function(sigma)
+    {
+      tau0 = 0.01
+      log_dens = log(2) - 0.5 * log(2 * pi) + 0.5 * log(tau0)
+      log_dens = log_dens - 0.5 * tau0 * sigma^2
+      return(exp(log_dens))
+    }
+
+    sig <- seq(0, max(dens_sigma$x), 0.01)
+    prec <- 1/sig^2
+    y_pc <- inla.pc.dprec(prec, 10, 0.01 )
+
+
+    priors_df <- data.frame(x = c(sig, sig),
+                            y = c(y_pc, hn_inla(sig)),
+                            group = as.factor(rep(c(5,6),
+                                                    c(length(sig), length(sig)))))
+
+    if(i <=2)
+    {
+      dens_sigma <- rbind(dens_sigma, priors_df)
+
+      ### Assigning names
+      dens_sigma$group <- factor(dens_sigma$group,
+                                 labels = c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn", "pc-prior", "hn-prior"))
+    }else{
+      priors_df_log <- lapply(levels(priors_df$group), function(b){
+        priors_df %>% dplyr::filter(group == b) %>% dplyr::select(x,y) %>% as.matrix(.) %>%
+          inla.tmarginal(function(k)log(exp(k)), .) %>% data.frame(.) %>% cbind(.,b)
+      }) %>% do.call(cbind, .)
+
+      dens_sigma <- rbind(dens_sigma, priors_df_log)
+      dens_sigma$group <- factor(dens_sigma$group,
+                                 labels = c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn", "pc-prior", "hn-prior"))
+
+    }
+
 
 
     p3[[i]] <- ggplot(dens_sigma,
@@ -812,6 +849,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
     #xmax <- ifelse(n <= 100, 100, 50)
     xmax <- 2
+
+
     ### --- legend --- ###
     p3[[i]] <- p3[[i]] + theme(legend.position   = c(0.8, 0.8),
                      legend.title      = element_blank(),
@@ -822,9 +861,9 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
-        values= c("darkgreen", "red4", "blue4", "orange2")) +
-      scale_linetype_manual(labels=c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn"),
-                            values=c("dotted", "twodash",  "solid", "longdash"))
+        values= c("darkgreen", "red4", "blue4", "orange2", "azure4", "black" )) +
+      scale_linetype_manual(labels=c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn", "pc-prior", "hn-prior"),
+                            values=c("solid", "solid",  "solid", "solid", "longdash", "longdash"))
 
 
     if(i!=1)
@@ -891,7 +930,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
        ratio2_sigma_log_pc = ratio2_sigma_log_pc,
        res_check_jags1 = res_check_jags1,
        res_check_jags2 = res_check_jags2,
-       n_levels = paste0(n, "-", levels_factor))
+       n_levels = paste0(n, "-", levels_factor),
+       plots = list(fixed_eff = p2, hyperpar = p3))
 }
 
 
@@ -913,7 +953,7 @@ a <- mapply(simulations_with_slopes_iid,
        n = n,
        levels_factor = levels_factor)
 
-#a <- simulations_with_slopes_iid(50, 50)
+b <- simulations_with_slopes_iid(50, 50)
 
 
 # a[,1]
@@ -933,6 +973,11 @@ names(a) <- paste0("n", n)
 names(a) <- ""
 levels_factor[c(10,11,12)] <- c(50, 100, 500)
 colnames(a) <- paste0(n, "-", levels_factor)
+saveRDS(a, file = "simulation4_50-500.RDS")
+a <- readRDS(file = "simulation4_50-500.RDS")
+rownames(a) <- c("times", "slopes", "ratio1_slopes", "ratio2_slopes", "ratio1_sigma_pc", "ratio2_sigma_pc",
+                 "ratio1_sigma_hn", "ratio2_sigma_hn", "ratio1_sigma_log_pc", "ratio2_sigma_log_pc",
+                 "ratio1_sigma_log_hn", "ratio2_sigma_log_hn", "res_check_jags1", "res_check_jags2", "n_levels")
 saveRDS(a, file = "simulation4_50-500.RDS")
 a <- readRDS(file = "simulation4_50-500.RDS")
 
