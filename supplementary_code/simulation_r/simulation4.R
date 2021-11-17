@@ -816,9 +816,12 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
                                  labels = c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn", "pc-prior", "hn-prior"))
     }else{
       priors_df_log <- lapply(levels(priors_df$group), function(b){
-        priors_df %>% dplyr::filter(group == b) %>% dplyr::select(x,y) %>% as.matrix(.) %>%
-          inla.tmarginal(function(k)log(exp(k)), .) %>% data.frame(.) %>% cbind(.,b)
-      }) %>% do.call(cbind, .)
+        priors_sim <- priors_df %>% dplyr::filter(group == b) %>% dplyr::select(x,y) %>% as.matrix(.) %>%
+          inla.rmarginal(100000, .) %>% log(.)
+        priors_sim <- priors_sim[which(!is.na(priors_sim))] %>% density(., adjust = 2)
+        priors_sim <- data.frame(x = priors_sim$x, y = priors_sim$y, group = as.numeric(b)) %>% as.matrix(.)
+        priors_sim
+      }) %>% do.call(rbind, .)
 
       dens_sigma <- rbind(dens_sigma, priors_df_log)
       dens_sigma$group <- factor(dens_sigma$group,
@@ -848,7 +851,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
     #xmax <- ifelse(n <= 100, 100, 50)
-    xmax <- 2
+    #xmax <- 2
 
 
     ### --- legend --- ###
@@ -861,7 +864,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
-        values= c("darkgreen", "red4", "blue4", "orange2", "azure4", "black" )) +
+        values= c("darkgreen", "red4", "blue4", "orange2", "deeppink", "magenta2" )) +
       scale_linetype_manual(labels=c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn", "pc-prior", "hn-prior"),
                             values=c("solid", "solid",  "solid", "solid", "longdash", "longdash"))
 
@@ -953,7 +956,7 @@ a <- mapply(simulations_with_slopes_iid,
        n = n,
        levels_factor = levels_factor)
 
-b <- simulations_with_slopes_iid(50, 50)
+#b <- simulations_with_slopes_iid(50, 50)
 
 
 # a[,1]
@@ -983,83 +986,83 @@ a <- readRDS(file = "simulation4_50-500.RDS")
 
 
 
-a[, c("50-5")]
-a$n50$times
-a$n50$ratio1_slopes
-a
-
-paste0()
-
-n <- c(1000, 10000)
-a <- parallel::mclapply(n, simulations_with_slopes_iid,
-                        mc.cores = 2)
-a <- lapply(n, simulations_with_slopes_iid)
-names(a) <- paste0("n", n)
-
-saveRDS(a, file = "simulation4_1000-10000.RDS")
-b <- readRDS(file = "simulation4_1000-10000.RDS")
-results <- c(a,b)
-
-### --- 4. Extracting tables for the paper --- ####
-# results <- readRDS(file = "simulation4_50-500.RDS")
-results <- a
-results$n50$times
-results$n50$intercepts
-results$n50$ratio1_intercepts
-results$n50$ratio1_slopes
-
-sqrt(results$n50$ratio2_intercepts)
-sqrt(results$n50$ratio2_slopes)
-
-#Computational times
-result_time <- rbind(results$n50$times,
-                     results$n100$times,
-                     results$n500$times,
-                     results$n1000$times,
-                     results$n10000$times)
-colnames(result_time) <- c("R-JAGS", "dirinla", "long R-JAGS")
-rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
-result_time
-
-result_ratio1 <- cbind(rbind(round(results$n50$ratio1_intercepts, 4),
-                             round(results$n100$ratio1_intercepts, 4),
-                             round(results$n500$ratio1_intercepts, 4),
-                             round(results$n1000$ratio1_intercepts, 4),
-                             round(results$n10000$ratio1_intercepts, 4)),
-                       rbind(round(results$n50$ratio1_slopes, 4),
-                             round(results$n100$ratio1_slopes, 4),
-                             round(results$n500$ratio1_slopes, 4),
-                             round(results$n1000$ratio1_slopes, 4),
-                             round(results$n10000$ratio1_slopes, 4)))
-colnames(result_ratio1) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
-rownames(result_ratio1) <- paste0( c(50, 100, 500, 1000, 10000))
-
-result_ratio2 <- cbind(rbind(round(sqrt(results$n50$ratio2_intercepts), 4),
-                             round(sqrt(results$n100$ratio2_intercepts), 4),
-                             round(sqrt(results$n500$ratio2_intercepts), 4),
-                             round(sqrt(results$n1000$ratio2_intercepts), 4),
-                             round(sqrt(results$n10000$ratio2_intercepts), 4)),
-                       rbind(round(sqrt(results$n50$ratio2_slopes), 4),
-                             round(sqrt(results$n100$ratio2_slopes), 4),
-                             round(sqrt(results$n500$ratio2_slopes), 4),
-                             round(sqrt(results$n1000$ratio2_slopes), 4),
-                             round(sqrt(results$n10000$ratio2_slopes), 4)))
-colnames(result_ratio2) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
-rownames(result_ratio2) <- paste0( c(50, 100, 500, 1000, 10000))
-
-result_ratio2
-
-#Latex
-library(xtable)
-xtable(result_time, digits = 4)
-xtable(result_ratio1, digits = 4)
-xtable(result_ratio2, digits = 4)
-
-
-
-
-
-
-
-
-
+# a[, c("50-5")]
+# a$n50$times
+# a$n50$ratio1_slopes
+# a
+#
+# paste0()
+#
+# n <- c(1000, 10000)
+# a <- parallel::mclapply(n, simulations_with_slopes_iid,
+#                         mc.cores = 2)
+# a <- lapply(n, simulations_with_slopes_iid)
+# names(a) <- paste0("n", n)
+#
+# saveRDS(a, file = "simulation4_1000-10000.RDS")
+# b <- readRDS(file = "simulation4_1000-10000.RDS")
+# results <- c(a,b)
+#
+# ### --- 4. Extracting tables for the paper --- ####
+# # results <- readRDS(file = "simulation4_50-500.RDS")
+# results <- a
+# results$n50$times
+# results$n50$intercepts
+# results$n50$ratio1_intercepts
+# results$n50$ratio1_slopes
+#
+# sqrt(results$n50$ratio2_intercepts)
+# sqrt(results$n50$ratio2_slopes)
+#
+# #Computational times
+# result_time <- rbind(results$n50$times,
+#                      results$n100$times,
+#                      results$n500$times,
+#                      results$n1000$times,
+#                      results$n10000$times)
+# colnames(result_time) <- c("R-JAGS", "dirinla", "long R-JAGS")
+# rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
+# result_time
+#
+# result_ratio1 <- cbind(rbind(round(results$n50$ratio1_intercepts, 4),
+#                              round(results$n100$ratio1_intercepts, 4),
+#                              round(results$n500$ratio1_intercepts, 4),
+#                              round(results$n1000$ratio1_intercepts, 4),
+#                              round(results$n10000$ratio1_intercepts, 4)),
+#                        rbind(round(results$n50$ratio1_slopes, 4),
+#                              round(results$n100$ratio1_slopes, 4),
+#                              round(results$n500$ratio1_slopes, 4),
+#                              round(results$n1000$ratio1_slopes, 4),
+#                              round(results$n10000$ratio1_slopes, 4)))
+# colnames(result_ratio1) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
+# rownames(result_ratio1) <- paste0( c(50, 100, 500, 1000, 10000))
+#
+# result_ratio2 <- cbind(rbind(round(sqrt(results$n50$ratio2_intercepts), 4),
+#                              round(sqrt(results$n100$ratio2_intercepts), 4),
+#                              round(sqrt(results$n500$ratio2_intercepts), 4),
+#                              round(sqrt(results$n1000$ratio2_intercepts), 4),
+#                              round(sqrt(results$n10000$ratio2_intercepts), 4)),
+#                        rbind(round(sqrt(results$n50$ratio2_slopes), 4),
+#                              round(sqrt(results$n100$ratio2_slopes), 4),
+#                              round(sqrt(results$n500$ratio2_slopes), 4),
+#                              round(sqrt(results$n1000$ratio2_slopes), 4),
+#                              round(sqrt(results$n10000$ratio2_slopes), 4)))
+# colnames(result_ratio2) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
+# rownames(result_ratio2) <- paste0( c(50, 100, 500, 1000, 10000))
+#
+# result_ratio2
+#
+# #Latex
+# library(xtable)
+# xtable(result_time, digits = 4)
+# xtable(result_ratio1, digits = 4)
+# xtable(result_ratio2, digits = 4)
+#
+#
+#
+#
+#
+#
+#
+#
+#
