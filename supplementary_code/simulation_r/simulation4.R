@@ -46,6 +46,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   #Covariates
   V <- as.data.frame(matrix(runif((10)*n, -1, 1), ncol=10))
   names(V) <- paste0('v', 1:(10))
+  tau0 <- 1
 
   #Same covariate
   # V <- as.data.frame(cbind(V[,1], V[,1], V[,1], V[,1]))
@@ -130,12 +131,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
     nc <- 3
 # #
-#     ni <- 1000
-#     nb <- 100
-
-    x_pc <- seq(0.01, 20, length.out = 1000)
-    y_pc <- inla.pc.dprec(x_pc, u = 10, alpha = 0.01, log = FALSE)
-    prec_pc <- list(x_pc = x_pc, y_pc = y_pc)
+    # ni <- 1000
+    # nb <- 100
 
     ## Data set
     table(V$iid1) %>%length() -> niv_length1
@@ -191,8 +188,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     tau1 <- 1/(sigma1*sigma1)
     tau2 <- 1/(sigma2*sigma2)
 
-    sigma1 ~ dnorm(0,0.01)T(0,)
-    sigma2 ~ dnorm(0,0.01)T(0,)
+    sigma1 ~ dnorm(0,1)T(0,)
+    sigma2 ~ dnorm(0,1)T(0,)
 
 
     for (c in 1:d)
@@ -238,7 +235,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     }
   }else{
     t <- proc.time() # Measure the time
-    formula  = y ~ -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+    formula  = y ~
+      -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
       -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
       -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
       -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01)))))
@@ -261,8 +259,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   }
 
   ### ----- 3.2. Fitting the model with INLA half gaussian --- ####
-  HN.prior <<- "expression:
-  tau0 = 0.01;
+  HN.prior <- "expression:
+  tau0 = 1;
   sigma = exp(-theta/2);
   log_dens = log(2) - 0.5 * log(2 * pi) + 0.5 * log(tau0);
   log_dens = log_dens - 0.5 * tau0 * sigma^2;
@@ -270,9 +268,16 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   return(log_dens);
 "
 
+#  ### Improper prior
+#   UN.prior = "expression:
+#   log_dens = 0 - log(2) - theta / 2;
+#   return(log_dens);
+# "
 
 
   half.normal  <<- list(prec = list(prior = HN.prior))
+#  half.normal  <<- list(prec = list(prior = UN.prior))
+
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using INLA \n"))
   if(file.exists(paste0("model_inla_", n,".RDS"))){
     model.inla.2 <- readRDS(paste0("model_inla_pc_", n,".RDS"))
@@ -290,10 +295,10 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     #   -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
     #   -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
     #   -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01)))))
-    model.inla.2 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid1, model = 'iid', hyper = half.normal, constr=TRUE) |
-                                  -1 + v2 + f(iid1, model = 'iid', hyper = half.normal, constr = TRUE) |
-                                  -1 + v3 + f(iid2, model = 'iid', hyper = half.normal, constr = TRUE) |
-                                  -1 + v4 + f(iid2, model = 'iid', hyper = half.normal, constr = TRUE),
+    model.inla.2 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid1, model = 'iid', hyper = half.normal) |
+                                  -1 + v2 + f(iid1, model = 'iid', hyper = half.normal) |
+                                  -1 + v3 + f(iid2, model = 'iid', hyper = half.normal) |
+                                  -1 + v4 + f(iid2, model = 'iid', hyper = half.normal),
                                 y        = y,
                                 data.cov = V,
                                 prec     = 0.01,
@@ -385,9 +390,10 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     tau1 <- 1/(sigma1*sigma1)
     tau2 <- 1/(sigma2*sigma2)
 
-    sigma1 ~ dnorm(0,0.01)T(0,)
-    sigma2 ~ dnorm(0,0.01)T(0,)
-
+     sigma1 ~ dnorm(0,1)T(0,)
+     sigma2 ~ dnorm(0,1)T(0,)
+    # sigma1 ~ dunif(0, 100000000)
+    # sigma2 ~ dunif(0, 100000000)
 
     for (c in 1:d)
     {
@@ -428,7 +434,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   times <- c(t_jags, t_inla, t_jags_2, t_inla_2)
 
   ### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
-  ratio1_beta1 <- ratio2_beta1 <-  ratio1_beta1_pc <-  ratio2_beta1_pc <- numeric()
+  ratio1_beta1_pc <- ratio2_beta1_pc <-  ratio1_beta1_hn <-  ratio2_beta1_hn <- numeric()
   # for (i in 1:4)
   # {
   #   mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i])
@@ -450,10 +456,10 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     mean_inla <- model.inla$summary_fixed[[i]]$mean[1]
     mean_inla_2 <- model.inla.2$summary_fixed[[i]]$mean[1]
 
-    ratio1_beta1 <- c(ratio1_beta1, c(mean_inla - mean_jags_2)/sd_jags_2)
-    ratio2_beta1 <- c(ratio2_beta1, sd(inla.rmarginal(10000, model.inla$marginals_fixed[[i]][[1]]))^2/(sd_jags_2^2))
-    ratio1_beta1_pc <- c(ratio1_beta1_pc, c(mean_inla_2 - mean_jags_2)/sd_jags_2)
-    ratio2_beta1_pc <- c(ratio2_beta1_pc, sd(inla.rmarginal(10000, model.inla.2$marginals_fixed[[i]][[1]]))^2/(sd_jags_2^2))
+    ratio1_beta1_pc <- c(ratio1_beta1_pc, c(mean_inla - mean_jags_2)/sd_jags_2)
+    ratio2_beta1_pc <- c(ratio2_beta1_pc, sd(inla.rmarginal(10000, model.inla$marginals_fixed[[i]][[1]]))^2/(sd_jags_2^2))
+    ratio1_beta1_hn <- c(ratio1_beta1_hn, c(mean_inla_2 - mean_jags_2)/sd_jags_2)
+    ratio2_beta1_hn <- c(ratio2_beta1_hn, sd(inla.rmarginal(10000, model.inla.2$marginals_fixed[[i]][[1]]))^2/(sd_jags_2^2))
 
   }
 #
@@ -491,20 +497,20 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   # names(inla_sigma_sim_2) <- c("sigma1", "sigma2")
 
   #Ratios sigma
-  ratio1_sigma <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
-  ratio2_sigma <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
+  ratio1_sigma_pc <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
+  ratio2_sigma_pc <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
 
 
-  ratio1_sigma_pc <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
-  ratio2_sigma_pc <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
+  ratio1_sigma_hn <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
+  ratio2_sigma_hn <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
 
   #Ratios logarithm
-  ratio1_sigma_log <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
-  ratio2_sigma_log <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
+  ratio1_sigma_log_pc <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
+  ratio2_sigma_log_pc <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
 
 
-  ratio1_sigma_log_pc <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
-  ratio2_sigma_log_pc <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
+  ratio1_sigma_log_hn <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
+  ratio2_sigma_log_hn <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
 
 
 
@@ -791,21 +797,24 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     #Adding priors on standar deviation
     hn_inla <- function(sigma)
     {
-      tau0 = 0.01
+      tau0 = tau0
       log_dens = log(2) - 0.5 * log(2 * pi) + 0.5 * log(tau0)
       log_dens = log_dens - 0.5 * tau0 * sigma^2
       return(exp(log_dens))
     }
 
-    sig <- seq(0, max(dens_sigma$x), 0.01)
-    prec <- 1/sig^2
-    y_pc <- inla.pc.dprec(prec, 10, 0.01 )
 
 
-    priors_df <- data.frame(x = c(sig, sig),
-                            y = c(y_pc, hn_inla(sig)),
+    y_pc_log_sigma <- log(1/sqrt(inla.pc.rprec(100000000, 10, 0.01))) %>% density(.)
+    y_pc_log_sigma <- data.frame(x = y_pc_log_sigma$x, y = y_pc_log_sigma$y)
+    y_pc_sigma <- inla.tmarginal(function(x)exp(x), y_pc_log_sigma)
+
+
+
+    priors_df <- data.frame(x = c(y_pc_sigma$x, y_pc_sigma$x),
+                            y = c(y_pc_sigma$y, hn_inla(y_pc_sigma$x)),
                             group = as.factor(rep(c(5,6),
-                                                    c(length(sig), length(sig)))))
+                                                    c(length(y_pc_sigma$x), length(y_pc_sigma$x)))))
 
     if(i <=2)
     {
@@ -814,10 +823,10 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
       ### Assigning names
       dens_sigma$group <- factor(dens_sigma$group,
                                  labels = c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn", "pc-prior", "hn-prior"))
-    }else{
+    }else{ #Not the optimum way
       priors_df_log <- lapply(levels(priors_df$group), function(b){
         priors_sim <- priors_df %>% dplyr::filter(group == b) %>% dplyr::select(x,y) %>% as.matrix(.) %>%
-          inla.rmarginal(100000, .) %>% log(.)
+          inla.rmarginal(1000000, .) %>% log(.)
         priors_sim <- priors_sim[which(!is.na(priors_sim))] %>% density(., adjust = 2)
         priors_sim <- data.frame(x = priors_sim$x, y = priors_sim$y, group = as.numeric(b)) %>% as.matrix(.)
         priors_sim
@@ -896,6 +905,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   #                         p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
   # dev.off()
   #
+
   # pdf(paste0("examples_simulation4_sigma_", n ,"_", levels_factor,".pdf"), width = 15, height = 4)
   # gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
   # dev.off()
@@ -920,17 +930,18 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
        #intercepts = result_beta0,
        slopes     = result_beta1,
        #ratio1_intercepts = ratio1_beta0,
-       ratio1_slopes = ratio1_beta1,
-       #ratio2_intercepts = ratio2_beta0,
-       ratio2_slopes = ratio2_beta1,
-       ratio1_sigma = ratio1_sigma,
-       ratio2_sigma = ratio2_sigma,
+       ratio1_beta1_pc = ratio1_beta1_pc,
+       ratio1_beta1_hn = ratio1_beta1_hn,
+       ratio2_beta1_pc = ratio2_beta1_pc,
+       ratio2_beta1_hn = ratio2_beta1_hn,
        ratio1_sigma_pc = ratio1_sigma_pc,
        ratio2_sigma_pc = ratio2_sigma_pc,
-       ratio1_sigma_log = ratio1_sigma_log,
-       ratio2_sigma_log = ratio2_sigma_log,
+       ratio1_sigma_hn = ratio1_sigma_hn,
+       ratio2_sigma_hn = ratio2_sigma_hn,
        ratio1_sigma_log_pc = ratio1_sigma_log_pc,
        ratio2_sigma_log_pc = ratio2_sigma_log_pc,
+       ratio1_sigma_log_hn = ratio1_sigma_log_hn,
+       ratio2_sigma_log_hn = ratio2_sigma_log_hn,
        res_check_jags1 = res_check_jags1,
        res_check_jags2 = res_check_jags2,
        n_levels = paste0(n, "-", levels_factor),
@@ -938,7 +949,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 }
 
 
- ### --- 3. Calling the function --- ####
+### --- 3. Calling the function --- ####
 n <- c(50, 100, 500)
 #levels_factor <- c(25, NA)
 
@@ -956,7 +967,6 @@ a <- mapply(simulations_with_slopes_iid,
        n = n,
        levels_factor = levels_factor)
 
-#b <- simulations_with_slopes_iid(50, 50)
 
 
 # a[,1]
