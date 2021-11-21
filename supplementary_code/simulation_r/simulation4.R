@@ -953,7 +953,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 n <- c(50, 100, 500)
 #levels_factor <- c(25, NA)
 
-levels_factor <- c(5, 10, 25, NA)
+levels_factor <- c(2, 5, 25, NA)
 
 #n <- c(50, 100, 500)
 #levels_factor <- c(5, 10, 25, NA)
