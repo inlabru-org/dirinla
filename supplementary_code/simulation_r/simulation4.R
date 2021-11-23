@@ -112,7 +112,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   ### ----- 3.1. Fitting the model with jags --- ####
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using SHORT JAGS \n"))
 
-  if(file.exists(paste0("model_jags_", n,".RDS"))){
+  if(file.exists(paste0("model_jags_", n,"_", levels_factor, ".RDS"))){
     model.jags <- readRDS(paste0("model_jags_", n,".RDS"))
     if(n < 1000)
     {
@@ -224,7 +224,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   ### ----- 3.2. Fitting the model with INLA --- ####
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using INLA \n"))
   if(file.exists(paste0("model_inla_", n,".RDS"))){
-    model.inla <- readRDS(paste0("model_inla_", n,".RDS"))
+    model.inla <- readRDS(paste0("model_inla_", n,"_", levels_factor, ".RDS"))
     if(n< 1000)
     {
       simulation <- readRDS("simulation4_50-500.RDS")
@@ -280,7 +280,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using INLA \n"))
   if(file.exists(paste0("model_inla_", n,".RDS"))){
-    model.inla.2 <- readRDS(paste0("model_inla_pc_", n,".RDS"))
+    model.inla.2 <- readRDS(paste0("model_inla_pc_", n,"_", levels_factor, ".RDS"))
     if(n< 1000)
     {
       simulation <- readRDS("simulation4_50-500.RDS")
@@ -315,7 +315,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using long JAGS \n"))
 
   if(file.exists(paste0("model_jags_long_", n,".RDS"))){
-    model.jags.2 <- readRDS(paste0("model_jags_long_", n,".RDS"))
+    model.jags.2 <- readRDS(paste0("model_jags_long_", n,"_", levels_factor, ".RDS"))
     if(n< 1000)
     {
       simulation <- readRDS("simulation4_50-500.RDS")
@@ -684,7 +684,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
       scale_colour_manual (
         values= c("darkgreen", "red4", "blue4", "orange2")) +
       scale_linetype_manual(labels=c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn"),
-                            values=c("dotted", "twodash",  "solid", "longdash"))
+                            values=c("solid", "solid",  "solid", "solid"))
+                            #values=c("dotted", "twodash",  "solid", "longdash"))
 
     if(i!=1)
     {
@@ -953,7 +954,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 n <- c(50, 100, 500)
 #levels_factor <- c(25, NA)
 
-levels_factor <- c(2, 5, 25, NA)
+levels_factor <- c(2, 5, 10, 25, NA)
 
 #n <- c(50, 100, 500)
 #levels_factor <- c(5, 10, 25, NA)
@@ -968,6 +969,7 @@ a <- mapply(simulations_with_slopes_iid,
        levels_factor = levels_factor)
 
 
+#simulations_with_slopes_iid(100, 5)
 
 # a[,1]
 
