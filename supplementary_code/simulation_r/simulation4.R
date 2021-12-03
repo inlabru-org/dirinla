@@ -326,8 +326,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     }
   }else{
     ## MCMC configuration
-     ni <- 100000
-     nb <- 10000
+     ni <- 1000000
+     nb <- 100000
     #ni <- 1000
     nt <- 5
     #nb <- 10
@@ -951,6 +951,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
 ### --- 3. Calling the function --- ####
+#### From 50 to 500
 n <- c(50, 100, 500)
 #levels_factor <- c(25, NA)
 
@@ -969,32 +970,33 @@ a <- mapply(simulations_with_slopes_iid,
        levels_factor = levels_factor)
 
 
-#simulations_with_slopes_iid(100, 5)
-
-# a[,1]
-
-
-
-# a <- mcmapply(simulations_with_slopes_iid,
-#                         n = n,
-#                         levels_factor = levels_factor,
-#                         mc.cores = 3)
-#
-# a <- parallel::mclapply(n, simulations_with_slopes_iid, level_factor = 2,
-#                         mc.cores = 3)
-#n <- c(50, 100)
-#a <- lapply(n, simulations_with_slopes_iid, levels_factor = 10)
-names(a) <- paste0("n", n)
-names(a) <- ""
-levels_factor[c(10,11,12)] <- c(50, 100, 500)
+levels_factor[is.na(levels_factor)] <- c(50, 100, 500)
 colnames(a) <- paste0(n, "-", levels_factor)
 saveRDS(a, file = "simulation4_50-500.RDS")
 a <- readRDS(file = "simulation4_50-500.RDS")
-rownames(a) <- c("times", "slopes", "ratio1_slopes", "ratio2_slopes", "ratio1_sigma_pc", "ratio2_sigma_pc",
-                 "ratio1_sigma_hn", "ratio2_sigma_hn", "ratio1_sigma_log_pc", "ratio2_sigma_log_pc",
-                 "ratio1_sigma_log_hn", "ratio2_sigma_log_hn", "res_check_jags1", "res_check_jags2", "n_levels")
-saveRDS(a, file = "simulation4_50-500.RDS")
-a <- readRDS(file = "simulation4_50-500.RDS")
+
+
+####
+#### From 1000 to 10000
+n <- c(1000, 10000)
+levels_factor <- c(2, 5, 10, 25, NA)
+
+arguments <- expand.grid(n, levels_factor)
+n <- arguments[,1]
+levels_factor <- arguments[,2]
+
+a <- mapply(simulations_with_slopes_iid,
+            n = n,
+            levels_factor = levels_factor)
+
+
+levels_factor[is.na(levels_factor)] <- c(1000, 10000)
+colnames(a) <- paste0(n, "-", levels_factor)
+saveRDS(a, file = "simulation4_1000-10000.RDS")
+a <- readRDS(file = "simulation4_1000-10000.RDS")
+
+
+
 
 
 
