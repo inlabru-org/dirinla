@@ -359,131 +359,93 @@ a <- mapply(plotting_all,
 
 
 ###################################################################
-t_inla <- t_inla[3]
-t_inla_2 <- t_inla_2[3]
-t_jags_2 <- t_jags_2[3]
+
+### --- 3. Tables for the paper --- ####
+levels_factor <- 5
+
+n <- c(50, 100, 500, 1000, 10000)
+n <- c(50, 100, 500, 500, 500)
+
+
+pos <- paste0(n, "-", levels_factor)
+
+
+#Computational times
+
+res[,pos[1]]$times
+res[,pos[2]]$times
+
+
+1:5 %>% sapply(., function(x){res[,pos[x]]$times}) %>% t(.) -> result_time
+colnames(result_time) <- c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn")
+rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
+result_time
 
 
 
+### --- Ratio 1 --- ####
+### Betas for pc and hn
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_beta1_pc,4)}) %>% t(.) -> ratio1_beta1_pc
+colnames(ratio1_beta1_pc) <- paste0("beta1-pc", 1:4)
+rownames(ratio1_beta1_pc) <- paste0( c(50, 100, 500, 1000, 10000))
 
-### --- 4. Comparing methodologies --- ####
-cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Comparing methodologies \n"))
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_beta1_hn,4)}) %>% t(.) -> ratio1_beta1_hn
+colnames(ratio1_beta1_hn) <- paste0("beta1-hn", 1:4)
+rownames(ratio1_beta1_hn) <- paste0( c(50, 100, 500, 1000, 10000))
 
-### ----- 4.1. Computational times --- ####
-times <- c(t_jags, t_inla, t_jags_2, t_inla_2)
+### Sigma and log_sigma for pc and hn
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_sigma_pc, 4)}) %>% t(.) -> ratio1_sigma_pc
+colnames(ratio1_sigma_pc) <- paste0("sigma-pc", 1:2)
+rownames(ratio1_sigma_pc) <- paste0( c(50, 100, 500, 1000, 10000))
 
-### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
-ratio1_beta1_pc <- ratio2_beta1_pc <-  ratio1_beta1_hn <-  ratio2_beta1_hn <- numeric()
-# for (i in 1:4)
-# {
-#   mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i])
-#   sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i])
-#   mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,i])
-#   sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,i])
-#   mean_inla <- model.inla$summary_fixed[[i]]$mean[1]
-#
-#   ratio1_beta0 <- c(ratio1_beta0, c(mean_inla - mean_jags_2)/sd_jags_2)
-#   ratio2_beta0 <- c(ratio2_beta0, sd(inla.rmarginal(10000, model.inla$marginals_fixed[[i]]$intercept))^2/sd_jags_2^2)
-# }
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_sigma_hn, 4)}) %>% t(.) -> ratio1_sigma_hn
+colnames(ratio1_sigma_hn) <- paste0("sigma-hn", 1:2)
+rownames(ratio1_sigma_hn) <- paste0( c(50, 100, 500, 1000, 10000))
 
-for (i in 1:4)
-{
-  mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta1[,i])
-  sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta1[,i])
-  #mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,i])
-  #sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,i])
-  mean_inla <- model.inla$summary_fixed[[i]]$mean[1]
-  mean_inla_2 <- model.inla.2$summary_fixed[[i]]$mean[1]
+### ratio1 pc
+result_ratio1_pc <- cbind(ratio1_beta1_pc,
+                          ratio1_sigma_pc)
 
-  ratio1_beta1_pc <- c(ratio1_beta1_pc, c(mean_inla - mean_jags_2)/sd_jags_2)
-  ratio2_beta1_pc <- c(ratio2_beta1_pc, sd(inla.rmarginal(10000, model.inla$marginals_fixed[[i]][[1]]))^2/(sd_jags_2^2))
-  ratio1_beta1_hn <- c(ratio1_beta1_hn, c(mean_inla_2 - mean_jags_2)/sd_jags_2)
-  ratio2_beta1_hn <- c(ratio2_beta1_hn, sd(inla.rmarginal(10000, model.inla.2$marginals_fixed[[i]][[1]]))^2/(sd_jags_2^2))
+### ratio1 hn
+result_ratio1_hn <- cbind(ratio1_beta1_hn,
+                          ratio1_sigma_hn)
 
-}
-#
-#   mean_jags_2_sigma <- c("tau1", "tau2") %>% lapply(., function(x) mean(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-#   sd_jags_2_sigma <- c("tau1", "tau2") %>% lapply(., function(x) sd(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-#
-#   mean_jags_2_sigma_log <- c("tau1", "tau2") %>% lapply(., function(x) mean(log(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]])))) %>% unlist(.)
-#   sd_jags_2_sigma_log <- c("tau1", "tau2") %>% lapply(., function(x) sd(log(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]])))) %>% unlist(.)
-#
-#
-#
-mean_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
-sd_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
 
-mean_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-sd_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
+### --- Ratio 2 --- ####
+### Betas for pc and hn
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_beta1_pc,4)}) %>% t(.) -> ratio2_beta1_pc
+colnames(ratio2_beta1_pc) <- paste0("beta1-pc", 1:4)
+rownames(ratio2_beta1_pc) <- paste0( c(50, 100, 500, 1000, 10000))
 
-#inla_sigma
-inla_sigma <- lapply(1:2, function(x) inla.tmarginal(function(x) 1/sqrt(x), inla.smarginal(model.inla$marginals_hyperpar[[x]], factor = 100)))
-inla_sigma_2 <- lapply(1:2, function(x) inla.tmarginal(function(x) 1/sqrt(x), inla.smarginal(model.inla.2$marginals_hyperpar[[x]], factor = 100)))
-names(inla_sigma) <- c("sigma1", "sigma2")
-names(inla_sigma_2) <- c("sigma1", "sigma2")
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_beta1_hn,4)}) %>% t(.) -> ratio2_beta1_hn
+colnames(ratio2_beta1_hn) <- paste0("beta1-hn", 1:4)
+rownames(ratio2_beta1_hn) <- paste0( c(50, 100, 500, 1000, 10000))
 
-#inla sigma log
-inla_sigma_log <- lapply(1:2, function(x) inla.tmarginal(function(x) log(1/sqrt(x)), inla.smarginal(model.inla$marginals_hyperpar[[x]], factor = 100)))
-inla_sigma_log_2 <- lapply(1:2, function(x) inla.tmarginal(function(x) log(1/sqrt(x)), inla.smarginal(model.inla.2$marginals_hyperpar[[x]], factor = 100)))
-names(inla_sigma_log) <- c("log(sigma1)", "log(sigma2)")
-names(inla_sigma_log_2) <- c("log(sigma1)", "log(sigma2)")
+### Sigma and log_sigma for pc and hn
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_sigma_pc, 4)}) %>% t(.) -> ratio2_sigma_pc
+colnames(ratio2_sigma_pc) <- paste0("sigma-pc", 1:2)
+rownames(ratio2_sigma_pc) <- paste0( c(50, 100, 500, 1000, 10000))
+
+1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_sigma_hn, 4)}) %>% t(.) -> ratio2_sigma_hn
+colnames(ratio2_sigma_hn) <- paste0("sigma-hn", 1:2)
+rownames(ratio2_sigma_hn) <- paste0( c(50, 100, 500, 1000, 10000))
+
+### ratio2 pc
+result_ratio2_pc <- cbind(ratio2_beta1_pc,
+                          ratio2_sigma_pc)
+
+### ratio2 hn
+result_ratio2_hn <- cbind(ratio2_beta1_hn,
+                          ratio2_sigma_hn)
 
 
 
-# inla_sigma_sim <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla$marginals_hyperpar[[x]])))
-# inla_sigma_sim_2 <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla.2$marginals_hyperpar[[x]])))
-# names(inla_sigma_sim) <- c("sigma1", "sigma2")
-# names(inla_sigma_sim_2) <- c("sigma1", "sigma2")
-
-#Ratios sigma
-ratio1_sigma_pc <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
-ratio2_sigma_pc <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
-
-
-ratio1_sigma_hn <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
-ratio2_sigma_hn <- (lapply(inla_sigma_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma^2)
-
-#Ratios logarithm
-ratio1_sigma_log_pc <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
-ratio2_sigma_log_pc <- (lapply(inla_sigma_log, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
+#Latex
+library(xtable)
+xtable(result_time, digits = 4)
+xtable(result_ratio1_pc, digits = 4)
+xtable(result_ratio1_hn, digits = 4)
+xtable(result_ratio2_pc, digits = 4)
+xtable(result_ratio2_hn, digits = 4)
 
 
-ratio1_sigma_log_hn <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
-ratio2_sigma_log_hn <- (lapply(inla_sigma_log_2, function(x) inla.zmarginal(x, silent = TRUE)[[2]]) %>% unlist())^2/(sd_jags_2_sigma_log^2)
-
-
-
-
-
-
-### ----- 4.3. Mean and sd of the posterior distributions --- ####
-### Intercepts
-#result_beta0 <- numeric()
-# for(i in 1:4)
-# {
-#   result_beta0 <- rbind(result_beta0,
-#                         t(matrix(c(model.jags$BUGSoutput$summary[paste0("beta0[", i,"]"), c("mean", "sd")],
-#                                    model.inla$summary_fixed[[i]][1,c("mean", "sd")],
-#                                    model.jags.2$BUGSoutput$summary[paste0("beta0[", i,"]"), c("mean", "sd")]))))
-# }
-# rownames(result_beta0) <- paste0("beta0", 1:4)
-# colnames(result_beta0) <- c(paste0("JAGS", c("_mean", "_sigma")),
-#                             paste0("INLA", c("_mean", "_sigma")),
-#                             paste0("LONG_JAGS", c("_mean", "_sigma")))
-
-
-### Beta1
-result_beta1 <- numeric()
-for(i in 1:4)
-{
-  result_beta1 <- rbind(result_beta1,
-                        t(matrix(c(model.jags$BUGSoutput$summary[paste0("beta1[", i,"]"), c("mean", "sd")],
-                                   model.inla$summary_fixed[[i]][1,c("mean", "sd")],
-                                   model.jags.2$BUGSoutput$summary[paste0("beta1[", i,"]"), c("mean", "sd")],
-                                   model.inla.2$summary_fixed[[i]][1,c("mean", "sd")]))))
-}
-rownames(result_beta1) <- paste0("beta1", 1:4)
-colnames(result_beta1) <- c(paste0("JAGS", c("_mean", "_sigma")),
-                            paste0("INLA", c("_mean", "_sigma")),
-                            paste0("LONG_JAGS", c("_mean", "_sigma")),
-                            paste0("INLA_PC", c("_mean", "_sigma")))
