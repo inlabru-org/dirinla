@@ -361,91 +361,93 @@ a <- mapply(plotting_all,
 ###################################################################
 
 ### --- 3. Tables for the paper --- ####
-levels_factor <- 5
-
-n <- c(50, 100, 500, 1000, 10000)
-n <- c(50, 100, 500, 500, 500)
-
-
-pos <- paste0(n, "-", levels_factor)
+extract_tables <- function(levels_factor)
+{
+  n <- c(50, 100, 500, 1000, 10000)
+  n <- c(50, 100, 500, 500, 500)
 
 
-#Computational times
-
-res[,pos[1]]$times
-res[,pos[2]]$times
+  pos <- paste0(n, "-", levels_factor)
 
 
-1:5 %>% sapply(., function(x){res[,pos[x]]$times}) %>% t(.) -> result_time
-colnames(result_time) <- c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn")
-rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
-result_time
+  #Computational times
+
+  res[,pos[1]]$times
+  res[,pos[2]]$times
 
 
-
-### --- Ratio 1 --- ####
-### Betas for pc and hn
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_beta1_pc,4)}) %>% t(.) -> ratio1_beta1_pc
-colnames(ratio1_beta1_pc) <- paste0("beta1-pc", 1:4)
-rownames(ratio1_beta1_pc) <- paste0( c(50, 100, 500, 1000, 10000))
-
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_beta1_hn,4)}) %>% t(.) -> ratio1_beta1_hn
-colnames(ratio1_beta1_hn) <- paste0("beta1-hn", 1:4)
-rownames(ratio1_beta1_hn) <- paste0( c(50, 100, 500, 1000, 10000))
-
-### Sigma and log_sigma for pc and hn
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_sigma_pc, 4)}) %>% t(.) -> ratio1_sigma_pc
-colnames(ratio1_sigma_pc) <- paste0("sigma-pc", 1:2)
-rownames(ratio1_sigma_pc) <- paste0( c(50, 100, 500, 1000, 10000))
-
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_sigma_hn, 4)}) %>% t(.) -> ratio1_sigma_hn
-colnames(ratio1_sigma_hn) <- paste0("sigma-hn", 1:2)
-rownames(ratio1_sigma_hn) <- paste0( c(50, 100, 500, 1000, 10000))
-
-### ratio1 pc
-result_ratio1_pc <- cbind(ratio1_beta1_pc,
-                          ratio1_sigma_pc)
-
-### ratio1 hn
-result_ratio1_hn <- cbind(ratio1_beta1_hn,
-                          ratio1_sigma_hn)
-
-
-### --- Ratio 2 --- ####
-### Betas for pc and hn
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_beta1_pc,4)}) %>% t(.) -> ratio2_beta1_pc
-colnames(ratio2_beta1_pc) <- paste0("beta1-pc", 1:4)
-rownames(ratio2_beta1_pc) <- paste0( c(50, 100, 500, 1000, 10000))
-
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_beta1_hn,4)}) %>% t(.) -> ratio2_beta1_hn
-colnames(ratio2_beta1_hn) <- paste0("beta1-hn", 1:4)
-rownames(ratio2_beta1_hn) <- paste0( c(50, 100, 500, 1000, 10000))
-
-### Sigma and log_sigma for pc and hn
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_sigma_pc, 4)}) %>% t(.) -> ratio2_sigma_pc
-colnames(ratio2_sigma_pc) <- paste0("sigma-pc", 1:2)
-rownames(ratio2_sigma_pc) <- paste0( c(50, 100, 500, 1000, 10000))
-
-1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_sigma_hn, 4)}) %>% t(.) -> ratio2_sigma_hn
-colnames(ratio2_sigma_hn) <- paste0("sigma-hn", 1:2)
-rownames(ratio2_sigma_hn) <- paste0( c(50, 100, 500, 1000, 10000))
-
-### ratio2 pc
-result_ratio2_pc <- cbind(ratio2_beta1_pc,
-                          ratio2_sigma_pc)
-
-### ratio2 hn
-result_ratio2_hn <- cbind(ratio2_beta1_hn,
-                          ratio2_sigma_hn)
+  1:5 %>% sapply(., function(x){res[,pos[x]]$times}) %>% t(.) -> result_time
+  colnames(result_time) <- c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn")
+  rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
+  result_time
 
 
 
-#Latex
-library(xtable)
-xtable(result_time, digits = 4)
-xtable(result_ratio1_pc, digits = 4)
-xtable(result_ratio1_hn, digits = 4)
-xtable(result_ratio2_pc, digits = 4)
-xtable(result_ratio2_hn, digits = 4)
+  ### --- Ratio 1 --- ####
+  ### Betas for pc and hn
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_beta1_pc,4)}) %>% t(.) -> ratio1_beta1_pc
+  colnames(ratio1_beta1_pc) <- paste0("beta1-pc", 1:4)
+  rownames(ratio1_beta1_pc) <- paste0( c(50, 100, 500, 1000, 10000))
 
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_beta1_hn,4)}) %>% t(.) -> ratio1_beta1_hn
+  colnames(ratio1_beta1_hn) <- paste0("beta1-hn", 1:4)
+  rownames(ratio1_beta1_hn) <- paste0( c(50, 100, 500, 1000, 10000))
+
+  ### Sigma and log_sigma for pc and hn
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_sigma_pc, 4)}) %>% t(.) -> ratio1_sigma_pc
+  colnames(ratio1_sigma_pc) <- paste0("sigma-pc", 1:2)
+  rownames(ratio1_sigma_pc) <- paste0( c(50, 100, 500, 1000, 10000))
+
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio1_sigma_hn, 4)}) %>% t(.) -> ratio1_sigma_hn
+  colnames(ratio1_sigma_hn) <- paste0("sigma-hn", 1:2)
+  rownames(ratio1_sigma_hn) <- paste0( c(50, 100, 500, 1000, 10000))
+
+  ### ratio1 pc
+  result_ratio1_pc <- cbind(ratio1_beta1_pc,
+                            ratio1_sigma_pc)
+
+  ### ratio1 hn
+  result_ratio1_hn <- cbind(ratio1_beta1_hn,
+                            ratio1_sigma_hn)
+
+
+  ### --- Ratio 2 --- ####
+  ### Betas for pc and hn
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_beta1_pc,4)}) %>% t(.) -> ratio2_beta1_pc
+  colnames(ratio2_beta1_pc) <- paste0("beta1-pc", 1:4)
+  rownames(ratio2_beta1_pc) <- paste0( c(50, 100, 500, 1000, 10000))
+
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_beta1_hn,4)}) %>% t(.) -> ratio2_beta1_hn
+  colnames(ratio2_beta1_hn) <- paste0("beta1-hn", 1:4)
+  rownames(ratio2_beta1_hn) <- paste0( c(50, 100, 500, 1000, 10000))
+
+  ### Sigma and log_sigma for pc and hn
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_sigma_pc, 4)}) %>% t(.) -> ratio2_sigma_pc
+  colnames(ratio2_sigma_pc) <- paste0("sigma-pc", 1:2)
+  rownames(ratio2_sigma_pc) <- paste0( c(50, 100, 500, 1000, 10000))
+
+  1:5 %>% sapply(., function(x){round(res[,pos[x]]$ratio2_sigma_hn, 4)}) %>% t(.) -> ratio2_sigma_hn
+  colnames(ratio2_sigma_hn) <- paste0("sigma-hn", 1:2)
+  rownames(ratio2_sigma_hn) <- paste0( c(50, 100, 500, 1000, 10000))
+
+  ### ratio2 pc
+  result_ratio2_pc <- cbind(ratio2_beta1_pc,
+                            ratio2_sigma_pc)
+
+  ### ratio2 hn
+  result_ratio2_hn <- cbind(ratio2_beta1_hn,
+                            ratio2_sigma_hn)
+
+
+
+  #Latex
+  library(xtable)
+  list(xtable(result_time, digits = 4),
+  xtable(result_ratio1_pc, digits = 4),
+  xtable(result_ratio1_hn, digits = 4),
+  xtable(result_ratio2_pc, digits = 4),
+  xtable(result_ratio2_hn, digits = 4))
+
+}
+extract_tables(10)
 
