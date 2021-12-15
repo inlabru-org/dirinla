@@ -59,14 +59,14 @@ simulations_just_intercepts <- function(n)
                                             n          = n )
 
   # Ordering the data with covariates --- ###
-  A_construct <- data_stack_construct$A
+  A_construct <- data_stack_construct
   eta <- A_construct %*% x
   alpha <- exp(eta)
   alpha <- matrix(alpha,
                   ncol  = d,
                   byrow = TRUE)
   y_o <- rdirichlet(n, alpha)
-  colnames(y_o) <- paste0("Category", 1:d)
+  colnames(y_o) <- paste0("y", 1:d)
 
 
   y <- y_o
@@ -560,8 +560,10 @@ simulations_just_intercepts <- function(n)
 
 ### --- 3. Calling the function --- ####
 n <- c(50, 100, 500)
-a <- parallel::mclapply(n, simulations_just_intercepts,
-                        mc.cores = 3)
+# a <- parallel::mclapply(n, simulations_just_intercepts,
+#                         mc.cores = 3)
+
+a <- lapply(n, simulations_just_intercepts)
 
 names(a) <- paste0("n", n)
 saveRDS(b, file = "simulation1_50-500.RDS")
@@ -569,8 +571,10 @@ a <- readRDS(file = "simulation1_50-500.RDS")
 
 
 n <- c(1000, 10000)
-a <- parallel::mclapply(n, simulations_just_intercepts,
-                        mc.cores = 2)
+# a <- parallel::mclapply(n, simulations_just_intercepts,
+#                         mc.cores = 2)
+a <- lapply(n, simulations_just_intercepts)
+
 names(a) <- paste0("n", n)
 saveRDS(a, file = "simulation1_1000-10000.RDS")
 a <- readRDS(file = "simulation1_1000-10000.RDS")

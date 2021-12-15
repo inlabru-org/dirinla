@@ -194,11 +194,11 @@ simulations_with_slopes <- function(n)
     }
   }else{
     ## MCMC configuration
-     ni <- 10000
-     nb <- 1000
-    #ni <- 1000000
+    #  ni <- 10000
+    #  nb <- 1000
+    ni <- 1000000
     nt <- 5
-    #nb <- 100000
+    nb <- 100000
     nc <- 3
 
     ## Data set
@@ -491,18 +491,20 @@ simulations_with_slopes <- function(n)
 
 ### --- 3. Calling the function --- ####
 n <- c(50, 100, 500)
-a <- parallel::mclapply(n, simulations_with_slopes,
-                        mc.cores = 3)
+# a <- parallel::mclapply(n, simulations_with_slopes,
+#                         mc.cores = 3)
 
-prueba <- lapply(n, simulations_with_slopes)
+a <- lapply(n, simulations_with_slopes)
 
 names(a) <- paste0("n", n)
 saveRDS(a, file = "simulation2_50-500.RDS")
 a <- readRDS(file = "simulation2_50-500.RDS")
 
 n <- c(1000, 10000)
-a <- parallel::mclapply(n, simulations_with_slopes,
-                        mc.cores = 2)
+# a <- parallel::mclapply(n, simulations_with_slopes,
+#                         mc.cores = 2)
+a <- lapply(n, simulations_with_slopes)
+
 names(a) <- paste0("n", n)
 saveRDS(a, file = "simulation2_1000-10000.RDS")
 b <- readRDS(file = "simulation2_1000-10000.RDS")
