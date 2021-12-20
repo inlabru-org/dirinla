@@ -175,6 +175,6 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
   A <- 1
   #Giving back the inla.stack
-  list(inla.stack(data = list(y = y), A = c(A), effects = effects),
+  list(stk = inla.stack(data = list(y = y), A = c(A), effects = effects),
        formula.inla = formula.inla)
 }

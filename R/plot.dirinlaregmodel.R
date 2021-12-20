@@ -46,22 +46,22 @@ plot.dirinlaregmodel <- function(x, ...) {
   }
   devAskNewPage(ask=TRUE)
 
-  for(x in 1:length(x$marginals_fixed))
+  for(j in 1:length(x$marginals_fixed))
   {
     p1 <- list()
-    for(i in 1:length(x$marginals_fixed[[x]]))
+    for(i in 1:length(x$marginals_fixed[[j]]))
     {
-      dens <- as.data.frame(x$marginals_fixed[[x]][[i]])
+      dens <- as.data.frame(x$marginals_fixed[[j]][[i]])
       p1[[i]] <- ggplot2::ggplot(dens,
                                  aes(x = x,
-                                     y = dens$y)) +
+                                     y = y)) +
         ggplot2::geom_line(size = 0.6, col = "red4") +
         #xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
         ggplot2::theme_light() + #Show axes
-        ggplot2::xlab(names(x$marginals_fixed[[x]])[i]) + #xlab
+        ggplot2::xlab(names(x$marginals_fixed[[j]])[i]) + #xlab
         ggplot2::ylab("f()")
     }
-    args <- c(p1, list(ncol = 2, top = nombres[x]))
+    args <- c(p1, list(ncol = 2, top = nombres[j]))
   do.call(gridExtra::grid.arrange,
           args)
   devAskNewPage(ask=TRUE)

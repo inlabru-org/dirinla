@@ -977,8 +977,8 @@ a <- readRDS(file = "simulation4_50-500.RDS")
 
 
 ####
-#### From 1000 to 10000
-n <- c(1000, 10000)
+#### From 1000
+n <- c(1000)
 levels_factor <- c(2, 5, 10, 25, NA)
 
 arguments <- expand.grid(n, levels_factor)
@@ -990,11 +990,28 @@ a <- mapply(simulations_with_slopes_iid,
             levels_factor = levels_factor)
 
 
-levels_factor[is.na(levels_factor)] <- c(1000, 10000)
+levels_factor[is.na(levels_factor)] <- c(1000)
 colnames(a) <- paste0(n, "-", levels_factor)
-saveRDS(a, file = "simulation4_1000-10000.RDS")
-a <- readRDS(file = "simulation4_1000-10000.RDS")
+saveRDS(a, file = "simulation4_1000.RDS")
+a <- readRDS(file = "simulation4_1000.RDS")
 
+#### From 10000
+n <- c(10000)
+levels_factor <- c(2, 5, 10, 25, NA)
+
+arguments <- expand.grid(n, levels_factor)
+n <- arguments[,1]
+levels_factor <- arguments[,2]
+
+a <- mapply(simulations_with_slopes_iid,
+            n = n,
+            levels_factor = levels_factor)
+
+
+levels_factor[is.na(levels_factor)] <- c(10000)
+colnames(a) <- paste0(n, "-", levels_factor)
+saveRDS(a, file = "simulation4_10000.RDS")
+a <- readRDS(file = "simulation4_10000.RDS")
 
 
 

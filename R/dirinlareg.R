@@ -215,7 +215,7 @@ dirinlareg <- function (formula,
                                               n          = n )
 
     formula.inla <- data_stack_2$formula.inla
-    data_stack_2 <- data_stack_2[[1]]
+    data_stack_2 <- data_stack_2$stk
 
 
     cat(paste0("\n ----------------------", "    INLA call    ", "----------------- \n"))
@@ -232,7 +232,8 @@ dirinlareg <- function (formula,
     mod0 <- inla(formula.inla,
                  family            = "gaussian",
                  data              = inla.stack.data(data_stack_2),
-                 control.predictor = list(A = t(Lk_eta), compute = TRUE),
+                 control.predictor = list(A = t(Lk_eta) %*% inla.stack.A(data_stack_2),
+                                          compute = TRUE),
                  control.compute   = list(config = TRUE, #Compute marginals
                                           dic    = TRUE,
                                           waic   = TRUE,

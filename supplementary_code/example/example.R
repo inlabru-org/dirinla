@@ -23,14 +23,13 @@ x <- c(-1.5, 1, #Cat 1
 
 mus <- exp(x) / sum(exp(x))
 C <- length(names_cat)
-data_stack_construct <-
+A_construct <-
   data_stack_dirich(y = as.vector(rep(NA, N * C)),
                     covariates = names_cat,
                     data       = V,
                     d          = C,
                     n          = N)
 
-A_construct <- data_stack_construct$A
 A_construct[1:8, ]
 
 eta <- A_construct %*% x
@@ -50,7 +49,7 @@ model.inla <- dirinlareg(
   y        = y,
   data.cov = V,
   prec     = 0.0001,
-  verbose  = FALSE)
+  verbose  = TRUE)
 
 
 summary(model.inla)

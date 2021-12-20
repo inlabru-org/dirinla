@@ -30,7 +30,6 @@ library(dplyr)
 
 
 ### --- 2. Simulation data --- ####
-cat("n = ", n, " -----> Simulating data \n")
 set.seed(100)
 n <- 100
 levels_factor <- n
