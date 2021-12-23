@@ -1,4 +1,0 @@
-model {
-  theta <- theta.x[index]
-  index ~ dcat(theta.y)
-}
