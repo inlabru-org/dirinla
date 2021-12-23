@@ -30,15 +30,23 @@ library(dplyr)
 
 
 ### --- 2. Simulation data --- ####
-set.seed(100)
-n <- 100
-levels_factor <- n
-cat_elem <- n/levels_factor
+cat("n = ", n, " - levels_factor = ", levels_factor," -----> Simulating data \n")
 
+set.seed(100)
+if(is.na(levels_factor)){
+  levels_factor <- n
+}
+cat_elem <- n/levels_factor
+cat(paste0(n, "-", levels_factor, "\n"))
 #Covariates
 V <- as.data.frame(matrix(runif((10)*n, -1, 1), ncol=10))
-#V <- as.data.frame(matrix(rnorm((10)*n, 0, 1), ncol=10))
 names(V) <- paste0('v', 1:(10))
+tau0 <- 1
+
+#Same covariate
+# V <- as.data.frame(cbind(V[,1], V[,1], V[,1], V[,1]))
+# #V <- as.data.frame(matrix(rnorm((10)*n, 0, 1), ncol=10))
+# names(V) <- paste0('v', 1:(4))
 
 ### 4 random effects
 iid1 <- iid2  <- rep(1:levels_factor, rep(n/levels_factor, levels_factor))
@@ -59,13 +67,13 @@ x <- c(-1.5, 2,
        1, -3)
 
 #random effect
-prec_w <- c(4, 3)
+prec_w <- c(4, 9)
 (sd_w <- 1/sqrt(prec_w))
 
 w1 <- rnorm(levels_factor, sd = sqrt(1/prec_w[1])) %>% rep(., rep(n/levels_factor, levels_factor))
 w2 <- w1
 w3 <- rnorm(levels_factor, sd = sqrt(1/prec_w[2])) %>% rep(., rep(n/levels_factor, levels_factor))
-w4 <- w2
+w4 <- w3
 
 
 #w3 <- w3[pos]
@@ -94,125 +102,37 @@ colnames(y_o) <- paste0("y", 1:d)
 y <- y_o
 
 
-
-
-
-###
-model.inla.2 <- dirinlareg( formula  = y ~ -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
-                              -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
-                              -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
-                              -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))),
-                            y        = y,
-                            data.cov = V,
-                            prec     = 0.01,
-                            verbose  = TRUE)
-
-t_inla_2 <- proc.time()-t    # Stop the time
-t_inla_2 <- t_inla_2[3]
-summary(model.inla.2)
-
-model.inla.2$summary_hyperpar
-
-
-
-
+### --- 3. Fitting the model --- ####
+formula  = y ~
+  -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+  -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+  -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+  -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01)))))
+# formula  = y ~
+#   -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
+#   -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
+#   -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1)))) |
+#   -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=list(prior="loggamma",param=c(1,0.1))))
+model.inla <- dirinlareg(formula = formula,
+                         y        = y,
+                         data.cov = V,
+                         prec     = 0.01,
+                         verbose  = FALSE,
+                         control.inla = list(strategy = "laplace", int.strategy = "grid")
+)
 
 
 
 
 
-### --- 3. Comparing posterior distributions. jags vs INLA --- ####
-### ----- 3.1. Fitting the model with jags with pc-prior for sd --- ####
-cat(paste0("n = ", n, " -----> Fitting using SHORT JAGS \n"))
-
-x_pc <- seq(0.01,15, length.out = 1000)
-y_pc <- inla.pc.dprec(x_pc, u = 10, alpha = 0.01, log = FALSE)
-prec_pc <- list(x_pc = x_pc, y_pc = y_pc)
-
-
-## MCMC configuration
-ni <- 5000
-nt <- 5
-nb <- 1000
-nc <- 3
-
-## Data set
-table(V$iid1) %>%length() -> niv_length1
-table(V$iid2) %>%length() -> niv_length2
-data_jags <- list(y = y,
-                  N = dim(y)[1],
-                  d = d,
-                  V = V,
-                  niv1 = V$iid1,
-                  niv2 = V$iid2,
-                  niv_length1 = niv_length1,
-                  niv_length2 = niv_length2,
-                  x_pc = prec_pc$x_pc,
-                  y_pc = prec_pc$y_pc)
-
-## Initial values
-inits <- function(){list(beta1 = rnorm(d, 0, 1))}
-
-## Parameters of interest
-parameters <- c('beta1', 'tau1', 'tau2')
-
-cat("
-    model {
-    #model
-    for (i in 1:N){
-    y[i, ] ~ ddirch(alpha[i,])
-
-    log(alpha[i,1]) <- beta1[1]*V[i,1] + w1[niv1[i]]
-    log(alpha[i,2]) <- beta1[2]*V[i,2] + w1[niv1[i]]
-    log(alpha[i,3]) <- beta1[3]*V[i,3] + w2[niv2[i]]
-    log(alpha[i,4]) <- beta1[4]*V[i,4] + w2[niv2[i]]
-    }
-
-    for(j in 1:niv_length1){
-        w1[j] ~ dnorm(0, tau1)
-    }
-
-     for(j in 1:niv_length2){
-        w2[j] ~ dnorm(0, tau2)
-    }
-
-    #priors
-    tau1 <- x_pc[index1]
-    index1 ~ dcat(y_pc)
-
-    #priors
-    tau2 <- x_pc[index2]
-    index2 ~ dcat(y_pc)
-
-    for (c in 1:d)
-    {
-    beta1[c] ~ dnorm(0, 0.01)
-    }
-    }", file="model_cov.jags" )
 
 
 
-## Call jags
-t <- proc.time() # Measure the time
-model.jags <- jags(data_jags,
-                   inits,
-                   parameters,
-                   "model_cov.jags",
-                   n.chains          = nc,
-                   n.thin            = nt,
-                   n.iter            = ni,
-                   n.burnin          = nb,
-                   working.directory = getwd()) #
-t_jags <- proc.time()-t    # Stop the time
-t_jags <- t_jags[3]
-print(model.jags)
 
 
 
-hist(model.jags$BUGSoutput$sims.list$tau1, breaks = 100, freq = FALSE)
-lines(model.inla.2$marginals_hyperpar$`Precision for iid1`)
-
-hist(model.jags$BUGSoutput$sims.list$tau2, breaks = 100, freq = FALSE)
-lines(model.inla.2$marginals_hyperpar$`Precision for iid2`)
 
 
+### --- 4. Summary of the model --- ####
+summary(model.inla)
+plot(model.inla)
