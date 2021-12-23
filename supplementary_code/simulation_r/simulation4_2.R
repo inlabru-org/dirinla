@@ -32,6 +32,8 @@ library(dplyr)
 ### --- 2. Simulation data --- ####
 cat("n = ", n, " - levels_factor = ", levels_factor," -----> Simulating data \n")
 
+levels_factor <- 5
+n <- 100
 set.seed(100)
 if(is.na(levels_factor)){
   levels_factor <- n
