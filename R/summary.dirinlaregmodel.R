@@ -19,16 +19,32 @@ summary.dirinlaregmodel <- function(object, ...) {
     ## Summary of the fixed effects
     cat("---- FIXED EFFECTS ---- \n")
 
-    for (i in 1:length(object$summary_fixed)) {
+    if(length(object$summary_fixed %>% unlist(.))>1)
+    {
+      for (i in 1:length(object$summary_fixed)) {
         cat("======================================================================= \n")
         cat(paste0(names(object$summary_fixed)[i], "\n"))
         #cat(paste0("Category "), i, "\n")
         cat("----------------------------------------------------------------------- \n")
         print(object$summary_fixed[[i]], digits = 4)
+      }
+    }else{
+      cat("\n No fixed effects in the model \n")
     }
     cat("======================================================================= \n")
     cat("\n")
+    ## Summary of the fixed effects
+    cat("---- HYPERPARAMETERS ---- \n")
 
+    if(length(object$marginals_hyperpar)>1)
+    {
+      cat("======================================================================= \n")
+      print(object$summary_hyperpar, digits = 4)
+    }else{
+      cat("\n No hyperparameters in the model \n")
+    }
+
+    cat("======================================================================= \n")
     ### Model selection
     cat(paste0("DIC = ", round(object$dic$dic, 4)), ", ")
     cat(paste0("WAIC = ", round(object$waic$waic, 4)), ", ")

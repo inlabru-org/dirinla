@@ -6,8 +6,13 @@
 \usage{
 dirinlaregmodel(
   call = NULL,
+  formula = NULL,
   summary_fixed = NULL,
   marginals_fixed = NULL,
+  summary_random = NULL,
+  marginals_random = NULL,
+  summary_hyperpar = NULL,
+  marginals_hyperpar = NULL,
   summary_linear_predictor = NULL,
   marginals_linear_predictor = NULL,
   summary_alphas = NULL,

@@ -90,7 +90,8 @@ model.inla <- dirinlareg(
   formula  = y ~ 1 + v1 | 1 + v2 | 1 + v3,
   y        = y,
   data.cov = V,
-  prec     = 0.0001)
+  prec     = 0.0001,
+  verbose  = TRUE)
 ```
 
 To collect information about the fitted values and marginal posterior distributions of the parameters, we can use the methods **summary** and **plot** directly to the **dirinlaregmodel** object generated.

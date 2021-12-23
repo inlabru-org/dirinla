@@ -71,7 +71,7 @@ look_for_mode_x <- function(A = A,
 
     if (any(!is.finite(gk))) {
       gk[which(!is.finite(gk))] <- exp(100)
-      print("You should apply the transformation DR_data")
+      stop("You should apply the transformation DR_data to your data")
     }
     ### Expected Hessian ####
     ### --- Diagonal matrix dim=dn x dn with the expected hessian in the diagonal
@@ -108,17 +108,17 @@ look_for_mode_x <- function(A = A,
 
 
     ### Checking condition
-    less <- (as.logical(abs(sum(x_hat_new - x_hat[k, ])) < tol0) && #Condition in x
+    less <- (as.logical(max(abs(x_hat_new - x_hat[k, ])) < tol0) && #Condition in x
       as.logical(abs(f_new - f_old) < tol0)) && #Condition in f
-      as.logical(abs(sum(gk)) < tol1 * max(1, abs(f_new)))
+      as.logical(max(abs(gk)) < tol1 * max(1, abs(f_new)))
 
     if(verbose == TRUE)
     {
       cat(paste0(
         "Iter = ", k,
-        ", |grad| = ", round(abs(sum(gk)), 2),
+        ", |grad| = ", round(max(abs(gk)), 2),
         ", log.post = ", round(f_new, 2),
-        ", |x_new - x_old| = ", round(abs(sum(x_hat_new - x_hat[k, ])), 5),
+        ", |x_new - x_old| = ", round(max(abs(x_hat_new - x_hat[k, ])), 5),
         ", |f_new - f_old| = ", round(abs(f_new - f_old), 5),
         "\n"
         #", x = ", paste(round(x_hat_new, 2), collapse = " ")
@@ -223,7 +223,8 @@ look_for_mode_x <- function(A = A,
     gk    = gk,
     Lk    = Lk,
     eta   = as.vector(eta),
-    z     = z
+    z     = z,
+    less  = less
   )
 }
 
