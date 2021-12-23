@@ -207,15 +207,15 @@ dirinlareg <- function (formula,
 
 
     #Preparing data for the INLA call
-    data_stack_2 <- data_stack_dirich_formula(y          = as.vector(z_eta),
+    data_stack_all <- data_stack_dirich_formula(y          = as.vector(z_eta),
                                               covariates = names_cat,
                                               share      = share,
                                               data       = data.cov,
                                               d          = d,
                                               n          = n )
 
-    formula.inla <- data_stack_2$formula.inla
-    data_stack_2 <- data_stack_2$stk
+    formula.inla <- data_stack_all$formula.inla
+    data_stack_2 <- data_stack_all$stk
 
 
     cat(paste0("\n ----------------------", "    INLA call    ", "----------------- \n"))
@@ -228,7 +228,6 @@ dirinlareg <- function (formula,
     #   names(a) <- c(paste0("lc", x))
     #   a})
 
-    #Faltaría multiplicar pos las realizaciones del efecto aleatorio
     mod0 <- inla(formula.inla,
                  family            = "gaussian",
                  data              = inla.stack.data(data_stack_2),
@@ -271,11 +270,6 @@ dirinlareg <- function (formula,
         j <- j + 1
       }
 
-
-      #########################################################################
-      ################### ME HE QUEDADO AQUÍ ###################################
-      ##########################################################################
-
     }
   }
   ### --- 5 Extracting posterior distributions --- ####
@@ -304,7 +298,9 @@ dirinlareg <- function (formula,
   ### --- Prediction --- ####
   if(prediction == TRUE)
   {
-    model.inla <- structure(list(call                           = this.call,
+    model.inla <- structure(list(
+                   call                           = this.call,
+                   formula                        = formula,
                    summary_fixed                  = fixed_effects$summary_fixed,
                    marginals_fixed                = fixed_effects$marginals_fixed,
                    summary_linear_predictor       = linear_predictor$summary_linear_predictor,
@@ -350,6 +346,7 @@ dirinlareg <- function (formula,
 
 
   structure(list(call                           = this.call,
+                 formula                        = formula,
                  summary_fixed                  = fixed_effects$summary_fixed,
                  marginals_fixed                = fixed_effects$marginals_fixed,
                  summary_random                 = random_effects$summary_random,

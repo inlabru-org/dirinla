@@ -46,24 +46,52 @@ plot.dirinlaregmodel <- function(x, ...) {
   }
   devAskNewPage(ask=TRUE)
 
-  for(j in 1:length(x$marginals_fixed))
+  #If there are fixed effects
+  if(length(x$summary_fixed %>% unlist(.))>1)
   {
-    p1 <- list()
-    for(i in 1:length(x$marginals_fixed[[j]]))
+    ### Plotting fixed effects
+    for(j in 1:length(x$marginals_fixed))
     {
-      dens <- as.data.frame(x$marginals_fixed[[j]][[i]])
-      p1[[i]] <- ggplot2::ggplot(dens,
-                                 aes(x = x,
-                                     y = y)) +
-        ggplot2::geom_line(size = 0.6, col = "red4") +
-        #xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
-        ggplot2::theme_light() + #Show axes
-        ggplot2::xlab(names(x$marginals_fixed[[j]])[i]) + #xlab
-        ggplot2::ylab("f()")
+      p1 <- list()
+      for(i in 1:length(x$marginals_fixed[[j]]))
+      {
+        dens <- as.data.frame(x$marginals_fixed[[j]][[i]])
+        p1[[i]] <- ggplot2::ggplot(dens,
+                                   aes(x = x,
+                                       y = y)) +
+          ggplot2::geom_line(size = 0.6, col = "red4") +
+          #xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
+          ggplot2::theme_light() + #Show axes
+          ggplot2::xlab(names(x$marginals_fixed[[j]])[i]) + #xlab
+          ggplot2::ylab("f()")
+      }
+      args <- c(p1, list(ncol = 2, top = nombres[j]))
+      do.call(gridExtra::grid.arrange,
+              args)
+      devAskNewPage(ask=TRUE)
     }
-    args <- c(p1, list(ncol = 2, top = nombres[j]))
-  do.call(gridExtra::grid.arrange,
-          args)
-  devAskNewPage(ask=TRUE)
-        }
+  }
+
+  #Random effects
+  if(length(x$marginals_hyperpar %>% unlist(.))>1)
+    {
+      p2 <- list()
+      for(j in 1:length(x$marginals_hyperpar))
+      {
+        dens <- as.data.frame(x$marginals_hyperpar[[j]])
+        p2[[j]] <- ggplot2::ggplot(dens,
+                                   aes(x = x,
+                                       y = y)) +
+          ggplot2::geom_line(size = 0.6, col = "red4") +
+          #xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
+          ggplot2::theme_light() + #Show axes
+          ggplot2::xlab(names(x$marginals_hyperpar)[j]) +
+          ggplot2::ylab("f()")
+      }
+      #args <- c(p2, list(ncol = 2, top = nombres[j]))
+      args <- p2
+      do.call(gridExtra::grid.arrange,
+              args)
+      devAskNewPage(ask=TRUE)
+  }
 }

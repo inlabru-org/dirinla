@@ -82,9 +82,6 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     #############################################################################
     #### If we want to include more steps for random effects here is the part ###
     #############################################################################
-    #TODO: tHIS is constructed just for one shared random effect
-          # - Include more random effects
-          # - Include not shared random effects
 
     ### Random effects
     covariates %>% lapply(., function(x){

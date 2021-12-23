@@ -34,6 +34,7 @@
 
 dirinlaregmodel <- function(
     call                           = NULL,
+    formula                        = NULL,
     summary_fixed                  = NULL,
     marginals_fixed                = NULL,
     summary_random                 = NULL,
@@ -62,6 +63,7 @@ dirinlaregmodel <- function(
     y                              = NULL,
     data.cov                       = NULL) {
     res <- list(call                           = call,
+                formula                        = formula,
                 summary_fixed                  = summary_fixed,
                 marginals_fixed                = marginals_fixed,
                 summary_linear_predictor       = summary_linear_predictor,

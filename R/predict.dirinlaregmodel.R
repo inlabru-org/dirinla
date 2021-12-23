@@ -81,12 +81,18 @@ predict.dirinlaregmodel <- function(object, data.pred.cov, ...)
   }
 
   cat(paste0("\n \n ----------------------", " Predicting ", "----------------- \n \n "))
+
+
+  #### Fixed effects
   sim <- object$marginals_fixed %>% purrr::map(function(x){
     sapply(x, inla.rmarginal, n=10000)})
   sim <- sim %>% purrr::map(function(x)as.matrix(t(x)))
   data.pred.cov <- lapply(object$marginals_fixed, function(x){
     as.matrix(dplyr::select(data.pred.cov, names(x)))})
   predictive_etas <- Map('%*%', data.pred.cov, sim)
+
+  ########
+
   predictive_alphas <- predictive_etas %>% purrr::map(function(x)exp(x))
 
   predictive_precision <- Reduce("+", predictive_alphas)
