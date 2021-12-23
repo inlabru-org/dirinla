@@ -6,6 +6,7 @@
 \usage{
 dirinlaregmodel(
   call = NULL,
+  formula = NULL,
   summary_fixed = NULL,
   marginals_fixed = NULL,
   summary_random = NULL,
