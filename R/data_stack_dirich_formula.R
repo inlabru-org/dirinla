@@ -165,7 +165,9 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
   }
 
   ### Mixing two formulas
-  formula.inla <- covariatesall %>% names() %>% str_remove(., "1") %>% .[1] %>% paste0(., " ~ -1 + ")
+  #formula.inla <- covariatesall %>% names() %>% str_remove(., "1") %>% .[1] %>% paste0(., " ~ -1 + ")
+  formula.inla <- "y" %>% paste0(., " ~ -1 + ")
+
   formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
   effects <- cbind(effects, effects_random)
   if(all(is.na(effects[,dim(effects)[2]])))

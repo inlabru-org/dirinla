@@ -28,6 +28,7 @@ Glc <- GlacialTills
 Glc$Y <- DR_data(Glc[,1:4]/100, trafo = TRUE)[,1:4] #package DirichletReg
 Glc$Pcount <- Glc$Pcount/100
 
+
 ### --- 4. Comparing posterior distributions. Jags vs INLA --- ####
 ### ----- 4.1. Fitting the model with jags --- ####
 ## MCMC configuration
@@ -84,7 +85,6 @@ model.jags <- jags(data_jags,
                    working.directory = getwd()) #
 t_jags<-proc.time()-t    # Stop the time
 print(model.jags)
-
 
 
 
