@@ -9,7 +9,6 @@
 # --- --- eta_3 = beta_{03},                                                  #
 # --- --- eta_4 = beta_{04},                                                  #
 # ----------------------------------------------------------------------------#
-setwd("~/GIT1/dirinla/supplementary_code/simulation_1")
 
 ### --- 1. Libraries ---- #####
 ### Needed

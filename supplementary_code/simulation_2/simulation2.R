@@ -511,7 +511,9 @@ b <- readRDS(file = "simulation2_1000-10000.RDS")
 results <- c(a,b)
 
 ### --- 4. Extracting tables for the paper --- ####
-# results <- readRDS(file = "simulation2_50-500.RDS")
+results1 <- readRDS(file = "simulation2_50-500.RDS")
+results2 <- readRDS(file = "simulation2_1000-10000.RDS")
+results <- c(results1, results2)
 results$n50$times
 results$n50$intercepts
 results$n50$times
@@ -567,6 +569,8 @@ xtable(result_ratio1, digits = 4)
 xtable(result_ratio2, digits = 4)
 
 
+plot(result_time[,1])
+lines(result_time[,2], col = "red")
 
 
 
