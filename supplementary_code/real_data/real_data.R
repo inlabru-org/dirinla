@@ -8,7 +8,6 @@
 # --- --- eta_3 = beta_{03} + Pcount beta3,                                   #
 # --- --- eta_4 = beta_{04} + Pcount beta4,                                   #
 # ----------------------------------------------------------------------------#
-setwd("~/GIT1/dirinla/supplementary_code/real_data")
 ### --- 1. Libraries ---- #####
 ### Needed
 library(dirinla)
@@ -102,9 +101,9 @@ summary(model.inla)
 
 ### ----- 4.3. Fitting the model with long jags --- ####
 ## MCMC configuration
-ni <- 100000
+ni <- 1000000
 nt <- 5
-nb <- 10000
+nb <- 100000
 nc <- 3
 # ni <- 100
 # nb <- 10
@@ -163,6 +162,7 @@ saveRDS(file = paste0("model_inla_real.RDS"), model.inla)
 
 ### ----- 4.1. Computational times --- ####
 times <- c(t_jags[3], t_inla[3], t_jags_2[3])
+times <- readRDS("times.RDS")
 
 ### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
 ratio1_beta0 <- ratio2_beta0 <- ratio1_beta1 <- ratio2_beta1 <- numeric()
@@ -229,6 +229,10 @@ total <- list(times = times,
      ratio2_slopes = ratio2_beta1)
 
 ### --- 5. Plotting ---
+model.inla <- readRDS("model_inla_real.RDS")
+model.jags <- readRDS("model_jags_real.RDS")
+model.jags.2 <- readRDS("model_jags_long_real.RDS")
+
 ### ----- 5.1. intercepts --- ####
 ## Intercept
 p1 <- list()
@@ -248,7 +252,7 @@ for (i in 1:length(model.inla$marginals_fixed))
 
   #Data combining jags (1) and inla (2)
   dens <- rbind(cbind(dens, group = 1),
-                cbind(as.data.frame(model.inla$marginals_fixed[[i]][[1]]), group = 2),
+                cbind(as.data.frame(inla.smarginal(model.inla$marginals_fixed[[i]][[1]])), group = 2),
                 cbind(dens2, group = 3))
   dens$group <- factor(dens$group,
                        labels = c("R-JAGS", "dirinla", "long R-JAGS"))
@@ -292,7 +296,7 @@ for (i in 1:length(model.inla$marginals_fixed))
     p1[[i]] <- p1[[i]] + theme(legend.position="none")
   }
 
-  p1[[i]] <- p1[[i]] + ggtitle(paste0("Category ", i)) +
+  p1[[i]] <- p1[[i]] + ggtitle(colnames(Glc)[i]) +
     theme(
       plot.title = element_text(color = "black",
                                 size  = 15,
@@ -310,6 +314,7 @@ for (i in 1:length(model.inla$marginals_fixed))
 ### ----- 5.2. slopes --- ####
 p2 <- list()
 beta1 <- expression(paste("p(", beta[1], "|", "y)"))
+d <- 4
 
 for (i in 1:length(model.inla$marginals_fixed))
 {
@@ -384,10 +389,6 @@ for (i in 1:length(model.inla$marginals_fixed))
 
 
 
-pdf(paste0("examples_simualtion2_slopes_intercepts_", n ,".pdf"), width = 15, height = 6)
-gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]],
-                        p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
-dev.off()
 list(times = times,
      intercepts = result_beta0,
      slopes     = result_beta1,
