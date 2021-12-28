@@ -1115,9 +1115,9 @@ ratio1_paper <- cbind(ratio1_beta1_hn, ratio1_sigma1_hn)
 
 # DIRINLA:ratio2_beta1 and sigma
 ratio2_beta1_hn <- n_levels_paper %>% results["ratio2_beta1_hn",.] %>%
-  do.call(rbind, .)
+  do.call(rbind, .) %>% sqrt(.)
 ratio2_sigma1_hn <- n_levels_paper %>% results["ratio2_sigma_hn",.] %>%
-  do.call(rbind, .)
+  do.call(rbind, .) %>% sqrt(.)
 ratio2_paper <- cbind(ratio2_beta1_hn, ratio2_sigma1_hn)
 
 # JAGS:ratio1_beta1 and sigma
@@ -1129,9 +1129,9 @@ ratio1_paper_jags <- cbind(ratio1_beta1_hn_jags, ratio1_sigma1_hn_jags)
 
 # JAGS:ratio2_beta1 and sigma
 ratio2_beta1_hn_jags <- n_levels_paper %>% res_ratios["ratio2_beta1_hn_jags",.] %>%
-  do.call(rbind, .)
+  do.call(rbind, .) %>% sqrt(.)
 ratio2_sigma1_hn_jags <- n_levels_paper %>% res_ratios["ratio2_sigma_hn_jags",.] %>%
-  do.call(rbind, .)
+  do.call(rbind, .) %>% sqrt(.)
 ratio2_paper_jags <- cbind(ratio2_beta1_hn_jags, ratio2_sigma1_hn_jags)
 
 
