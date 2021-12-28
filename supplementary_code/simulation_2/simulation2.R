@@ -510,7 +510,51 @@ saveRDS(a, file = "simulation2_1000-10000.RDS")
 b <- readRDS(file = "simulation2_1000-10000.RDS")
 results <- c(a,b)
 
-### --- 4. Extracting tables for the paper --- ####
+### --- 4. Computing also ratios for shortJAGS --- ####
+ratios_jags <- function(n)
+{
+  print(n)
+  model.jags <- readRDS(paste0("model_jags_", n,".RDS"))
+  model.inla <- readRDS(paste0("model_inla_", n,".RDS"))
+  model.jags.2 <- readRDS(paste0("model_jags_long_", n,".RDS"))
+
+  ratio1_beta0_jags <- ratio2_beta0_jags <- ratio1_beta1_jags <- ratio2_beta1_jags <- numeric()
+  for (i in 1:4)
+  {
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i])
+    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,i])
+    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,i])
+
+    ratio1_beta0_jags <- c(ratio1_beta0_jags, c(mean_jags_1 - mean_jags_2)/sd_jags_2)
+    ratio2_beta0_jags <- c(ratio2_beta0_jags, (sd_jags_1^2)/(sd_jags_2^2))
+  }
+
+  for (i in 1:4)
+  {
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta1[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta1[,i])
+    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta1[,i])
+    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta1[,i])
+
+    ratio1_beta1_jags <- c(ratio1_beta1_jags, c(mean_jags_1 - mean_jags_2)/sd_jags_2)
+    ratio2_beta1_jags <- c(ratio2_beta1_jags, (sd_jags_1^2/sd_jags_2^2))
+  }
+  list(ratio1_beta0_jags = ratio1_beta0_jags,
+       ratio2_beta0_jags = ratio2_beta0_jags,
+       ratio1_beta1_jags = ratio1_beta1_jags,
+       ratio2_beta1_jags = ratio2_beta1_jags)
+}
+
+n <- c(50, 100, 500, 1000, 10000)
+res_ratios <- lapply(n, ratios_jags)
+names(res_ratios) <- paste0("n", n)
+res_ratios
+
+
+
+
+### --- 5. Extracting tables for the paper --- ####
 results1 <- readRDS(file = "simulation2_50-500.RDS")
 results2 <- readRDS(file = "simulation2_1000-10000.RDS")
 results <- c(results1, results2)
@@ -534,6 +578,8 @@ colnames(result_time) <- c("R-JAGS", "dirinla", "long R-JAGS")
 rownames(result_time) <- paste0( c(50, 100, 500, 1000, 10000))
 result_time
 
+
+### ratios dirinla
 result_ratio1 <- cbind(rbind(round(results$n50$ratio1_intercepts, 4),
                              round(results$n100$ratio1_intercepts, 4),
                              round(results$n500$ratio1_intercepts, 4),
@@ -560,13 +606,48 @@ result_ratio2 <- cbind(rbind(round(sqrt(results$n50$ratio2_intercepts), 4),
 colnames(result_ratio2) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
 rownames(result_ratio2) <- paste0( c(50, 100, 500, 1000, 10000))
 
-result_ratio2
+### ratios short jags
+result_ratio1_jags <- cbind(rbind(round(res_ratios$n50$ratio1_beta0_jags, 4),
+                             round(res_ratios$n100$ratio1_beta0_jags, 4),
+                             round(res_ratios$n500$ratio1_beta0_jags, 4),
+                             round(res_ratios$n1000$ratio1_beta0_jags, 4),
+                             round(res_ratios$n10000$ratio1_beta0_jags, 4)),
+                       rbind(round(res_ratios$n50$ratio1_beta1_jags, 4),
+                             round(res_ratios$n100$ratio1_beta1_jags, 4),
+                             round(res_ratios$n500$ratio1_beta1_jags, 4),
+                             round(res_ratios$n1000$ratio1_beta1_jags, 4),
+                             round(res_ratios$n10000$ratio1_beta1_jags, 4)))
+colnames(result_ratio1_jags) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
+rownames(result_ratio1_jags) <- paste0( c(50, 100, 500, 1000, 10000))
+
+result_ratio2_jags <- cbind(rbind(round(sqrt(res_ratios$n50$ratio2_beta0_jags), 4),
+                             round(sqrt(res_ratios$n100$ratio2_beta0_jags), 4),
+                             round(sqrt(res_ratios$n500$ratio2_beta0_jags), 4),
+                             round(sqrt(res_ratios$n1000$ratio2_beta0_jags), 4),
+                             round(sqrt(res_ratios$n10000$ratio2_beta0_jags), 4)),
+                       rbind(round(sqrt(res_ratios$n50$ratio2_beta1_jags), 4),
+                             round(sqrt(res_ratios$n100$ratio2_beta1_jags), 4),
+                             round(sqrt(res_ratios$n500$ratio2_beta1_jags), 4),
+                             round(sqrt(res_ratios$n1000$ratio2_beta1_jags), 4),
+                             round(sqrt(res_ratios$n10000$ratio2_beta1_jags), 4)))
+colnames(result_ratio2_jags) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
+rownames(result_ratio2_jags) <- paste0( c(50, 100, 500, 1000, 10000))
+
+
+
+
+
+
 
 #Latex
 library(xtable)
 xtable(result_time, digits = 4)
 xtable(result_ratio1, digits = 4)
+xtable(result_ratio1_jags, digits = 4)
+
 xtable(result_ratio2, digits = 4)
+xtable(result_ratio2_jags, digits = 4)
+
 
 
 plot(result_time[,1])
