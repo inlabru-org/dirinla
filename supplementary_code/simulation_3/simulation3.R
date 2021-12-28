@@ -9,7 +9,6 @@
 # --- --- eta_3 = beta_{03},                                                  #
 # --- --- eta_4 = beta_{04},                                                  #
 # ----------------------------------------------------------------------------#
-setwd("~/GIT1/dirinla/supplementary_code/simulation_3")
 
 ### --- 1. Libraries ---- #####
 ### Needed
@@ -317,7 +316,68 @@ result <- readRDS(file = "simulation3_n_d.RDS")
 
 
 
-### --- 4. Extracting tables for the paper --- ####
+
+### --- 4. Computing ratio1 and ratio2 for R-JAGS ####
+ratios_jags <- function(n, levels_factor)
+{
+  print(paste0(n, "-", levels_factor))
+  if(is.na(levels_factor)){
+    levels_factor <- n
+  }
+  model.jags <- readRDS(paste0("model_jags_", n, "_", levels_factor, ".RDS"))
+  model.jags.2 <- readRDS(paste0("model_jags_long_", n, "_", levels_factor, ".RDS"))
+
+  #Beta1
+  ratio1_beta1_hn_jags <-  ratio2_beta1_hn_jags <- numeric()
+
+  for (i in 1:4)
+  {
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta1[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta1[,i])
+    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta1[,i])
+    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta1[,i])
+
+
+    ratio1_beta1_hn_jags <- c(ratio1_beta1_hn_jags, (mean_jags_1 - mean_jags_2)/sd_jags_2)
+    ratio2_beta1_hn_jags <- c(ratio2_beta1_hn_jags, (sd_jags_1^2)/(sd_jags_2^2))
+
+  }
+
+  #Sigmas
+  mean_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
+  sd_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
+
+  mean_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
+  sd_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
+
+  mean_jags_1_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
+  sd_jags_1_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
+
+  mean_jags_1_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(log(model.jags$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
+  sd_jags_1_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(log(model.jags$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
+
+
+  #Ratios sigma
+  ratio1_sigma_hn_jags <- (mean_jags_1_sigma - mean_jags_2_sigma)/sd_jags_2_sigma
+  ratio2_sigma_hn_jags <- (sd_jags_1_sigma^2)/(sd_jags_2_sigma^2)
+
+  #Ratios logarithm
+  ratio1_sigma_log_hn_jags <- (mean_jags_1_sigma_log - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
+  ratio2_sigma_log_hn_jags <- (sd_jags_1_sigma_log^2)/(sd_jags_2_sigma_log^2)
+
+
+
+  #Returning
+  list(ratio1_beta1_hn_jags = ratio1_beta1_hn_jags,
+       ratio2_beta1_hn_jags = ratio2_beta1_hn_jags,
+       ratio1_sigma_hn_jags = ratio1_sigma_hn_jags,
+       ratio2_sigma_hn_jags = ratio2_sigma_hn_jags,
+       ratio1_sigma_log_hn_jags = ratio1_sigma_log_hn_jags,
+       ratio2_sigma_log_hn_jags = ratio2_sigma_log_hn_jags)
+}
+### --- 5. Extracting tables for the paper --- ####
+result <- readRDS("simulation3_n_d.RDS")
+
 #Computational times
 result_time <- rbind(result$n100$d5$times,
                      result$n100$d10$times,

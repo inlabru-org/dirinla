@@ -551,13 +551,15 @@ res_ratios <- lapply(n, ratios_jags)
 names(res_ratios) <- paste0("n", n)
 res_ratios
 
-
+saveRDS(res_ratios, file = "simulation2_ratios_jags.RDS")
 
 
 ### --- 5. Extracting tables for the paper --- ####
 results1 <- readRDS(file = "simulation2_50-500.RDS")
 results2 <- readRDS(file = "simulation2_1000-10000.RDS")
 results <- c(results1, results2)
+
+res_ratios <- readRDS("simulation2_ratios_jags.RDS")
 results$n50$times
 results$n50$intercepts
 results$n50$times
