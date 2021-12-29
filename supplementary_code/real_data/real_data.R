@@ -105,8 +105,7 @@ ni <- 1000000
 nt <- 5
 nb <- 100000
 nc <- 3
-# ni <- 100
-# nb <- 10
+
 
 ## Data set
 data_jags <- list(y = Glc$Y,
@@ -413,16 +412,71 @@ dev.off()
 
 saveRDS(total, file = "real_data.RDS")
 
-### --- 4. Extracting tables for the paper --- ####
-results <- readRDS(file = "real_data.RDS")
 
+
+### --- 5. Computing also ratios for shortJAGS --- ####
+ratios_jags <- function()
+{
+  model.jags <- readRDS(paste0("model_jags_", "real",".RDS"))
+  model.inla <- readRDS(paste0("model_inla_", "real",".RDS"))
+  model.jags.2 <- readRDS(paste0("model_jags_long_", "real",".RDS"))
+
+  ratio1_beta0_jags <- ratio2_beta0_jags <- ratio1_beta1_jags <- ratio2_beta1_jags <- numeric()
+  for (i in 1:4)
+  {
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i])
+    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,i])
+    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,i])
+
+    ratio1_beta0_jags <- c(ratio1_beta0_jags, (mean_jags_1 - mean_jags_2)/sd_jags_2)
+    ratio2_beta0_jags <- c(ratio2_beta0_jags, (sd_jags_1^2)/(sd_jags_2^2))
+  }
+
+  for (i in 1:4)
+  {
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta1[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta1[,i])
+    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta1[,i])
+    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta1[,i])
+
+    ratio1_beta1_jags <- c(ratio1_beta1_jags, (mean_jags_1 - mean_jags_2)/sd_jags_2)
+    ratio2_beta1_jags <- c(ratio2_beta1_jags, (sd_jags_1^2)/(sd_jags_2^2))
+  }
+  list(ratio1_beta0_jags = ratio1_beta0_jags,
+       ratio2_beta0_jags = ratio2_beta0_jags,
+       ratio1_beta1_jags = ratio1_beta1_jags,
+       ratio2_beta1_jags = ratio2_beta1_jags)
+}
+
+res_ratios <- ratios_jags()
+
+saveRDS(res_ratios, file = "simulation_real_ratios_jags.RDS")
+
+
+### --- 6. Extracting tables for the paper --- ####
+results <- readRDS(file = "real_data.RDS")
+res_ratios <- readRDS(file = "simulation_real_ratios_jags.RDS")
+
+#dirinla ratios
 result_ratio1 <- t(matrix(c(results$ratio1_intercepts, results$ratio1_slopes)))
 colnames(result_ratio1) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
 
 result_ratio2 <- t(matrix(sqrt(c(results$ratio2_intercepts, results$ratio2_slopes))))
 colnames(result_ratio2) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
 
+#jags ratios
+result_ratio1_jags <- matrix(c(res_ratios$ratio1_beta0_jags, res_ratios$ratio1_beta1_jags), ncol = 8)
+colnames(result_ratio1_jags) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
+
+result_ratio2_jags <- matrix(sqrt(c(res_ratios$ratio2_beta0_jags, res_ratios$ratio2_beta1_jags)), ncol = 8)
+colnames(result_ratio2_jags) <- c(paste0("beta0", 1:4), paste0("beta1", 1:4))
+
 
 #Latex
+library(xtable)
 xtable(result_ratio1, digits = 4)
+xtable(result_ratio1_jags, digits = 4)
+
 xtable(result_ratio2, digits = 4)
+xtable(result_ratio2_jags, digits = 4)

@@ -62,7 +62,7 @@ simulations_just_intercepts_nd <- function(n, d)
                                             n          = n )
 
   # Ordering the data with covariates --- ###
-  A_construct <- data_stack_construct$A
+  A_construct <- data_stack_construct
   eta <- A_construct %*% x
   alpha <- exp(eta)
   alpha <- matrix(alpha,
@@ -195,6 +195,9 @@ simulations_just_intercepts_nd <- function(n, d)
     nb <- 100000
     nc <- 3
 
+    ni <- 10000
+    nb <- 1000
+
 
     ## Data set
     data_jags <- list(y = y,
@@ -270,6 +273,21 @@ simulations_just_intercepts_nd <- function(n, d)
     print(paste0(d, i))
   }
 
+  ################ PRUEBA EXPONENTIAL ######################################
+  ### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
+  ratio1_beta0 <- ratio2_beta0 <- ratio1_mu <- ratio2_mu <-  numeric()
+  for (i in 1:d)
+  {
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i] %>% exp(.))
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i] %>% exp(.))
+    # mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,1])
+    # sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,1])
+    mean_inla <- inla.rmarginal(1000, model.inla$marginals_fixed[[i]]$intercept) %>% exp(.) %>% mean(.)
+
+    ratio1_beta0 <- c(ratio1_beta0, c(mean_inla - mean_jags_2)/sd_jags_2)
+    ratio2_beta0 <- c(ratio2_beta0, sd(inla.rmarginal(1000, model.inla$marginals_fixed[[i]]$intercept) %>% exp(.))^2/sd_jags_2^2)
+    print(paste0(d, i))
+  }
 
 
   ### ----- 4.3. Mean and sd of the posterior distributions --- ####
@@ -305,8 +323,8 @@ n <- c(100)
 for(i in length(n))
 {
   print(paste0("n = ", n))
-  result[[i]] <- parallel::mclapply(d, simulations_just_intercepts_nd,
-                          mc.cores = 3, n = n[i])
+  result[[i]] <- lapply(d, simulations_just_intercepts_nd,
+                           n = n[i])
   names(result[[i]]) <- paste0("d", d)
 }
 names(result) <- paste0("n", n)
@@ -316,67 +334,51 @@ result <- readRDS(file = "simulation3_n_d.RDS")
 
 
 
+prueba <- simulations_just_intercepts_nd(n = 100, d = 4)
+
+
+
 
 ### --- 4. Computing ratio1 and ratio2 for R-JAGS ####
-ratios_jags <- function(n, levels_factor)
+ratios_jags <- function(n = 100, d)
 {
-  print(paste0(n, "-", levels_factor))
-  if(is.na(levels_factor)){
-    levels_factor <- n
-  }
-  model.jags <- readRDS(paste0("model_jags_", n, "_", levels_factor, ".RDS"))
-  model.jags.2 <- readRDS(paste0("model_jags_long_", n, "_", levels_factor, ".RDS"))
+  print(paste0(n, "-", d))
+
+  model.jags <- readRDS(paste0("model_jags_", n, "_", d, ".RDS"))
+  model.jags.2 <- readRDS(paste0("model_jags_long_", n, "_", d, ".RDS"))
 
   #Beta1
-  ratio1_beta1_hn_jags <-  ratio2_beta1_hn_jags <- numeric()
+  ratio1_beta0_jags <-  ratio2_beta0_jags <- numeric()
 
-  for (i in 1:4)
+  for (i in 1:d)
   {
-    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta1[,i])
-    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta1[,i])
-    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta1[,i])
-    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta1[,i])
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i])
+    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,i])
+    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,i])
 
 
-    ratio1_beta1_hn_jags <- c(ratio1_beta1_hn_jags, (mean_jags_1 - mean_jags_2)/sd_jags_2)
-    ratio2_beta1_hn_jags <- c(ratio2_beta1_hn_jags, (sd_jags_1^2)/(sd_jags_2^2))
-
+    ratio1_beta0_jags <- c(ratio1_beta0_jags, (mean_jags_1 - mean_jags_2)/sd_jags_2)
+    ratio2_beta0_jags <- c(ratio2_beta0_jags, (sd_jags_1^2)/(sd_jags_2^2))
   }
 
-  #Sigmas
-  mean_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
-  sd_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
-
-  mean_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-  sd_jags_2_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(log(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-
-  mean_jags_1_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
-  sd_jags_1_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
-
-  mean_jags_1_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(log(model.jags$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-  sd_jags_1_sigma_log <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(log(model.jags$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-
-
-  #Ratios sigma
-  ratio1_sigma_hn_jags <- (mean_jags_1_sigma - mean_jags_2_sigma)/sd_jags_2_sigma
-  ratio2_sigma_hn_jags <- (sd_jags_1_sigma^2)/(sd_jags_2_sigma^2)
-
-  #Ratios logarithm
-  ratio1_sigma_log_hn_jags <- (mean_jags_1_sigma_log - mean_jags_2_sigma_log)/sd_jags_2_sigma_log
-  ratio2_sigma_log_hn_jags <- (sd_jags_1_sigma_log^2)/(sd_jags_2_sigma_log^2)
-
-
-
   #Returning
-  list(ratio1_beta1_hn_jags = ratio1_beta1_hn_jags,
-       ratio2_beta1_hn_jags = ratio2_beta1_hn_jags,
-       ratio1_sigma_hn_jags = ratio1_sigma_hn_jags,
-       ratio2_sigma_hn_jags = ratio2_sigma_hn_jags,
-       ratio1_sigma_log_hn_jags = ratio1_sigma_log_hn_jags,
-       ratio2_sigma_log_hn_jags = ratio2_sigma_log_hn_jags)
+  list(ratio1_beta0_jags = ratio1_beta0_jags,
+       ratio2_beta0_jags = ratio2_beta0_jags)
 }
+
+
+d <- c(5, 10, 15, 20, 30)
+res_ratios <- d %>% lapply(., ratios_jags, n = 100)
+names(res_ratios) <- paste0("d", d)
+res_ratios
+
+saveRDS(res_ratios, file = "simulation3_ratios_jags.RDS")
+
+
 ### --- 5. Extracting tables for the paper --- ####
 result <- readRDS("simulation3_n_d.RDS")
+res_ratio <- readRDS("simulation3_ratios_jags.RDS")
 
 #Computational times
 result_time <- rbind(result$n100$d5$times,
@@ -391,24 +393,41 @@ result_time
 #Time
 xtable(result_time, digits = 4)
 
+
+### Ratios dirinla
 result_ratio <- data.frame(ratio1 = round(result$n100$d5$ratio1_intercept, 4),
                                   ratio2 = round(sqrt(result$n100$d5$ratio2_intercept), 4),
-                                  label = "C = 5")
-colnames(result_ratio) <- c("ratio1", "ratio2", "dimension")
+                                  label = "C = 5",
+                                  clas  = "dirinla")
+colnames(result_ratio) <- c("ratio1", "ratio2", "dimension", "clas")
 for(i in 2:length(d))
 {
     result_ratio <- rbind(result_ratio,
           data.frame(ratio1 = round(result$n100[[i]]$ratio1_intercept, 4),
                      ratio2 = round(sqrt(result$n100[[i]]$ratio2_intercept), 4),
-                     dimension = paste0("C = ", d[i])))
+                     dimension = paste0("C = ", d[i]),
+                     clas      = "dirinla"))
+}
+
+
+
+### Ratios R-JAGS
+for(i in 1:length(d))
+{
+  result_ratio <- rbind(result_ratio,
+                        data.frame(ratio1 = round(res_ratio[[i]]$ratio1_beta0_jags, 4),
+                                   ratio2 = round(sqrt(res_ratio[[i]]$ratio2_beta0_jags), 4),
+                                   dimension = paste0("C = ", d[i]),
+                                   clas      = "R-JAGS"))
 }
 
 result_ratio[,3] <- ordered(as.factor(result_ratio[,3]),
                             c("C = 5", "C = 10", "C = 15", "C = 20", "C = 30"))
+result_ratio$clas <- as.factor(result_ratio$clas)
 
 #Geom boxplot
 pdf("boxplot_ratio1.pdf", width = 7, height = 4)
-ggplot(result_ratio, aes(x= dimension, y = ratio1)) +
+ggplot(result_ratio, aes(x= dimension, y = ratio1, fill = clas)) +
   geom_boxplot() +
   #ylim(c(0, 0.2)) +
   xlab("")+
@@ -417,10 +436,12 @@ ggplot(result_ratio, aes(x= dimension, y = ratio1)) +
 dev.off()
 
 pdf("boxplot_ratio2.pdf", width = 7, height = 4)
-ggplot(result_ratio, aes(x= dimension, y = ratio2)) +
+ggplot(result_ratio, aes(x= dimension, y = ratio2, fill = clas)) +
   geom_boxplot() +
   #ylim(c(0.90, 1.1)) +
   xlab("")+
   ylab(expression('ratio'[2])) +
   theme_bw()
 dev.off()
+
+### Boxplot
