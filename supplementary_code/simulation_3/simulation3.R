@@ -25,6 +25,7 @@ library(rjags)
 library(R2jags)
 
 library(xtable)
+library(dplyr)
 
 ### --- 2. Function for simulation --- ####
 simulations_just_intercepts_nd <- function(n, d)
@@ -69,7 +70,7 @@ simulations_just_intercepts_nd <- function(n, d)
                   ncol  = d,
                   byrow = TRUE)
   y_o <- rdirichlet(n, alpha)
-  colnames(y_o) <- paste0("Category", 1:d)
+  colnames(y_o) <- paste0("y", 1:d)
 
 
   y <- y_o
@@ -87,7 +88,6 @@ simulations_just_intercepts_nd <- function(n, d)
       simulation <- readRDS("simulation3_n_d2.RDS")
       t_jags <- simulation[[paste0("n",n)]]$times[1]
     }
-
   }else{
     ## MCMC configuration
     ni <- 2000
@@ -104,7 +104,7 @@ simulations_just_intercepts_nd <- function(n, d)
     inits <- function(){list(beta0 = rnorm(d, 0, 1))}
 
     ## Parameters of interest
-    parameters <- c('beta0')
+    parameters <- c('beta0', 'alpha[1,1]', 'alpha[1,2]', 'alpha[1,3]', 'alpha[1,4]', 'mu')
 
     cat("
     model {
@@ -116,14 +116,18 @@ simulations_just_intercepts_nd <- function(n, d)
           log(alpha[i,j]) <- beta0[j]
         }
     }
+    alpha0 <- sum(alpha[1,])
+    for(i in 1:d){
+          mu[i] <- alpha[1,i]/alpha0
+        }
+
 
     #priors
-    for (j in 1:d)
+    for (c in 1:d)
     {
-      beta0[j]  ~ dnorm(0, 0.0001)
+    beta0[c]  ~ dnorm(0, 0.0001)
     }
     }", file="model.jags" )
-
 
 
     ## Call jags
@@ -141,11 +145,11 @@ simulations_just_intercepts_nd <- function(n, d)
     t_jags <- t_jags[3]
     print(model.jags)
   }
-    #Rhat
-    # summary(model.jags$BUGSoutput$summary[,8])
+  #Rhat
+  # summary(model.jags$BUGSoutput$summary[,8])
   # summary(model.jags$BUGSoutput$summary[,9])
-
   saveRDS(file = paste0("model_jags_", n,"_", d, ".RDS"), model.jags)
+
 
 
 
@@ -163,19 +167,20 @@ simulations_just_intercepts_nd <- function(n, d)
     }
   }else{
     t <- proc.time() # Measure the time
-    model.inla <- dirinlareg( formula  = formula ,
+    model.inla <- dirinlareg( formula  = formula  ,
                               y        = y,
                               data.cov = V,
                               prec     = 0.0001,
-                              verbose  = FALSE,
-                              sim       = 10) #As we are not interested in the linear predictor just a few
+                              verbose  = TRUE,
+                              sim       = 4000)
 
     t_inla <- proc.time()-t    # Stop the time
     t_inla <- t_inla[3]
     summary(model.inla)
-  }
-  saveRDS(file = paste0("model_inla_", n, "_", d,".RDS"), model.inla)
 
+    saveRDS(file = paste0("model_inla_", n, "_", d,".RDS"), model.inla)
+
+  }
   ### ----- 3.3. Fitting the model with long jags --- ####
   cat(paste0("n = ", n, ", d = ", d,  " -----> Fitting using long JAGS \n"))
   if(file.exists(paste0("model_jags_long_", n, "_", d, ".RDS"))){
@@ -190,13 +195,10 @@ simulations_just_intercepts_nd <- function(n, d)
     }
   }else{
     ## MCMC configuration
-    ni <- 1000000
+    ni <- 100000
     nt <- 5
-    nb <- 100000
+    nb <- 10000
     nc <- 3
-
-    ni <- 10000
-    nb <- 1000
 
 
     ## Data set
@@ -208,7 +210,7 @@ simulations_just_intercepts_nd <- function(n, d)
     inits <- function(){list(beta0 = rnorm(d, 0, 1))}
 
     ## Parameters of interest
-    parameters <- c('beta0')
+    parameters <- c('beta0', 'alpha[1,1]', 'alpha[1,2]', 'alpha[1,3]', 'alpha[1,4]', 'mu')
 
     cat("
     model {
@@ -220,11 +222,16 @@ simulations_just_intercepts_nd <- function(n, d)
           log(alpha[i,j]) <- beta0[j]
         }
     }
+    alpha0 <- sum(alpha[1,])
+    for(i in 1:d){
+          mu[i] <- alpha[1,i]/alpha0
+        }
+
 
     #priors
-    for (j in 1:d)
+    for (c in 1:d)
     {
-      beta0[j]  ~ dnorm(0, 0.0001)
+    beta0[c]  ~ dnorm(0, 0.0001)
     }
     }", file="model.jags" )
 
@@ -247,13 +254,14 @@ simulations_just_intercepts_nd <- function(n, d)
   ### ----- 3.4. Saving models --- ####
   saveRDS(file = paste0("model_jags_long_", n, "_", d, ".RDS"), model.jags.2)
 
+
   t_inla
   t_jags
   t_jags_2
 
 
   ### --- 4. Comparing methodologies --- ####
-  cat(paste0("n = ", n,  ", d = ", d, " -----> Comparing methodologies \n"))
+  cat(paste0("n = ", n, " -----> Comparing methodologies \n"))
 
   ### ----- 4.1. Computational times --- ####
   times <- c(t_jags, t_inla, t_jags_2)
@@ -269,49 +277,58 @@ simulations_just_intercepts_nd <- function(n, d)
     mean_inla <- model.inla$summary_fixed[[i]]$mean
 
     ratio1_beta0 <- c(ratio1_beta0, c(mean_inla - mean_jags_2)/sd_jags_2)
-    ratio2_beta0 <- c(ratio2_beta0, sd(inla.rmarginal(1000, model.inla$marginals_fixed[[i]]$intercept))^2/sd_jags_2^2)
-    print(paste0(d, i))
+    ratio2_beta0 <- c(ratio2_beta0, sd(inla.rmarginal(10000, model.inla$marginals_fixed[[i]]$intercept))^2/sd_jags_2^2)
   }
 
-  ################ PRUEBA EXPONENTIAL ######################################
-  ### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
-  ratio1_beta0 <- ratio2_beta0 <- ratio1_mu <- ratio2_mu <-  numeric()
   for (i in 1:d)
   {
-    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i] %>% exp(.))
-    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i] %>% exp(.))
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$mu[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$mu[,i])
     # mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,1])
     # sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,1])
-    mean_inla <- inla.rmarginal(1000, model.inla$marginals_fixed[[i]]$intercept) %>% exp(.) %>% mean(.)
+    mean_inla <- model.inla$summary_means[[i]][1, "mean"]
 
-    ratio1_beta0 <- c(ratio1_beta0, c(mean_inla - mean_jags_2)/sd_jags_2)
-    ratio2_beta0 <- c(ratio2_beta0, sd(inla.rmarginal(1000, model.inla$marginals_fixed[[i]]$intercept) %>% exp(.))^2/sd_jags_2^2)
-    print(paste0(d, i))
+    ratio1_mu <- c(ratio1_mu, c(mean_inla - mean_jags_2)/sd_jags_2)
+    ratio2_mu <- c(ratio2_mu, sd(model.inla$marginals_means[[i]])^2/sd_jags_2^2)
   }
-
 
   ### ----- 4.3. Mean and sd of the posterior distributions --- ####
   ### Intercepts
   result <- numeric()
-  for(i in 1:d)
+  for(i in 1:4)
   {
     result <- rbind(result,
                     t(matrix(c(model.jags$BUGSoutput$summary[paste0("beta0[", i,"]"), c("mean", "sd")],
-                           model.inla$summary_fixed[[i]][,c("mean", "sd")],
-                           model.jags.2$BUGSoutput$summary[paste0("beta0[", i,"]"), c("mean", "sd")]))))
-    print(i)
+                               model.inla$summary_fixed[[i]][,c("mean", "sd")],
+                               model.jags.2$BUGSoutput$summary[paste0("beta0[", i,"]"), c("mean", "sd")]))))
   }
-  rownames(result) <- paste0("beta0", 1:d)
+  rownames(result) <- paste0("beta0", 1:4)
   colnames(result) <- c(paste0("JAGS", c("_mean", "_sd")),
                         paste0("INLA", c("_mean", "_sd")),
                         paste0("LONG_JAGS", c("_mean", "_sd")))
 
 
+  ### Mus
+  result_mus <- numeric()
+  for(i in 1:4)
+  {
+    result_mus <- rbind(result_mus,
+                        t(matrix(c(model.jags$BUGSoutput$summary[paste0("mu[", i,"]"), c("mean", "sd")],
+                                   model.inla$summary_means[[i]][1,c("mean", "sd")],
+                                   model.jags.2$BUGSoutput$summary[paste0("mu[", i,"]"), c("mean", "sd")]))))
+  }
+  rownames(result_mus) <- paste0("mu", 1:4)
+  colnames(result_mus) <- c(paste0("JAGS", c("_mean", "_sd")),
+                            paste0("INLA", c("_mean", "_sd")),
+                            paste0("LONG_JAGS", c("_mean", "_sd")))
 
   list(times = times,
        intercepts       = result,
+       mus              = result_mus,
        ratio1_intercept = ratio1_beta0,
-       ratio2_intercept = ratio2_beta0)
+       ratio2_intercept = ratio2_beta0,
+       ratio1_mu        = ratio1_mu,
+       ratio2_mu        = ratio2_mu)
 }
 
 
@@ -319,6 +336,7 @@ simulations_just_intercepts_nd <- function(n, d)
 result <- list()
 
 d <- c(5, 10, 15, 20, 30)
+
 n <- c(100)
 for(i in length(n))
 {
@@ -330,12 +348,6 @@ for(i in length(n))
 names(result) <- paste0("n", n)
 saveRDS(result, file = "simulation3_n_d.RDS")
 result <- readRDS(file = "simulation3_n_d.RDS")
-
-
-
-
-prueba <- simulations_just_intercepts_nd(n = 100, d = 4)
-
 
 
 
@@ -352,11 +364,10 @@ ratios_jags <- function(n = 100, d)
 
   for (i in 1:d)
   {
-    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i])
-    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i])
-    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,i])
-    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,i])
-
+    mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$mu[,i])
+    sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$mu[,i])
+    mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$mu[,i])
+    sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$mu[,i])
 
     ratio1_beta0_jags <- c(ratio1_beta0_jags, (mean_jags_1 - mean_jags_2)/sd_jags_2)
     ratio2_beta0_jags <- c(ratio2_beta0_jags, (sd_jags_1^2)/(sd_jags_2^2))
@@ -367,8 +378,9 @@ ratios_jags <- function(n = 100, d)
        ratio2_beta0_jags = ratio2_beta0_jags)
 }
 
+ratios_jags(n = 100, d = 5)
 
-d <- c(5, 10, 15, 20, 30)
+
 res_ratios <- d %>% lapply(., ratios_jags, n = 100)
 names(res_ratios) <- paste0("d", d)
 res_ratios
@@ -379,7 +391,7 @@ saveRDS(res_ratios, file = "simulation3_ratios_jags.RDS")
 ### --- 5. Extracting tables for the paper --- ####
 result <- readRDS("simulation3_n_d.RDS")
 res_ratio <- readRDS("simulation3_ratios_jags.RDS")
-
+d <- c(5, 10, 15, 20, 30)
 #Computational times
 result_time <- rbind(result$n100$d5$times,
                      result$n100$d10$times,
@@ -395,16 +407,16 @@ xtable(result_time, digits = 4)
 
 
 ### Ratios dirinla
-result_ratio <- data.frame(ratio1 = round(result$n100$d5$ratio1_intercept, 4),
-                                  ratio2 = round(sqrt(result$n100$d5$ratio2_intercept), 4),
+result_ratio <- data.frame(ratio1 = round(result$n100$d5$ratio1_mu, 4),
+                                  ratio2 = round(sqrt(result$n100$d5$ratio2_mu), 4),
                                   label = "C = 5",
                                   clas  = "dirinla")
 colnames(result_ratio) <- c("ratio1", "ratio2", "dimension", "clas")
 for(i in 2:length(d))
 {
     result_ratio <- rbind(result_ratio,
-          data.frame(ratio1 = round(result$n100[[i]]$ratio1_intercept, 4),
-                     ratio2 = round(sqrt(result$n100[[i]]$ratio2_intercept), 4),
+          data.frame(ratio1 = round(result$n100[[i]]$ratio1_mu, 4),
+                     ratio2 = round(sqrt(result$n100[[i]]$ratio2_mu), 4),
                      dimension = paste0("C = ", d[i]),
                      clas      = "dirinla"))
 }
@@ -421,27 +433,43 @@ for(i in 1:length(d))
                                    clas      = "R-JAGS"))
 }
 
+# result_ratio[,3] <- ordered(as.factor(result_ratio[,3]),
+#                             c("C = 5", "C = 10", "C = 15", "C = 20", "C = 30"))
+
 result_ratio[,3] <- ordered(as.factor(result_ratio[,3]),
                             c("C = 5", "C = 10", "C = 15", "C = 20", "C = 30"))
+
 result_ratio$clas <- as.factor(result_ratio$clas)
 
+# result_ratio_total1 <- result_ratio %>% dplyr::select(ratio1, dimension, clas)
+# result_ratio_total2 <- result_ratio %>% dplyr::select(ratio2, dimension, clas)
+# result_ratio_total1 <- cbind(result_ratio_total1, ratio = "ratio1")
+
+
 #Geom boxplot
-pdf("boxplot_ratio1.pdf", width = 7, height = 4)
-ggplot(result_ratio, aes(x= dimension, y = ratio1, fill = clas)) +
+a <- ggplot(result_ratio, aes(x= dimension, y = ratio1, fill = clas)) +
   geom_boxplot() +
+  scale_fill_manual(values = c("dirinla" = "white",
+                               "R-JAGS" = "gray")) +
   #ylim(c(0, 0.2)) +
   xlab("")+
   ylab(expression('ratio'[1])) +
-  theme_bw()
-dev.off()
+  theme_bw() +
+  theme(legend.title=element_blank(),
+        legend.position = "top")
 
-pdf("boxplot_ratio2.pdf", width = 7, height = 4)
-ggplot(result_ratio, aes(x= dimension, y = ratio2, fill = clas)) +
+b <- ggplot(result_ratio, aes(x= dimension, y = ratio2, fill = clas)) +
   geom_boxplot() +
+  scale_fill_manual(values = c("dirinla" = "white",
+                               "R-JAGS" = "gray")) +
   #ylim(c(0.90, 1.1)) +
   xlab("")+
   ylab(expression('ratio'[2])) +
   theme_bw()
-dev.off()
 
+
+library(ggpubr)
+pdf("boxplot_ratios.pdf", width = 8, height = 5)
+ggpubr::ggarrange(a, b, nrow=2, common.legend = TRUE, legend="bottom")
+dev.off()
 ### Boxplot

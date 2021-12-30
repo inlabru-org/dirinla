@@ -328,9 +328,7 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     ## MCMC configuration
      ni <- 1000000
      nb <- 100000
-    #ni <- 1000
     nt <- 5
-    #nb <- 10
     nc <- 3
 
 
