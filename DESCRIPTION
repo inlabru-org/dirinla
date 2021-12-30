@@ -5,13 +5,14 @@ Version: 1.0.0
 Authors@R: c(
   person("Joaquín", "Martínez-Minaya", email = "jomarminaya@gmail.com", 
 	role = c("aut", "cre"),
-        comment = "Joaquín Martínez-Minaya started to write the main code"),
+        comment = c(ORCID = "0000-0002-1016-8734", "Joaquín Martínez-Minaya started to write the main code"),
   person("Finn", "Lindgren", email = "Finn.Lindgren@ed.ac.uk", 
 	role = c("aut"),
          comment = c(ORCID = "0000-0002-5833-2011", "Finn Lindgren continued development of the main code"))
 	)
-Maintainer: <jomarminaya@gmail.com>
-Description: The package provide tools to analyze compositional data using R-INLA. 
+Author: Joaquín Martínez-Minaya <<jomarminaya@gmail.com>>
+Maintainer: Joaquín Martínez-Minaya <<jomarminaya@gmail.com>> and Finn Lindgren <<Finn.Lindgren@ed.ac.uk>>
+Description: The R-package dirinla allows the user to fit models in the CoDa context. In particular, it allows fit Dirichlet regression models using the Integrated Nested Laplace Approximation (INLA) methodology.  
 License: GPL-2
 Imports:
   utils,

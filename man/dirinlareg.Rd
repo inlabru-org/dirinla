@@ -98,7 +98,7 @@ data_stack_construct <-
                     d          = C,
                     n          = N)
 
-A_construct <- data_stack_construct$A
+A_construct <- data_stack_construct
 A_construct[1:8, ]
 
 eta <- A_construct \%*\% x

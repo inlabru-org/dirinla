@@ -39,9 +39,19 @@ dirinlaregmodel(
 \arguments{
 \item{call}{The call of the function dirinlareg.}
 
+\item{formula}{Formula introduced by the user.}
+
 \item{summary_fixed}{List containing a summary of the marginal posterior distributions of the fixed effects.}
 
 \item{marginals_fixed}{List containing the marginal posterior distributions of the fixed effects.}
+
+\item{summary_random}{List containing a summary of the marginal posterior distributions of the random effects.}
+
+\item{marginals_random}{List containing the marginal posterior distributions of the random effects.}
+
+\item{summary_hyperpar}{List containing a summary of the marginal posterior distributions of the hyperparameters.}
+
+\item{marginals_hyperpar}{List containing the marginal posterior distributions of the hyperparameters.}
 
 \item{summary_linear_predictor}{List containing a summary of the marginal posterior distributions of the linear predictor.}
 

@@ -3,8 +3,13 @@
 #' `dirinlaregmodel` is a new object class
 #'
 #' @param call The call of the function dirinlareg.
+#' @param formula Formula introduced by the user.
 #' @param summary_fixed List containing a summary of the marginal posterior distributions of the fixed effects.
 #' @param marginals_fixed List containing the marginal posterior distributions of the fixed effects.
+#' @param summary_random List containing a summary of the marginal posterior distributions of the random effects.
+#' @param marginals_random List containing the marginal posterior distributions of the random effects.
+#' @param summary_hyperpar List containing a summary of the marginal posterior distributions of the hyperparameters.
+#' @param marginals_hyperpar List containing the marginal posterior distributions of the hyperparameters.
 #' @param summary_linear_predictor List containing a summary of the marginal posterior distributions of the linear predictor.
 #' @param marginals_linear_predictor List containing the marginal posterior distributions of the linear predictor.
 #' @param summary_alphas List containing a summary of the marginal posterior distributions of the alphas.
