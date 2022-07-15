@@ -3,15 +3,16 @@ Type: Package
 Title: Hierarchical Bayesian Dirichlet regression models using Integrated Nested Laplace Approximation
 Version: 1.0.0
 Authors@R: c(
-  person("Joaquín", "Martínez-Minaya", email = "jomarminaya@gmail.com", 
-	role = c("aut", "cre"),
-        comment = c(ORCID = "0000-0002-1016-8734", "Joaquín Martínez-Minaya started to write the main code"),
-  person("Finn", "Lindgren", email = "Finn.Lindgren@ed.ac.uk", 
-	role = c("aut"),
-         comment = c(ORCID = "0000-0002-5833-2011", "Finn Lindgren continued development of the main code"))
-	)
-Author: Joaquín Martínez-Minaya <<jomarminaya@gmail.com>>
-Maintainer: Joaquín Martínez-Minaya <<jomarminaya@gmail.com>> and Finn Lindgren <<Finn.Lindgren@ed.ac.uk>>
+  person("Joaquín Martínez-Minaya", email = "jomarminaya@gmail.com", 
+         role = c("aut", "cre"),
+         comment = c(ORCID = "0000-0002-1016-8734")),
+         person("Finn Lindgren", email = "Finn.Lindgren@ed.ac.uk", 
+                role = c("aut"),
+                comment = c(ORCID = "0000-0002-5833-2011"))
+  )
+Author: Joaquín Martínez-Minaya [aut, cre],
+	Finn Lindgren [aut]
+Maintainer: Joaquín Martínez-Minaya <jomarminaya@gmail.com> 
 Description: The R-package dirinla allows the user to fit models in the CoDa context. In particular, it allows fit Dirichlet regression models using the Integrated Nested Laplace Approximation (INLA) methodology.  
 License: GPL-2
 Imports:
