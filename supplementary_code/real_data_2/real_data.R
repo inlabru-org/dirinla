@@ -221,6 +221,21 @@ colnames(result_beta1) <- c(paste0("JAGS", c("_mean", "_sd")),
                             paste0("INLA", c("_mean", "_sd")),
                             paste0("LONG_JAGS", c("_mean", "_sd")))
 
+
+### Beta2
+result_beta_2 <- numeric()
+for(i in 1:4)
+{
+  result_beta_2 <- rbind(result_beta_2,
+                        t(matrix(c(model.jags$BUGSoutput$summary[paste0("beta1[", i,"]"), c("mean", "sd")],
+                                   model.inla$summary_fixed[[i]][2,c("mean", "sd")],
+                                   model.jags.2$BUGSoutput$summary[paste0("beta1[", i,"]"), c("mean", "sd")]))))
+}
+rownames(result_beta_2) <- paste0("beta1", 1:4)
+colnames(result_beta_2) <- c(paste0("JAGS", c("_mean", "_sd")),
+                            paste0("INLA", c("_mean", "_sd")),
+                            paste0("LONG_JAGS", c("_mean", "_sd")))
+
 total <- list(times = times,
      intercepts = result_beta0,
      slopes     = result_beta1,
@@ -474,7 +489,7 @@ list(times = times,
 
 
 
-pdf("examples_real_slopes_intercepts.pdf", width = 15, height = 6)
+pdf("examples_real_slopes_intercepts.pdf", width = 15, height = 10)
 gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]],
              p2[[1]], p2[[2]], p2[[3]], p2[[4]],
              p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
