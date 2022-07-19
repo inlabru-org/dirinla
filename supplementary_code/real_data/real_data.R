@@ -22,7 +22,7 @@ library(rjags)
 library(R2jags)
 
 ### --- 2. Reading the data --- ####
-data <- read.csv("supplementary_code/real_data_2/arabidopsis/data/sp/ath_accessions.csv")
+data <- read.csv("supplementary_code/real_data_2/arabidopsis/ath_accessions.csv")
 data[,-c(1:7)] <- scale(data[,-c(1:7)])
 Glc <- data[1:100,]
 ### --- 3. Transforming the data --- ####
