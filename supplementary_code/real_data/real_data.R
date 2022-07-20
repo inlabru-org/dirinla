@@ -308,7 +308,7 @@ for (i in 1:length(model.inla$marginals_fixed))
 
 
   #Frequentist approach
-  p1[[i]] <- p1[[i]] + geom_vline(xintercept = mod_freq$coefficients[seq(1,12, by = 3)][i])
+#  p1[[i]] <- p1[[i]] + geom_vline(xintercept = mod_freq$coefficients[seq(1,12, by = 3)][i])
 
 
 
@@ -386,7 +386,7 @@ for (i in 1:length(model.inla$marginals_fixed))
 
 
   #Frequentist approach
-  p2[[i]] <- p2[[i]] + geom_vline(xintercept = mod_freq$coefficients[seq(2,12, by = 3)][i])
+  #p2[[i]] <- p2[[i]] + geom_vline(xintercept = mod_freq$coefficients[seq(2,12, by = 3)][i])
 
 
 
@@ -456,7 +456,7 @@ for (i in 1:length(model.inla$marginals_fixed))
 
 
   #Frequentist approach
-  p3[[i]] <- p3[[i]] + geom_vline(xintercept = mod_freq$coefficients[seq(3,12, by = 3)][i])
+ # p3[[i]] <- p3[[i]] + geom_vline(xintercept = mod_freq$coefficients[seq(3,12, by = 3)][i])
 
 
 
@@ -487,7 +487,7 @@ for (i in 1:length(model.inla$marginals_fixed))
                                 hjust = 0.5))
 }
 # pdf("example_simulation2_slopes_50.pdf", width = 18, height = 4)
-#   gridExtra::grid.arrange(p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+   gridExtra::grid.arrange(p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
 # dev.off()
 
 
@@ -599,3 +599,6 @@ xtable(result_ratio1_jags, digits = 4)
 
 xtable(result_ratio2, digits = 4)
 xtable(result_ratio2_jags, digits = 4)
+
+total <- rbind(result_ratio1, result_ratio1_jags, result_ratio2, result_ratio2_jags)
+xtable(t(total), digits = 4)
