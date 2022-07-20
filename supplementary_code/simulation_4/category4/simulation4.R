@@ -99,7 +99,7 @@ simulations_just_intercepts <- function(n,   x =c(-2.4, 1.2, -3.1, 1.3))
     inits <- function(){list(beta0 = rnorm(d, 0, 1))}
 
     ## Parameters of interest
-    parameters <- c('beta0', 'alpha[1,1]', 'alpha[1,2]', 'alpha[1,3]', 'alpha[1,4]', 'mu')
+    parameters <- c('beta0', 'alpha[1,1]', 'alpha[1,2]', 'alpha[1,3]', 'alpha[1,4]', 'alpha0', 'mu')
 
     cat("
     model {
@@ -205,7 +205,7 @@ simulations_just_intercepts <- function(n,   x =c(-2.4, 1.2, -3.1, 1.3))
     inits <- function(){list(beta0 = rnorm(d, 0, 1))}
 
     ## Parameters of interest
-    parameters <- c('beta0', 'alpha[1,1]', 'alpha[1,2]', 'alpha[1,3]', 'alpha[1,4]', 'mu')
+    parameters <- c('beta0', 'alpha[1,1]', 'alpha[1,2]', 'alpha[1,3]', 'alpha[1,4]', 'alpha0', 'mu')
 
     cat("
     model {
@@ -536,13 +536,94 @@ simulations_just_intercepts <- function(n,   x =c(-2.4, 1.2, -3.1, 1.3))
   }
 
 
+  ## Precision
+  p4 <- list()
+  mu_not <- expression(paste("p(", tau, "|", "y)"))
+  if(n>=500)
+  {
+    adjust_inla <- 5
+  }else{
+    adjust_inla <- 3
+  }
+
+  #jags1
+    dens <- density(model.jags$BUGSoutput$sims.list$alpha0, adjust = 2)
+    dens <- as.data.frame(cbind(dens$x, dens$y))
+    colnames(dens) <- c("x", "y")
+
+    #jags2
+    dens2 <- density(model.jags.2$BUGSoutput$sims.list$alpha0, adjust = 2)
+    dens2 <- as.data.frame(cbind(dens2$x, dens2$y))
+    colnames(dens2) <- c("x", "y")
+
+    #inla
+    #jags2
+    dens3 <- density(model.inla$marginals_precision, adjust = adjust_inla)
+    dens3 <- as.data.frame(cbind(dens3$x, dens3$y))
+    colnames(dens3) <- c("x", "y")
+
+    #Data combining jags (1) and inla (2)
+    dens <- rbind(cbind(dens, group = 1),
+                  cbind(dens3, group = 2),
+                  cbind(dens2, group = 3))
+    dens$group <- factor(dens$group,
+                         labels = c("R-JAGS", "dirinla", "long R-JAGS"))
+
+    ### Intercept
+    p4[[1]] <- ggplot(dens,
+                      aes(x = x,
+                          y = y,
+                          group = group
+                          #colour = factor(group)
+                      ))  +
+      geom_line(size = 0.6, aes(linetype = group ,
+                                color    = group)) +
+      xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
+      theme_bw() + #Show axes
+      xlab(expression(tau)) + #xlab
+      ylab(mu_not) #ylab
+
+
+    #Frequentist approach
+    alpha0 <- table(alpha) %>% names(.) %>% as.numeric() %>% sum(.)
+    p4[[1]] <- p4[[1]] + geom_vline(xintercept = alpha0)
+
+
+
+    ### --- legend --- ###
+    p4[[1]]<- p4[[1]] + theme(legend.position   = c(0.2, 0.8),
+                              legend.title      = element_blank(),
+                              legend.background = element_rect(colour = "gray"),
+                              legend.key        = element_rect(colour = "white", fill="white"),
+                              legend.key.size   = unit(0.5, "cm")) +
+      theme(legend.text = element_text(size = 9)) +
+      # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
+      #                   values = c("darkgreen", "red4", "blue4" )) +
+      scale_colour_manual (
+        values= c("darkgreen", "red4", "blue4")) +
+      scale_linetype_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
+                            values=c("dotted",  "twodash", "solid"))
+
+
+      p4[[1]] <- p4[[1]] + theme(legend.position="none")
+
+
+    # p3[[i]] <- p3[[i]] + ggtitle(paste0("Category ", i)) +
+    #   theme(
+    #     plot.title = element_text(color = "black",
+    #                               size  = 15,
+    #                               face  = "bold.italic",
+    #                               hjust = 0.5))
+
+
   # pdf(paste0("example_simulation1_mus_", n, ".pdf"), width = 18, height = 4)
   # gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
   # dev.off()
 
   pdf(paste0("examples_simulation1_beta0_mus_", n, ".pdf"), width = 15, height = 6)
   gridExtra::grid.arrange(p2[[1]], p2[[2]], p2[[3]], p2[[4]],
-               p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
+               p3[[1]], p3[[2]], p3[[3]], p3[[4]],
+               p4[[1]],ncol = 4)
   dev.off()
 
 
@@ -566,6 +647,10 @@ a <- lapply(n, simulations_just_intercepts, x =c(2.4, 1.2, 3.1, 1.3))
 
 setwd("../3positive")
 a <- lapply(n, simulations_just_intercepts, x =c(2.4, 1.2, -3.1, 1.3))
+
+setwd("../2positive")
+a <- lapply(n, simulations_just_intercepts, x =c(2.4, -1.2, -3.1, 1.3))
+
 
 
 names(a) <- paste0("n", n)
