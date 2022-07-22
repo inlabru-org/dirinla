@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ### In this example, we show how to fit a model using the dirinla package ###
 ### --- 1. Loading the libraries --- ####
 library(dirinla)
@@ -17,7 +16,6 @@ names(V) <- paste0('v', 1:4)
 formula <- y ~ 1 + v1 | 1 + v2 | 1 + v3
 (names_cat <- formula_list(formula))
 
-intercepts <-
 x <- c(-1.5, 1, #Cat 1
        -2, 2.3, #Cat 2
        0 , -1.9) #Cat 3
@@ -31,7 +29,7 @@ data_stack_construct <-
                     d          = C,
                     n          = N)
 
-A_construct <- data_stack_construct$A
+A_construct <- data_stack_construct
 A_construct[1:8, ]
 
 eta <- A_construct %*% x
@@ -60,7 +58,10 @@ plot(model.inla)
 
 
 
-model.inla$summary_fixed
+xtable(model.inla$summary_fixed$y1, digits = 4)
+xtable(model.inla$summary_fixed$y2, digits = 4)
+xtable(model.inla$summary_fixed$y3, digits = 4)
+
 
 ### --- 4. Plotting marginal posterior distributions of the parameters --- ####
 ### ----- 4.1. Marginal posterior distributions of the intercepts --- ####
