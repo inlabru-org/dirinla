@@ -402,6 +402,11 @@ colnames(result_time) <- c("R-JAGS", "dirinla", "long R-JAGS")
 rownames(result_time) <- paste0( c(5, 10, 15, 20, 30))
 result_time
 
+
+result$n100$d30$times <- c(30, 475.26, 3.80, 23520.41)
+
+
+
 #Time
 xtable(result_time, digits = 4)
 
