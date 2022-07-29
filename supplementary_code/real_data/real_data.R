@@ -21,8 +21,12 @@ library(ggplot2)
 library(rjags)
 library(R2jags)
 
+library(dplyr)
+
 ### --- 2. Reading the data --- ####
-data <- read.csv("supplementary_code/real_data_2/arabidopsis/ath_accessions.csv")
+#data <- read.csv("supplementary_code/real_data_2/arabidopsis/ath_accessions.csv")
+data <- read.csv("ath_accessions.csv")
+
 data[,-c(1:7)] <- scale(data[,-c(1:7)])
 Glc <- data[1:100,]
 ### --- 3. Transforming the data --- ####
@@ -167,6 +171,7 @@ saveRDS(file = paste0("times_real.RDS"), model.inla)
 
 times <- readRDS("times_real.RDS")
 
+times
 ### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
 ratio1_beta0 <- ratio2_beta0 <- ratio1_beta1 <- ratio2_beta1 <- ratio1_beta2 <- ratio2_beta2 <- numeric()
 for (i in 1:4)
@@ -602,3 +607,6 @@ xtable(result_ratio2_jags, digits = 4)
 
 total <- rbind(result_ratio1, result_ratio1_jags, result_ratio2, result_ratio2_jags)
 xtable(t(total), digits = 4)
+
+
+

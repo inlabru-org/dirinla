@@ -195,9 +195,9 @@ simulations_just_intercepts_nd <- function(n, d)
     }
   }else{
     ## MCMC configuration
-    ni <- 100000
+    ni <- 1000000
     nt <- 5
-    nb <- 10000
+    nb <- 100000
     nc <- 3
 
 
@@ -473,3 +473,43 @@ pdf("boxplot_ratios.pdf", width = 8, height = 5)
 ggpubr::ggarrange(a, b, nrow=2, common.legend = TRUE, legend="bottom")
 dev.off()
 ### Boxplot
+
+### --- 6. Plotting results --- ####
+
+
+### ----- 6.1. Times --- ####
+result_time2 <- cbind(result_time, C = as.numeric(rownames(result_time))) %>% as.data.frame(.)
+result_time2 %>%
+  tidyr::pivot_longer(1:3, names_to = "method") -> result_time2
+result_time2$method <- ordered(result_time2$method, levels = c("R-JAGS", "dirinla", "long R-JAGS"))
+#result_time2$N <- factor(result_time2$N)
+result_time
+
+times2 <- result_time2 %>%
+  ggplot(data = .) +
+  geom_point(aes(x = C, y = value, col = method, shape = method), size = 3) +
+  theme_bw() +
+  theme(legend.position   = c(0.15, 0.80),
+        legend.title      = element_blank(),
+        legend.background = element_rect(colour = "gray"),
+        legend.key        = element_rect(colour = "white", fill="white"),
+        legend.key.size   = unit(0.5, "cm"),
+        axis.text         = element_text(size=12)) +
+  theme(legend.text = element_text(size = 9)) +
+  # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
+  #                   values = c("darkgreen", "red4", "blue4" )) +
+  scale_shape_manual(values=c(16, 17, 18)) +
+  scale_colour_manual (
+    values= c("darkgreen", "red4", "blue4")) +
+  ylab("Time (sec)") +
+  scale_x_log10() +
+  scale_y_log10()
+
+pdf(paste0("simulation3_times", ".pdf"), width = 6, height = 4)
+times2
+dev.off()
+
+
+
+
+

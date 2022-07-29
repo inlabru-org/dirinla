@@ -25,6 +25,9 @@ library(rjags)
 library(R2jags)
 
 library(xtable)
+library(dplyr)
+library(cowplot)
+
 
 #setwd("supplementary_code/simulation_1")
 
@@ -711,4 +714,142 @@ xtable(result_ratio2, digits = 4)
 xtable(result_ratio2_jags, digits = 4)
 
 
+### --- 6. Plotting results --- ####
 
+
+### ----- 6.1. function to plot ratios --- ####
+plot_ratios <- function(result_ratio_tot = result_ratio1_tot,
+                        param = c("beta01", "beta02", "beta03",
+                                  "beta04", "method", "N"),
+                        names_param = c('beta[0][1]', 'beta[0][2]', 'beta[0][3]', 'beta[0][4]'),
+                        exp1        = expression(ratio[1]),
+                        int_plot    = 0,
+                        label1      = "a")
+{
+  result_ratio_tot %>%
+    dplyr::select_at(., param) %>%
+    tidyr::pivot_longer(1:(length(param)-2), names_to = "betas") -> result_ratio_tot_betas
+
+  #result_ratio_tot_betas$value <- abs(result_ratio_tot_betas$value)
+  result_ratio_tot_betas$method <- ordered(result_ratio_tot_betas$method, levels = c("R-JAGS", "dirinla"))
+  #result_ratio_tot_betas$N <- factor(paste0("N = ", result_ratio_tot_betas$N), levels = c("N = 50", "N = 100", "N = 500", "N = 1000", "N = 10000"))
+  #result_ratio_tot_betas$N <- factor(result_ratio_tot_betas$N)
+
+  result_ratio_tot_betas$newbetas <- as.factor(result_ratio_tot_betas$betas)
+  levels(result_ratio_tot_betas$newbetas) <- names_param
+  #result_ratio_tot_betas$N <- as.numeric(result_ratio_tot_betas$N)
+
+  result_ratio_tot_betas %>%
+    ggplot(data = .) +
+    geom_point(aes(x = N, y = value, col = method, shape = method), size = 3) +
+    theme_bw() +
+    # geom_line(aes(x = log(N), y = value, col = method, shape = method)) +
+    theme(legend.position   = c(0.2, 0.92),
+          legend.title      = element_blank(),
+          legend.background = element_rect(colour = "gray"),
+          legend.key        = element_rect(colour = "white", fill="white"),
+          legend.key.size   = unit(0.5, "cm"),
+          axis.text         = element_text(size=12)) +
+    facet_wrap('newbetas', ncol = 4, labeller = label_parsed) +
+    theme(strip.text=element_text(face='bold', size=12, color='black'),
+          strip.background=element_rect(fill='white')) +
+    theme(legend.text = element_text(size = 9)) +
+    # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
+    #                   values = c("darkgreen", "red4", "blue4" )) +
+    scale_shape_manual(values=c(16, 17)) +
+    scale_colour_manual (
+      values= c("darkgreen", "red4")) +
+    geom_hline(yintercept = int_plot,  linetype="dashed") +
+    scale_x_log10() +
+    ylab(exp1) -> ratio_beta#xlab
+  ratio_beta#xlab
+}
+
+
+### ----- 6.2. ratio 1 --- ####
+result_ratio1 <- as.data.frame(result_ratio1)
+result_ratio1_jags <- as.data.frame(result_ratio1_jags)
+
+result_ratio1_tot <- rbind(
+  cbind(N = rownames(result_ratio1_jags) %>% as.numeric(),
+        result_ratio1_jags, method = "R-JAGS"),
+  cbind(N = rownames(result_ratio1) %>% as.numeric(),
+        result_ratio1, method = "dirinla")) %>%
+  data.frame()
+
+ratios1 <- plot_ratios(result_ratio_tot = result_ratio1_tot,
+            param = c("beta01", "beta02", "beta03", "beta04", "mu1", "mu2", "mu3",
+                      "mu4", "method", "N"),
+            names_param = c('beta[0][1]', 'beta[0][2]', 'beta[0][3]', 'beta[0][4]',
+                            'mu[1]', 'mu[2]', 'mu[3]', 'mu[4]'),
+            exp1 = expression(ratio[1]))
+
+pdf(paste0("simulation1_beta0_ratio1", ".pdf"), width = 15, height = 6)
+# gridExtra::grid.arrange(ratio1_beta,
+#                         ratio1_mu, ncol = 1)
+ratios1
+dev.off()
+
+### ----- 6.2. ratio 2 --- ####
+result_ratio2 <- as.data.frame(result_ratio2)
+result_ratio2_jags <- as.data.frame(result_ratio2_jags)
+
+result_ratio2_tot <- rbind(
+  cbind(N = rownames(result_ratio2_jags) %>% as.numeric(),
+        result_ratio2_jags, method = "R-JAGS"),
+  cbind(N = rownames(result_ratio2) %>% as.numeric(),
+        result_ratio2, method = "dirinla")) %>%
+  data.frame()
+
+
+ratios2 <- plot_ratios(result_ratio_tot = result_ratio2_tot,
+                       param = c("beta01", "beta02", "beta03", "beta04", "mu1", "mu2", "mu3",
+                                 "mu4", "method", "N"),
+                       names_param = c('beta[0][1]', 'beta[0][2]', 'beta[0][3]', 'beta[0][4]',
+                                       'mu[1]', 'mu[2]', 'mu[3]', 'mu[4]'),
+                       exp1 = expression(ratio[2]),
+                       int_plot = 1)
+
+pdf(paste0("simulation1_beta0_ratio2", ".pdf"), width = 15, height = 6)
+ratios2
+dev.off()
+
+### ----- 6.3. Putting both together --- ####
+pdf(paste0("simulation1_ratios", ".pdf"), width = 15, height = 12)
+plot_grid(ratios1, ratios2, labels=c('a','b'), ncol = 1)
+dev.off()
+
+
+
+
+### ----- 6.4. Times --- ####
+result_time2 <- cbind(result_time, N = as.numeric(rownames(result_time))) %>% as.data.frame(.)
+result_time2 %>%
+  tidyr::pivot_longer(1:3, names_to = "method") -> result_time2
+result_time2$method <- ordered(result_time2$method, levels = c("R-JAGS", "dirinla", "long R-JAGS"))
+#result_time2$N <- factor(result_time2$N)
+
+
+times2 <- result_time2 %>%
+  ggplot(data = .) +
+  geom_point(aes(x = N, y = value, col = method, shape = method), size = 3) +
+  theme_bw() +
+  theme(legend.position   = c(0.15, 0.80),
+        legend.title      = element_blank(),
+        legend.background = element_rect(colour = "gray"),
+        legend.key        = element_rect(colour = "white", fill="white"),
+        legend.key.size   = unit(0.5, "cm"),
+        axis.text         = element_text(size=12)) +
+  theme(legend.text = element_text(size = 9)) +
+  # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
+  #                   values = c("darkgreen", "red4", "blue4" )) +
+  scale_shape_manual(values=c(16, 17, 18)) +
+  scale_colour_manual (
+    values= c("darkgreen", "red4", "blue4")) +
+  ylab("Time (sec)") +
+  scale_x_log10() +
+  scale_y_log10()
+
+pdf(paste0("simulation1_times", ".pdf"), width = 6, height = 4)
+times2
+dev.off()
