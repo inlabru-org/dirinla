@@ -28,6 +28,8 @@ library(xtable)
 
 library(dplyr)
 library(parallel)
+library(dplyr)
+library(cowplot)
 #devtools::install_github('nathanvan/parallelsugar')
 #library(parallelsugar)
 
@@ -328,7 +330,9 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     ## MCMC configuration
      ni <- 1000000
      nb <- 100000
+    #ni <- 1000
     nt <- 5
+    #nb <- 10
     nc <- 3
 
 
@@ -1089,7 +1093,7 @@ levels_factor[is.na(levels_factor)] <- c(50, 100, 500, 1000)
 colnames(res_ratios) <- paste0(n, "-", levels_factor)
 saveRDS(res_ratios, file = "simulation4_ratios_jags.RDS")
 
-### --- 4. Extracting tables for the paper --- ####
+### --- 5. Extracting tables for the paper --- ####
 # results <- readRDS(file = "simulation4_50-500.RDS")
 a <- readRDS(file = "simulation4_50-500.RDS")
 b <- readRDS(file = "simulation4_1000.RDS")
@@ -1103,6 +1107,9 @@ n_levels_paper <- paste0(c(50, 100, 500, 1000), "-", "2")
 #Computational times levels_factor = 2
 times <- n_levels_paper %>% results["times",.] %>%
   do.call(rbind, .)
+
+times
+
 
 # DIRINLA:ratio1_beta1 and sigma
 ratio1_beta1_hn <- n_levels_paper %>% results["ratio1_beta1_hn",.] %>%
@@ -1142,4 +1149,166 @@ xtable(ratio2_paper, digits = 4)
 xtable(ratio2_paper_jags, digits = 4)
 
 
+
+
+### --- 6. Plotting results --- ####
+### ----- 6.1. function to plot ratios --- ####
+plot_ratios <- function(result_ratio_tot = result_ratio1_tot,
+                        param = c("beta01", "beta02", "beta03",
+                                  "beta04", "method", "N"),
+                        names_param = c('beta[0][1]', 'beta[0][2]', 'beta[0][3]', 'beta[0][4]'),
+                        exp1        = expression(ratio[1]),
+                        int_plot    = 0,
+                        label1      = "a")
+{
+  result_ratio_tot %>%
+    dplyr::select_at(., param) %>%
+    tidyr::pivot_longer(1:(length(param)-2), names_to = "betas") -> result_ratio_tot_betas
+
+  #result_ratio_tot_betas$value <- abs(result_ratio_tot_betas$value)
+  result_ratio_tot_betas$method <- ordered(result_ratio_tot_betas$method, levels = c("R-JAGS", "dirinla"))
+  #result_ratio_tot_betas$N <- factor(paste0("N = ", result_ratio_tot_betas$N), levels = c("N = 50", "N = 100", "N = 500", "N = 1000", "N = 10000"))
+  #result_ratio_tot_betas$N <- factor(result_ratio_tot_betas$N)
+
+  result_ratio_tot_betas$newbetas <- as.factor(result_ratio_tot_betas$betas)
+  levels(result_ratio_tot_betas$newbetas) <- names_param
+  #result_ratio_tot_betas$N <- as.numeric(result_ratio_tot_betas$N)
+
+  result_ratio_tot_betas %>%
+    ggplot(data = .) +
+    geom_point(aes(x = N, y = value, col = method, shape = method), size = 3) +
+    theme_bw() +
+    # geom_line(aes(x = log(N), y = value, col = method, shape = method)) +
+    theme(legend.position   = c(0.05, 0.92),
+          legend.title      = element_blank(),
+          legend.background = element_rect(colour = "gray"),
+          legend.key        = element_rect(colour = "white", fill="white"),
+          legend.key.size   = unit(0.5, "cm"),
+          axis.text         = element_text(size=12)) +
+    facet_wrap('newbetas', ncol = 3, labeller = label_parsed) +
+    theme(strip.text=element_text(face='bold', size=12, color='black'),
+          strip.background=element_rect(fill='white')) +
+    theme(legend.text = element_text(size = 9)) +
+    # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
+    #                   values = c("darkgreen", "red4", "blue4" )) +
+    scale_shape_manual(values=c(16, 17)) +
+    scale_colour_manual (
+      values= c("darkgreen", "red4")) +
+    geom_hline(yintercept = int_plot,  linetype="dashed") +
+    scale_x_log10() +
+    ylab(exp1) -> ratio_beta#xlab
+  ratio_beta#xlab
+}
+
+
+### ----- 6.2. ratio 1 --- ####
+result_ratio1 <- cbind(ratio1_beta1_hn, ratio1_sigma1_hn)
+result_ratio1_jags <- cbind(ratio1_beta1_hn_jags, ratio1_sigma1_hn_jags)
+
+result_ratio1 <- as.data.frame(result_ratio1)
+result_ratio1_jags <- as.data.frame(result_ratio1_jags)
+
+colnames(result_ratio1) <- c(paste0("beta1", 1:4), "sigma1", "sigma2")
+colnames(result_ratio1_jags) <- c(paste0("beta1", 1:4), "sigma1", "sigma2")
+rownames(result_ratio1) <- c("50", "100", "500", "1000")
+rownames(result_ratio1_jags) <- c("50", "100", "500", "1000")
+
+
+result_ratio1_tot <- rbind(
+  cbind(N = rownames(result_ratio1_jags) %>% as.numeric(),
+        result_ratio1_jags, method = "R-JAGS"),
+  cbind(N = rownames(result_ratio1) %>% as.numeric(),
+        result_ratio1, method = "dirinla")) %>%
+  data.frame()
+
+ratios1 <- plot_ratios(result_ratio_tot = result_ratio1_tot,
+                       param = c("beta11", "beta12", "beta13", "beta14",
+                                 "sigma1", "sigma2", "method", "N"),
+                       names_param = c('beta[1][1]', 'beta[1][2]', 'beta[1][3]', 'beta[1][4]',
+                                       "sigma[1]", "sigma[2]"),
+                       exp1 = expression(ratio[1]))
+
+pdf(paste0("simulationr_ratio1", ".pdf"), width = 11, height = 6)
+# gridExtra::grid.arrange(ratio1_beta,
+#                         ratio1_mu, ncol = 1)
+ratios1
+dev.off()
+
+### ----- 6.2. ratio 2 --- ####
+result_ratio2 <- cbind(ratio2_beta1_hn, ratio2_sigma1_hn)
+result_ratio2_jags <- cbind(ratio2_beta1_hn_jags, ratio2_sigma1_hn_jags)
+
+result_ratio2 <- as.data.frame(result_ratio2)
+result_ratio2_jags <- as.data.frame(result_ratio2_jags)
+
+colnames(result_ratio2) <- c(paste0("beta1", 1:4), "sigma1", "sigma2")
+colnames(result_ratio2_jags) <- c(paste0("beta1", 1:4), "sigma1", "sigma2")
+rownames(result_ratio2) <- c("50", "100", "500", "1000")
+rownames(result_ratio2_jags) <- c("50", "100", "500", "1000")
+
+
+result_ratio2_tot <- rbind(
+  cbind(N = rownames(result_ratio2_jags) %>% as.numeric(),
+        result_ratio2_jags, method = "R-JAGS"),
+  cbind(N = rownames(result_ratio2) %>% as.numeric(),
+        result_ratio2, method = "dirinla")) %>%
+  data.frame()
+
+ratios2 <- plot_ratios(result_ratio_tot = result_ratio2_tot,
+                       param = c("beta11", "beta12", "beta13", "beta14",
+                                 "sigma1", "sigma2", "method", "N"),
+                       names_param = c('beta[1][1]', 'beta[1][2]', 'beta[1][3]', 'beta[1][4]',
+                                       "sigma[1]", "sigma[2]"),
+                       exp1 = expression(ratio[2]),
+                       int_plot    = 1)
+
+pdf(paste0("simulationr_ratio2", ".pdf"), width = 11, height = 6)
+# gridExtra::grid.arrange(ratio2_beta,
+#                         ratio2_mu, ncol = 1)
+ratios2
+dev.off()
+
+
+
+### ----- 6.3. Putting both together --- ####
+pdf(paste0("simulationr_ratios", ".pdf"), width = 11, height = 12)
+plot_grid(ratios1, ratios2, labels=c('a','b'), ncol = 1)
+dev.off()
+
+
+### ----- 6.4. Times --- ####
+times
+colnames(times) <- c("R-JAGS", "dirinla-pc", "long R-JAGS", "dirinla-hn")
+rownames(times) <- c("50", "100", "500", "1000")
+result_time <- times
+result_time2 <- cbind(result_time, N = as.numeric(rownames(result_time))) %>% as.data.frame(.)
+result_time2 %>%
+  tidyr::pivot_longer(1:4, names_to = "method") -> result_time2
+result_time2$method <- ordered(result_time2$method, levels = c("R-JAGS", "dirinla-pc", "long R-JAGS", "dirinla-hn"))
+#result_time2$N <- factor(result_time2$N)
+
+
+times2 <- result_time2 %>%
+  ggplot(data = .) +
+  geom_point(aes(x = N, y = value, col = method, shape = method), size = 3) +
+  theme_bw() +
+  theme(legend.position   = c(0.45, 0.80),
+        legend.title      = element_blank(),
+        legend.background = element_rect(colour = "gray"),
+        legend.key        = element_rect(colour = "white", fill="white"),
+        legend.key.size   = unit(0.5, "cm"),
+        axis.text         = element_text(size=12)) +
+  theme(legend.text = element_text(size = 9)) +
+  # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
+  #                   values = c("darkgreen", "red4", "blue4" )) +
+  scale_shape_manual(values=c(16, 17, 18, 15)) +
+  scale_colour_manual (
+    values= c("darkgreen", "red4", "blue4", "red2")) +
+  ylab("Time (sec)") +
+  scale_x_log10() +
+  scale_y_log10()
+
+pdf(paste0("simulationr_times", ".pdf"), width = 6, height = 4)
+times2
+dev.off()
 
