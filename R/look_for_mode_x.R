@@ -106,23 +106,31 @@ look_for_mode_x <- function(A = A,
 
 
 
+    less <- (as.logical(abs(sum(x_hat_new - x_hat[k, ])) <
+                          tol0) && as.logical(abs(f_new - f_old) < tol0)) &&
+      as.logical(abs(sum(gk)) < tol1 * max(1, abs(f_new)))
 
     ### Checking condition
-    less <- (as.logical(max(abs(x_hat_new - x_hat[k, ])) < tol0) && #Condition in x
-      as.logical(abs(f_new - f_old) < tol0)) && #Condition in f
-      as.logical(max(abs(gk)) < tol1 * max(1, abs(f_new)))
+    # less <- (as.logical(max(abs(x_hat_new - x_hat[k, ])) < tol0) && #Condition in x
+    #   as.logical(abs(f_new - f_old) < tol0)) && #Condition in f
+    #   as.logical(max(abs(gk)) < tol1 * max(1, abs(f_new)))
 
     if(verbose == TRUE)
     {
-      cat(paste0(
-        "Iter = ", k,
-        ", |grad| = ", round(max(abs(gk)), 2),
-        ", log.post = ", round(f_new, 2),
-        ", |x_new - x_old| = ", round(max(abs(x_hat_new - x_hat[k, ])), 5),
-        ", |f_new - f_old| = ", round(abs(f_new - f_old), 5),
-        "\n"
-        #", x = ", paste(round(x_hat_new, 2), collapse = " ")
-      ))
+      cat(paste0("Iter = ", k, ", |grad| = ", round(abs(sum(gk)),
+                                                    2), ", log.post = ", round(f_new, 2), ", |x_new - x_old| = ",
+                 round(abs(sum(x_hat_new - x_hat[k, ])), 5),
+                 ", |f_new - f_old| = ", round(abs(f_new - f_old),
+                                               5), "\n"))
+      # cat(paste0(
+      #   "Iter = ", k,
+      #   ", |grad| = ", round(max(abs(gk)), 2),
+      #   ", log.post = ", round(f_new, 2),
+      #   ", |x_new - x_old| = ", round(max(abs(x_hat_new - x_hat[k, ])), 5),
+      #   ", |f_new - f_old| = ", round(abs(f_new - f_old), 5),
+      #   "\n"
+      #   #", x = ", paste(round(x_hat_new, 2), collapse = " ")
+      # ))
     }
 
     # print(eigen(Hk)$values)
