@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 ```
 
 # Introduction
-This vignette is devoted to explain how to use the package **dirinla**. It is a R-package to fit Dirichlet regression models using **R-INLA**. It can be installed and upgraded via the repository https://bitbucket.org/joaquin-martinez-minaya/dirinla. In this manual, we simulate some data from a Dirichlet distribution to posteriorly fit them using the main function of the package **dirinla**.
+This vignette is devoted to explain how to use the package **dirinla**. It is a R-package to fit Dirichlet regression models using **R-INLA**. It can be installed and upgraded via the repository https://github.com/inlabru-org/dirinla. In this manual, we simulate some data from a Dirichlet distribution to posteriorly fit them using the main function of the package **dirinla**.
 
 ```{r, echo= TRUE, results= 'hide', warning= FALSE, message= FALSE, eval = TRUE}
 library(dirinla)

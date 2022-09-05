@@ -3,3 +3,7 @@
 ^doc$
 ^Meta$
 ^supplementary_code$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
