@@ -15,6 +15,7 @@ Author: Joaquín Martínez-Minaya [aut, cre],
 Maintainer: Joaquín Martínez-Minaya <jomarminaya@gmail.com> 
 Description: The R-package dirinla allows the user to fit models in the CoDa context. In particular, it allows fit Dirichlet regression models using the Integrated Nested Laplace Approximation (INLA) methodology.  
 License: GPL-2
+Additional_repositories: https://inla.r-inla-download.org/R/testing
 Imports:
   utils,
   Matrix,
