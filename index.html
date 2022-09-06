@@ -67,12 +67,8 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"inlabru-org/dirinla"</span>, ref<span class="op">=</span><span class="st">"master"</span><span class="op">)</span></span></code></pre></div>
-<p>You can install the development version of dirinla from <a href="https://github.com/inlabru-org/dirinla" class="external-link">github</a> with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"inlabru-org/dirinla"</span>, ref<span class="op">=</span><span class="st">"devel"</span><span class="op">)</span></span></code></pre></div>
 <p>or track the development version builds via <a href="https://inlabru-org.r-universe.dev/ui#builds" class="external-link">inlabru-org.r-universe.dev</a>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Enable universe(s) by inlabru-org</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  inlabruorg <span class="op">=</span> <span class="st">'https://inlabru-org.r-universe.dev'</span>,</span>
@@ -89,28 +85,15 @@
 <div class="section level3">
 <h3 id="loading-libraries">Loading libraries<a class="anchor" aria-label="anchor" href="#loading-libraries"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlabru-org.github.io/dirinla/">dirinla</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Registered S3 methods overwritten by 'ggtern':</span></span>
-<span><span class="co">#&gt;   method           from   </span></span>
-<span><span class="co">#&gt;   grid.draw.ggplot ggplot2</span></span>
-<span><span class="co">#&gt;   plot.ggplot      ggplot2</span></span>
-<span><span class="co">#&gt;   print.ggplot     ggplot2</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">INLA</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: Matrix</span></span>
-<span><span class="co">#&gt; Loading required package: foreach</span></span>
-<span><span class="co">#&gt; Loading required package: parallel</span></span>
-<span><span class="co">#&gt; Loading required package: sp</span></span>
-<span><span class="co">#&gt; This is INLA_22.09.02 built 2022-09-02 19:28:51 UTC.</span></span>
-<span><span class="co">#&gt;  - See www.r-inla.org/contact-us for how to get help.</span></span>
-<span><span class="co">#&gt;  - To enable PARDISO sparse library; see inla.pardiso()</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/maiermarco/DirichletReg" class="external-link">DirichletReg</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: Formula</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/maiermarco/DirichletReg" class="external-link">DirichletReg</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="simulating-from-a-dirichlet-likelihood">Simulating from a Dirichlet likelihood<a class="anchor" aria-label="anchor" href="#simulating-from-a-dirichlet-likelihood"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">50</span> <span class="co">#number of data</span></span>
 <span><span class="va">V</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="op">(</span><span class="fl">4</span><span class="op">)</span> <span class="op">*</span> <span class="va">N</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="co">#Covariates</span></span>
@@ -173,7 +156,7 @@
 <div class="section level3">
 <h3 id="fitting-a-simple-model">Fitting a simple model<a class="anchor" aria-label="anchor" href="#fitting-a-simple-model"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y_o</span></span>
 <span><span class="va">model.inla</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dirinlareg.html">dirinlareg</a></span><span class="op">(</span></span>
 <span>  formula  <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v1</span> <span class="op">|</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v2</span> <span class="op">|</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v3</span> <span class="op">|</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v4</span>,</span>
@@ -185,9 +168,7 @@
 <span><span class="co">#&gt;  </span></span>
 <span><span class="co">#&gt;  ---------------------- Looking for the mode ----------------- </span></span>
 <span><span class="co">#&gt;  </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; as(&lt;dtCMatrix&gt;, "dgCMatrix") is deprecated since Matrix 1.4-2; do as(., "generalMatrix") instead</span></span>
-<span><span class="co">#&gt; Iter = 1, |grad| = 824.56, log.post = -457.73, |x_new - x_old| = 13.92583, |f_new - f_old| = 368.13749</span></span>
+<span><span class="co">#&gt;  Iter = 1, |grad| = 824.56, log.post = -457.73, |x_new - x_old| = 13.92583, |f_new - f_old| = 368.13749</span></span>
 <span><span class="co">#&gt; Iter = 2, |grad| = 136.74, log.post = -577.55, |x_new - x_old| = 3.65634, |f_new - f_old| = 119.82746</span></span>
 <span><span class="co">#&gt; Iter = 3, |grad| = 120.98, log.post = -671.77, |x_new - x_old| = 3.31293, |f_new - f_old| = 94.22001</span></span>
 <span><span class="co">#&gt; Iter = 4, |grad| = 96.8, log.post = -739.43, |x_new - x_old| = 2.81732, |f_new - f_old| = 67.65798</span></span>
@@ -254,7 +235,7 @@
 <div class="section level3">
 <h3 id="predicting-for-v1--025-v2--05-v3--05-v4--01">Predicting for v1 = 0.25, v2 = 0.5, v3 = 0.5, v4 = 0.1<a class="anchor" aria-label="anchor" href="#predicting-for-v1--025-v2--05-v3--05-v4--01"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model.prediction</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">model.inla</span>,</span>
 <span>                  data.pred <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>v1 <span class="op">=</span> <span class="fl">0.25</span>,</span>
@@ -269,11 +250,11 @@
 <span><span class="va">model.prediction</span><span class="op">$</span><span class="va">summary_predictive_means</span></span>
 <span><span class="co">#&gt; $y1</span></span>
 <span><span class="co">#&gt;            Min.    1st Qu.    Median     Mean   3rd Qu.     Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.02366362 0.08237956 0.1045064 0.110114 0.1321715 0.306817</span></span>
+<span><span class="co">#&gt; [1,] 0.02366363 0.08237956 0.1045064 0.110114 0.1321715 0.306817</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $y2</span></span>
 <span><span class="co">#&gt;             Min.    1st Qu.     Median       Mean    3rd Qu.      Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.005978445 0.02318953 0.03082928 0.03341511 0.04057715 0.1574298</span></span>
+<span><span class="co">#&gt; [1,] 0.005978446 0.02318953 0.03082928 0.03341511 0.04057716 0.1574298</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $y3</span></span>
 <span><span class="co">#&gt;           Min.   1st Qu.    Median      Mean   3rd Qu.    Max.</span></span>
@@ -281,7 +262,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $y4</span></span>
 <span><span class="co">#&gt;            Min.   1st Qu.    Median      Mean   3rd Qu.     Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.08145196 0.2404386 0.2950362 0.3010802 0.3541526 0.626968</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] 0.08145196 0.2404386 0.2950362 0.3010802 0.3541525 0.626968</span></span></code></pre></div>
 </div>
 </div>
 </div>
