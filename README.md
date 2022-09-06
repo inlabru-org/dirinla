@@ -20,14 +20,6 @@ dirinla from [github](https://github.com/inlabru-org/dirinla) with:
 remotes::install_github("inlabru-org/dirinla", ref="master")
 ```
 
-You can install the development version of dirinla from
-[github](https://github.com/inlabru-org/dirinla) with:
-
-``` r
-# install.packages("remotes")
-remotes::install_github("inlabru-org/dirinla", ref="devel")
-```
-
 or track the development version builds via
 [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
 
@@ -50,21 +42,8 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(dirinla)
-#> Registered S3 methods overwritten by 'ggtern':
-#>   method           from   
-#>   grid.draw.ggplot ggplot2
-#>   plot.ggplot      ggplot2
-#>   print.ggplot     ggplot2
 library(INLA)
-#> Loading required package: Matrix
-#> Loading required package: foreach
-#> Loading required package: parallel
-#> Loading required package: sp
-#> This is INLA_22.09.02 built 2022-09-02 19:28:51 UTC.
-#>  - See www.r-inla.org/contact-us for how to get help.
-#>  - To enable PARDISO sparse library; see inla.pardiso()
 library(DirichletReg)
-#> Loading required package: Formula
 ```
 
 ### Simulating from a Dirichlet likelihood
@@ -144,9 +123,7 @@ model.inla <- dirinlareg(
 #>  
 #>  ---------------------- Looking for the mode ----------------- 
 #>  
-#> 
-#> as(<dtCMatrix>, "dgCMatrix") is deprecated since Matrix 1.4-2; do as(., "generalMatrix") instead
-#> Iter = 1, |grad| = 824.56, log.post = -457.73, |x_new - x_old| = 13.92583, |f_new - f_old| = 368.13749
+#>  Iter = 1, |grad| = 824.56, log.post = -457.73, |x_new - x_old| = 13.92583, |f_new - f_old| = 368.13749
 #> Iter = 2, |grad| = 136.74, log.post = -577.55, |x_new - x_old| = 3.65634, |f_new - f_old| = 119.82746
 #> Iter = 3, |grad| = 120.98, log.post = -671.77, |x_new - x_old| = 3.31293, |f_new - f_old| = 94.22001
 #> Iter = 4, |grad| = 96.8, log.post = -739.43, |x_new - x_old| = 2.81732, |f_new - f_old| = 67.65798
@@ -228,11 +205,11 @@ model.prediction <-
 model.prediction$summary_predictive_means
 #> $y1
 #>            Min.    1st Qu.    Median     Mean   3rd Qu.     Max.
-#> [1,] 0.02366362 0.08237956 0.1045064 0.110114 0.1321715 0.306817
+#> [1,] 0.02366363 0.08237956 0.1045064 0.110114 0.1321715 0.306817
 #> 
 #> $y2
 #>             Min.    1st Qu.     Median       Mean    3rd Qu.      Max.
-#> [1,] 0.005978445 0.02318953 0.03082928 0.03341511 0.04057715 0.1574298
+#> [1,] 0.005978446 0.02318953 0.03082928 0.03341511 0.04057716 0.1574298
 #> 
 #> $y3
 #>           Min.   1st Qu.    Median      Mean   3rd Qu.    Max.
@@ -240,5 +217,5 @@ model.prediction$summary_predictive_means
 #> 
 #> $y4
 #>            Min.   1st Qu.    Median      Mean   3rd Qu.     Max.
-#> [1,] 0.08145196 0.2404386 0.2950362 0.3010802 0.3541526 0.626968
+#> [1,] 0.08145196 0.2404386 0.2950362 0.3010802 0.3541525 0.626968
 ```

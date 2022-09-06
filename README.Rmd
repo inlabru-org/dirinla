@@ -30,12 +30,6 @@ It is not yet in CRAN, but you can install the latest bugfix release of dirinla 
 remotes::install_github("inlabru-org/dirinla", ref="master")
 ```
 
-You can install the development version of dirinla from [github](https://github.com/inlabru-org/dirinla) with:
-
-```{r, eval=FALSE}
-# install.packages("remotes")
-remotes::install_github("inlabru-org/dirinla", ref="devel")
-```
 or track the development version builds via [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
 ```{r universe-installation, eval = FALSE}
 # Enable universe(s) by inlabru-org
@@ -55,7 +49,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ### Loading libraries
 
-```{r}
+```{r, results='hide', message=FALSE, warning=FALSE}
 library(dirinla)
 library(INLA)
 library(DirichletReg)
