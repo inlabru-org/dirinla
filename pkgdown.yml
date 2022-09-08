@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   example: example.html
   example: prebuild/example.html
-last_built: 2022-09-08T22:31Z
+last_built: 2022-09-08T22:42Z
 urls:
   reference: https://inlabru-org.github.io/dirinla/reference
   article: https://inlabru-org.github.io/dirinla/articles
