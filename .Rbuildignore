@@ -8,7 +8,7 @@
 ^pkgdown$
 ^\.github$
 ^README\.Rmd$
-^vignettes/prebuild$
+^vignettes_prebuild$
 ^figure$
 ^README-DEV.Rmd$
 ^README-DEV.html$

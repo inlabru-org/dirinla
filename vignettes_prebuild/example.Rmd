@@ -15,7 +15,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-<!-- vignettes/example.Rmd is generated from vignettes/prebuild/example.Rmd. Please edit that file -->
+<!-- vignettes/example.Rmd is generated from vignettes_prebuild/example.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(

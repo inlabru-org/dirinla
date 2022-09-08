@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Prebuilt vignettes
 
 Vignettes that require INLA cannot be built on the automated packaging sites
-like r-universe and CRAN.  Place such vignettes in the `vignettes/prebuild/`
+like r-universe and CRAN.  Place such vignettes in the `vignettes_prebuild/`
 folder instead.  Every time you do changes that should be propagated to the package
 website and/or the package itself, run
 ```{r,eval=FALSE}
