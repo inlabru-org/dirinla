@@ -22,7 +22,7 @@ dirinla from [github](https://github.com/inlabru-org/dirinla) with:
 remotes::install_github("inlabru-org/dirinla", ref="master")
 ```
 
-You can also track the builds via
+or track the development version builds via
 [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
 
 ``` r
@@ -44,21 +44,8 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(dirinla)
-#> Registered S3 methods overwritten by 'ggtern':
-#>   method           from   
-#>   grid.draw.ggplot ggplot2
-#>   plot.ggplot      ggplot2
-#>   print.ggplot     ggplot2
 library(INLA)
-#> Loading required package: Matrix
-#> Loading required package: foreach
-#> Loading required package: parallel
-#> Loading required package: sp
-#> This is INLA_22.09.02 built 2022-09-02 19:28:51 UTC.
-#>  - See www.r-inla.org/contact-us for how to get help.
-#>  - To enable PARDISO sparse library; see inla.pardiso()
 library(DirichletReg)
-#> Loading required package: Formula
 ```
 
 ### Simulating from a Dirichlet likelihood
