@@ -1,7 +1,7 @@
 Package: dirinla
 Type: Package
 Title: Hierarchical Bayesian Dirichlet regression models using Integrated Nested Laplace Approximation
-Version: 1.0.0
+Version: 1.0.2
 Authors@R: c(
   person("Joaquín Martínez-Minaya", email = "jomarminaya@gmail.com", 
          role = c("aut", "cre"),
@@ -14,28 +14,28 @@ Description: The R-package dirinla allows the user to fit models in the composit
 License: GPL-2
 Additional_repositories: https://inla.r-inla-download.org/R/testing
 Imports:
-  utils,
   Matrix,
   dplyr,
   samplingDataCRT,
   purrr,
-  magrittr,
   stringr,
-  tidyverse,
   stats,
   ggplot2,
   Rfast,
   Rfast2,
   ggtern,
   gridExtra,
-  sn,
-  knitr,
   plyr,
-  methods,
-  INLA
+  methods
 Suggests:
-  DirichletReg
+  DirichletReg,
+  INLA,
+  knitr,
+  tidyverse,
+  utils,
+  sn,
+  magrittr
 Encoding: UTF-8
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 URL: https://inlabru-org.github.io/dirinla/

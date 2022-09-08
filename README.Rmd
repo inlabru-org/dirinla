@@ -30,8 +30,7 @@ It is not yet in CRAN, but you can install the latest bugfix release of dirinla 
 # install.packages("remotes")
 remotes::install_github("inlabru-org/dirinla", ref="master")
 ```
-
-or track the development version builds via [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
+or  via [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
 ```{r universe-installation, eval = FALSE}
 # Enable universe(s) by inlabru-org
 options(repos = c(
@@ -41,6 +40,12 @@ options(repos = c(
 
 # Install the package
 install.packages('dirinla')
+```
+
+The development branch of `dirinla` can be installed with
+```{r, eval=FALSE}
+# install.packages("remotes")
+remotes::install_github("inlabru-org/dirinla", ref="devel")
 ```
 
 Example

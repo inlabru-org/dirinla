@@ -22,7 +22,7 @@ dirinla from [github](https://github.com/inlabru-org/dirinla) with:
 remotes::install_github("inlabru-org/dirinla", ref="master")
 ```
 
-or track the development version builds via
+or via
 [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
 
 ``` r
@@ -34,6 +34,13 @@ options(repos = c(
 
 # Install the package
 install.packages('dirinla')
+```
+
+The development branch of `dirinla` can be installed with
+
+``` r
+# install.packages("remotes")
+remotes::install_github("inlabru-org/dirinla", ref="devel")
 ```
 
 ## Example

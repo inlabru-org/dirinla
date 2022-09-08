@@ -20,6 +20,8 @@ model dirinlaregmodel object
 `predict.dirinlaregmodel` computes the posterior predictive distribution for some given values of the covariates
 }
 \examples{
+if (dirinla_safe_inla() &&
+    requireNamespace("DirichletReg", quietly = TRUE)) {
 ### In this example, we show how to fit a model using the dirinla package ###
 ### --- 1. Loading the libraries --- ####
 library(INLA)
@@ -78,7 +80,7 @@ model.prediction <- predict(model.inla,
                                        v3 = 0.5,
                                        v4 = 0.1))
 model.prediction$summary_predictive_means
-
+}
 }
 \author{
 Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>

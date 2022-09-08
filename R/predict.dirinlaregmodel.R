@@ -8,6 +8,8 @@
 #' @return model dirinlaregmodel object
 #'
 #' @examples
+#' if (dirinla_safe_inla() &&
+#'     requireNamespace("DirichletReg", quietly = TRUE)) {
 #' ### In this example, we show how to fit a model using the dirinla package ###
 #' ### --- 1. Loading the libraries --- ####
 #' library(INLA)
@@ -66,11 +68,15 @@
 #'                                        v3 = 0.5,
 #'                                        v4 = 0.1))
 #' model.prediction$summary_predictive_means
-#'
+#' }
 #' @export
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 predict.dirinlaregmodel <- function(object, data.pred.cov, ...)
 {
+  if (!dirinla_safe_inla()) {
+    stop(inla_install_info("predict.dirinlaregmodel"))
+  }
+
   if(!any(names(data.pred.cov)=="intercept"))
   {
     data.pred.cov<- cbind(intercept=1, data.pred.cov)
@@ -85,7 +91,7 @@ predict.dirinlaregmodel <- function(object, data.pred.cov, ...)
 
   #### Fixed effects
   sim <- object$marginals_fixed %>% purrr::map(function(x){
-    sapply(x, inla.rmarginal, n=10000)})
+    sapply(x, INLA::inla.rmarginal, n=10000)})
   sim <- sim %>% purrr::map(function(x)as.matrix(t(x)))
   data.pred.cov <- lapply(object$marginals_fixed, function(x){
     as.matrix(dplyr::select(data.pred.cov, names(x)))})

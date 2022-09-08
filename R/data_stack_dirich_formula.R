@@ -40,6 +40,10 @@
 #' @import Matrix
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
+  if (!dirinla_safe_inla()) {
+    stop(inla_install_info("data_stack_dirich_formula"))
+  }
+
   data <- cbind(intercept = rep(1, dim(data)[1]), data)
 
 
@@ -177,6 +181,6 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
   A <- 1
   #Giving back the inla.stack
-  list(stk = inla.stack(data = list(y = y), A = c(A), effects = effects),
+  list(stk = INLA::inla.stack(data = list(y = y), A = c(A), effects = effects),
        formula.inla = formula.inla)
 }

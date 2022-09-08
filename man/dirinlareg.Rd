@@ -71,7 +71,9 @@ model dirinlaregmodel object
 `dirinlareg` Main function to do a Dirichlet Regression
 }
 \examples{
-#' ### In this example, we show how to fit a model using the dirinla package ###
+if (dirinla_safe_inla() &&
+    requireNamespace("DirichletReg", quietly = TRUE)) {
+### In this example, we show how to fit a model using the dirinla package ###
 ### --- 1. Loading the libraries --- ####
 library(INLA)
 library(DirichletReg)
@@ -122,7 +124,7 @@ model.inla <- dirinlareg(
 
 
 summary(model.inla)
-
+}
 }
 \author{
 Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
