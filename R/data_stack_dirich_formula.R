@@ -40,7 +40,7 @@
 #' @import Matrix
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
 data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
-  if (!safe_inla()) {
+  if (!dirinla_safe_inla()) {
     stop(inla_install_info("data_stack_dirich_formula"))
   }
 

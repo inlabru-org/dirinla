@@ -10,16 +10,18 @@
 #' `multicore=FALSE`, otherwise `TRUE`.
 #' @param quietly logical; if `TRUE`, prints diagnostic messages. Default: FALSE.
 #' @return logical; `TRUE` if INLA was loaded safely, otherwise FALSE
+#' @details Code adapted from `inlabru::bru_safe_inla`
 #' @author Finn Lindgren
 #' @keywords internal
+#' @export
 #' @examples
 #' \dontrun{
-#' if (safe_inla()) {
+#' if (dirinla_safe_inla()) {
 #'   # Run inla dependent calculations
 #' }
 #' }
 #'
-safe_inla <- function(multicore = NULL,
+dirinla_safe_inla <- function(multicore = NULL,
                       quietly = FALSE) {
   if (requireNamespace("INLA", quietly = TRUE)) {
     if (is.null(multicore)) {

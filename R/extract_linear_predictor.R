@@ -27,7 +27,7 @@
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names_cat,
                                      sim, verbose, cores) {
-  if (!safe_inla()) {
+  if (!dirinla_safe_inla()) {
     stop(inla_install_info("extract_linear_predictor"))
   }
 

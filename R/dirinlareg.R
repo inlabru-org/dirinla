@@ -26,7 +26,7 @@
 #' @return model dirinlaregmodel object
 #'
 #' @examples
-#' if (safe_inla() &&
+#' if (dirinla_safe_inla() &&
 #'     requireNamespace("DirichletReg", quietly = TRUE)) {
 #' ### In this example, we show how to fit a model using the dirinla package ###
 #' ### --- 1. Loading the libraries --- ####
@@ -104,7 +104,7 @@ dirinlareg <- function (formula,
                         data.pred.cov = NULL,
                         ...)
 {
-  if (!safe_inla()) {
+  if (!dirinla_safe_inla()) {
     stop(inla_install_info("dirinlareg"))
   }
 
