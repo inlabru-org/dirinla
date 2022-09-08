@@ -6,11 +6,16 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/inlabru-org/dirinla/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/inlabru-org/dirinla/actions/workflows/R-CMD-check.yaml)
+[![dirinla status
+badge](https://inlabru-org.r-universe.dev/badges/dirinla)](https://inlabru-org.r-universe.dev)
 <!-- badges: end -->
 
 The goal of **dirinla** is to analyze compositional data with a
 Dirichlet regression using the integrated nested Laplace approximation
 via the [R-INLA package](https://www.r-inla.org/).
+
+Package documentation can be found at
+<https://inlabru-org.github.io/dirinla/>
 
 ## Installation
 
@@ -19,10 +24,10 @@ dirinla from [github](https://github.com/inlabru-org/dirinla) with:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("inlabru-org/dirinla", ref="master")
+remotes::install_github("inlabru-org/dirinla", ref = "master")
 ```
 
-or via
+The latest development version can be installed via
 [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
 
 ``` r
@@ -36,11 +41,11 @@ options(repos = c(
 install.packages('dirinla')
 ```
 
-The development branch of `dirinla` can be installed with
+or directly from github:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("inlabru-org/dirinla", ref="devel")
+remotes::install_github("inlabru-org/dirinla", ref = "devel")
 ```
 
 ## Example
