@@ -4,10 +4,13 @@
     <loc>https://inlabru-org.github.io/dirinla/404.html</loc>
   </url>
   <url>
+    <loc>https://inlabru-org.github.io/dirinla/articles/example.html</loc>
+  </url>
+  <url>
     <loc>https://inlabru-org.github.io/dirinla/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://inlabru-org.github.io/dirinla/articles/my-vignette.html</loc>
+    <loc>https://inlabru-org.github.io/dirinla/articles/prebuild/example.html</loc>
   </url>
   <url>
     <loc>https://inlabru-org.github.io/dirinla/authors.html</loc>
