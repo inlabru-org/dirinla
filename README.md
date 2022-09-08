@@ -4,6 +4,8 @@
 # dirinla
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/inlabru-org/dirinla/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/inlabru-org/dirinla/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of **dirinla** is to analyze compositional data with a
@@ -20,15 +22,7 @@ dirinla from [github](https://github.com/inlabru-org/dirinla) with:
 remotes::install_github("inlabru-org/dirinla", ref="master")
 ```
 
-You can install the development version of dirinla from
-[github](https://github.com/inlabru-org/dirinla) with:
-
-``` r
-# install.packages("remotes")
-remotes::install_github("inlabru-org/dirinla", ref="devel")
-```
-
-or track the development version builds via
+You can also track the builds via
 [inlabru-org.r-universe.dev](https://inlabru-org.r-universe.dev/ui#builds):
 
 ``` r
@@ -144,9 +138,7 @@ model.inla <- dirinlareg(
 #>  
 #>  ---------------------- Looking for the mode ----------------- 
 #>  
-#> 
-#> as(<dtCMatrix>, "dgCMatrix") is deprecated since Matrix 1.4-2; do as(., "generalMatrix") instead
-#> Iter = 1, |grad| = 824.56, log.post = -457.73, |x_new - x_old| = 13.92583, |f_new - f_old| = 368.13749
+#>  Iter = 1, |grad| = 824.56, log.post = -457.73, |x_new - x_old| = 13.92583, |f_new - f_old| = 368.13749
 #> Iter = 2, |grad| = 136.74, log.post = -577.55, |x_new - x_old| = 3.65634, |f_new - f_old| = 119.82746
 #> Iter = 3, |grad| = 120.98, log.post = -671.77, |x_new - x_old| = 3.31293, |f_new - f_old| = 94.22001
 #> Iter = 4, |grad| = 96.8, log.post = -739.43, |x_new - x_old| = 2.81732, |f_new - f_old| = 67.65798
