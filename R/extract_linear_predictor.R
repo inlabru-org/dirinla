@@ -23,18 +23,21 @@
 #'
 #' @importFrom stats density as.formula sd
 #' @import dplyr
-#' @import INLA
 #' @export
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names_cat,
                                      sim, verbose, cores) {
+  if (!safe_inla()) {
+    stop(inla_install_info("extract_linear_predictor"))
+  }
+
     ### --- 1. Simulating in order to get posterior distributions of the linear predictor --- ####
     names_list <- list(1:(n*d))
     names(names_list) <- c("APredictor")
     p_mod <- INLA::inla.posterior.sample(sim, inla_model,
-                                   selection = names_list,
-                                   verbose = verbose,
-                                   num.threads = cores)
+                                         selection = names_list,
+                                         verbose = verbose,
+                                         num.threads = cores)
 
 
     #a <- proc.time()
@@ -44,7 +47,7 @@ extract_linear_predictor <- function(inla_model, n, d, Lk_eta, names_cat = names
     #b <- proc.time() - a
 
     # a <- proc.time()
-    # p_mod1 <- inla.posterior.sample.eval(function(...){APredictor},
+    # p_mod1 <- INLA::inla.posterior.sample.eval(function(...){APredictor},
     #                                      p_mod, return.matrix = TRUE)
     # b <- proc.time() - a
 

@@ -80,7 +80,6 @@
 #'
 #' @export
 #' @import stringr
-#' @import INLA
 #' @import samplingDataCRT
 #' @importFrom purrr map
 #' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
@@ -103,7 +102,9 @@ dirinlareg <- function (formula,
                         data.pred.cov = NULL,
                         ...)
 {
-
+  if (!safe_inla()) {
+    stop(inla_install_info("dirinlareg"))
+  }
 
   ### --- Some checkings --- ####
   this.call <- match.call()
@@ -224,14 +225,14 @@ dirinlareg <- function (formula,
     #Inverse of Lk_eta
     # Lk_eta_inv <- solve(t(Lk_eta))
     # all3 <- sapply(1:dim(Lk_eta_inv)[2], function(x){
-    #   a <- inla.make.lincomb(APredictor = Lk_eta_inv[x,])
+    #   a <- INLA::inla.make.lincomb(APredictor = Lk_eta_inv[x,])
     #   names(a) <- c(paste0("lc", x))
     #   a})
 
-    mod0 <- inla(formula.inla,
+    mod0 <- INLA::inla(formula.inla,
                  family            = "gaussian",
-                 data              = inla.stack.data(data_stack_2),
-                 control.predictor = list(A = t(Lk_eta) %*% inla.stack.A(data_stack_2),
+                 data              = INLA::inla.stack.data(data_stack_2),
+                 control.predictor = list(A = t(Lk_eta) %*% INLA::inla.stack.A(data_stack_2),
                                           compute = TRUE),
                  control.compute   = list(config = TRUE, #Compute marginals
                                           dic    = TRUE,
