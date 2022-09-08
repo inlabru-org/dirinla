@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/inlabru-org/dirinla/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/inlabru-org/dirinla/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of **dirinla** is to analyze compositional data with a Dirichlet regression using the integrated nested Laplace approximation via the [R-INLA package](http://www.r-inla.org).
+The goal of **dirinla** is to analyze compositional data with a Dirichlet regression using the integrated nested Laplace approximation via the [R-INLA package](https://www.r-inla.org/).
 
 Installation
 ------------

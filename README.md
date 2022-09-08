@@ -10,7 +10,7 @@
 
 The goal of **dirinla** is to analyze compositional data with a
 Dirichlet regression using the integrated nested Laplace approximation
-via the [R-INLA package](http://www.r-inla.org).
+via the [R-INLA package](https://www.r-inla.org/).
 
 ## Installation
 
