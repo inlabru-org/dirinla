@@ -13,7 +13,7 @@ vignette: >
   %\VignetteIndexEntry{The Integrated nested Laplace approximation for fitting Dirichlet regression models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  ---
+---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
