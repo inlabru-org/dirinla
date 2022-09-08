@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">dirinla</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"inlabru-org/dirinla"</span>, ref<span class="op">=</span><span class="st">"master"</span><span class="op">)</span></span></code></pre></div>
-<p>or track the development version builds via <a href="https://inlabru-org.r-universe.dev/ui#builds" class="external-link">inlabru-org.r-universe.dev</a>:</p>
+<p>or via <a href="https://inlabru-org.r-universe.dev/ui#builds" class="external-link">inlabru-org.r-universe.dev</a>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Enable universe(s) by inlabru-org</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -78,6 +78,10 @@
 <span></span>
 <span><span class="co"># Install the package</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'dirinla'</span><span class="op">)</span></span></code></pre></div>
+<p>The development branch of <code>dirinla</code> can be installed with</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"inlabru-org/dirinla"</span>, ref<span class="op">=</span><span class="st">"devel"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
@@ -86,7 +90,7 @@
 <div class="section level3">
 <h3 id="loading-libraries">Loading libraries<a class="anchor" aria-label="anchor" href="#loading-libraries"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlabru-org.github.io/dirinla/">dirinla</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">INLA</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/maiermarco/DirichletReg" class="external-link">DirichletReg</a></span><span class="op">)</span></span></code></pre></div>
@@ -94,7 +98,7 @@
 <div class="section level3">
 <h3 id="simulating-from-a-dirichlet-likelihood">Simulating from a Dirichlet likelihood<a class="anchor" aria-label="anchor" href="#simulating-from-a-dirichlet-likelihood"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">50</span> <span class="co">#number of data</span></span>
 <span><span class="va">V</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="op">(</span><span class="fl">4</span><span class="op">)</span> <span class="op">*</span> <span class="va">N</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="co">#Covariates</span></span>
@@ -157,7 +161,7 @@
 <div class="section level3">
 <h3 id="fitting-a-simple-model">Fitting a simple model<a class="anchor" aria-label="anchor" href="#fitting-a-simple-model"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y_o</span></span>
 <span><span class="va">model.inla</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dirinlareg.html">dirinlareg</a></span><span class="op">(</span></span>
 <span>  formula  <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v1</span> <span class="op">|</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v2</span> <span class="op">|</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v3</span> <span class="op">|</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">v4</span>,</span>
@@ -236,7 +240,7 @@
 <div class="section level3">
 <h3 id="predicting-for-v1--025-v2--05-v3--05-v4--01">Predicting for v1 = 0.25, v2 = 0.5, v3 = 0.5, v4 = 0.1<a class="anchor" aria-label="anchor" href="#predicting-for-v1--025-v2--05-v3--05-v4--01"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model.prediction</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">model.inla</span>,</span>
 <span>                  data.pred <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>v1 <span class="op">=</span> <span class="fl">0.25</span>,</span>
