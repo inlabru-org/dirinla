@@ -8,6 +8,8 @@
 #' @return model dirinlaregmodel object
 #'
 #' @examples
+#' if (safe_inla() &&
+#'     requireNamespace("DirichletReg", quietly = TRUE)) {
 #' ### In this example, we show how to fit a model using the dirinla package ###
 #' ### --- 1. Loading the libraries --- ####
 #' library(INLA)
@@ -66,7 +68,7 @@
 #'                                        v3 = 0.5,
 #'                                        v4 = 0.1))
 #' model.prediction$summary_predictive_means
-#'
+#' }
 #' @export
 #' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
 predict.dirinlaregmodel <- function(object, data.pred.cov, ...)

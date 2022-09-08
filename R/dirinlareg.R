@@ -26,7 +26,9 @@
 #' @return model dirinlaregmodel object
 #'
 #' @examples
-#' #' ### In this example, we show how to fit a model using the dirinla package ###
+#' if (safe_inla() &&
+#'     requireNamespace("DirichletReg", quietly = TRUE)) {
+#' ### In this example, we show how to fit a model using the dirinla package ###
 #' ### --- 1. Loading the libraries --- ####
 #' library(INLA)
 #' library(DirichletReg)
@@ -77,7 +79,7 @@
 #'
 #'
 #' summary(model.inla)
-#'
+#' }
 #' @export
 #' @import stringr
 #' @import samplingDataCRT
