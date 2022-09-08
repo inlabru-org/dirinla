@@ -87,7 +87,7 @@ Prepare for release:
 * If everything is ok, continue, otherwise fix the problems and check again
 * [ ] `git flow release finish x.y.z`
 * [ ] `usethis::use_dev_version()`, commit & push
-* [ ] `git checkout stable`
+* [ ] `git checkout master`
 * [ ] `git push`
 * [ ] `git push --tags`
 * [ ] `usethis::use_github_release()`, then edit and approve the release on github
