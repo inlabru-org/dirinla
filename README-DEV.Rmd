@@ -1,0 +1,96 @@
+---
+title: "Developer README"
+author: "Finn Lindgren"
+date: "2022-09-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Prebuilt vignettes
+
+Vignettes that require INLA cannot be built on the automated packaging sites
+like r-universe and CRAN.  Place such vignettes in the `vignettes_prebuild/`
+folder instead.  Every time you do changes that should be propagated to the package
+website and/or the package itself, run
+```{r,eval=FALSE}
+source("vignettes/prebuild.R")
+```
+and then commit the generated files.
+
+Make sure you do not edit the generated files manually; always edit the `.Rmd`
+files in `vignettes/prebuild/`, and not the generated version in `vignettes/`.
+
+Also keep in mind that generated figures may take a substantial amount of space, so
+you should only regenerate the vignettes when necessary.
+
+## git flow branching
+
+"gitflow" is a convention for branching structure, that can be used fully, or just with the
+basics. The simplest use is to have a "devel" branch where day-to-day updates are made,
+and a "stable" branch (for `dirinla` this is the "master" branch) where the stable
+versions are kept.  That way, users can choose whether they want the latest stable
+version, or if they need/want to try the lastest development features (while taking the risk
+of there being new bugs!).
+While preparing a new stable release, a temporary "release branch" is created for setting
+u the new release and doing final testing.
+
+See these [Git Flow instructions](https://skoch.github.io/Git-Workflow/) for
+how to install the git flow components on your computer.
+Then got to the `dirinla` directory and run
+```
+git flow init
+```
+Set the "production releases" branch to `master`, and the "integration of the next release"
+branch to `devel`, and use the default values for the rest.
+
+Then work on the `devel` branch for regular updates to the code and vignettes.
+When pushed to github, the githubio pages will be updated based on the contents
+of the `devel` branch.
+
+When you're ready to make a new stable release, follow the checklist below.
+
+## Stable release checklist
+
+This is a simplified version of the `inlabru` [release check-list](https://github.com/inlabru-org/inlabru/issues/139)
+(it skips the CRAN steps and some of the extensive testing steps).
+
+On the `devel` branch, package versions take the form `x.y.z.devel`.
+On the `master` branch, package versions take the form `x.y.z`.
+Before preparing a release, check what the `x.y.z.devel` version is; the new stable release
+should be either
+
+* `x.y.(z+1)` for "patch/bugfix" releases,
+* `x.(y+1).0` for "minor" releases, that e.g. introduce significant new features, or
+* `(x+1).0.0` for "major" releases, that e.g. change the interface in a non-backwards compatible way.
+
+The most common releases are patch and minor releases.
+
+This versioning scheme ensures that one can always know if someone is using a
+stable release or a development version.  If one also uses `use_version("dev")`
+regularly on the development branch, further detail is preserved by incrementing the `.devel`
+part of the development version number.
+
+Prepare for release:
+
+* [ ] [Polish NEWS](https://style.tidyverse.org/news.html#news-release)
+* [ ] `devtools::build_readme()`
+* [ ] [`urlchecker::url_check()`](https://github.com/r-lib/urlchecker)
+* [ ] `git flow release start x.y.z` (replace `x.y.z` with the actual new version)
+* [ ] `usethis::use_version()` (this updates the `x.y.z` part of the version
+       to one you can choose from a list,
+       and removes the `.devel` part from `x.y.z.devel`)
+* [ ] Push to github for checking; `git flow release publish x.y.z`
+* [ ] `devtools::check(remote = TRUE, manual = TRUE)`
+* If everything is ok, continue, otherwise fix the problems and check again
+* [ ] `git flow release finish x.y.z`
+* [ ] `usethis::use_dev_version()`, commit & push
+* [ ] `git checkout stable`
+* [ ] `git push`
+* [ ] `git push --tags`
+* [ ] `usethis::use_github_release()`, then edit and approve the release on github
+* [ ] Tweet (or let people know about the new release in some other way)
+
+You can copy the check-list code into a github Issue, like the [inlabru release issue](https://github.com/inlabru-org/inlabru/issues/139).

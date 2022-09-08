@@ -30,3 +30,6 @@ supplementary_code/real_data/OBSOLETO
 doc
 Meta
 docs
+
+vignettes_prebuild/figure
+README-DEV.html
