@@ -1,7 +1,7 @@
 ---
 title: "The Integrated nested Laplace approximation for fitting Dirichlet regression models"
 author: Joaquin Martinez-Minaya
-date: "2022-09-08"
+date: "2022-09-09"
 output: 
   rmarkdown::html_vignette:
     pandoc_args: [
@@ -110,21 +110,39 @@ summary(model.inla)
 #> ======================================================================= 
 #> y1
 #> ----------------------------------------------------------------------- 
-#>             mean     sd 0.025quant 0.5quant 0.975quant   mode
-#> intercept -1.554 0.2014    -1.9490   -1.554     -1.159 -1.554
-#> v1         1.018 0.3690     0.2948    1.018      1.741  1.018
+#>             mean     sd
+#> intercept -1.554 0.2014
+#> v1         1.018 0.3690
+#>           0.025quant 0.5quant
+#> intercept    -1.9490   -1.554
+#> v1            0.2948    1.018
+#>           0.975quant   mode
+#> intercept     -1.159 -1.554
+#> v1             1.741  1.018
 #> ======================================================================= 
 #> y2
 #> ----------------------------------------------------------------------- 
-#>             mean     sd 0.025quant 0.5quant 0.975quant   mode
-#> intercept -1.760 0.2329     -2.217   -1.760     -1.304 -1.760
-#> v2         1.985 0.3971      1.206    1.985      2.763  1.985
+#>             mean     sd
+#> intercept -1.760 0.2329
+#> v2         1.985 0.3971
+#>           0.025quant 0.5quant
+#> intercept     -2.217   -1.760
+#> v2             1.206    1.985
+#>           0.975quant   mode
+#> intercept     -1.304 -1.760
+#> v2             2.763  1.985
 #> ======================================================================= 
 #> y3
 #> ----------------------------------------------------------------------- 
-#>               mean     sd 0.025quant 0.5quant 0.975quant     mode
-#> intercept -0.05926 0.2500    -0.5493 -0.05926     0.4307 -0.05926
-#> v3        -1.94703 0.4158    -2.7619 -1.94703    -1.1322 -1.94703
+#>               mean     sd
+#> intercept -0.05926 0.2500
+#> v3        -1.94703 0.4158
+#>           0.025quant 0.5quant
+#> intercept    -0.5493 -0.05926
+#> v3           -2.7619 -1.94703
+#>           0.975quant     mode
+#> intercept     0.4307 -0.05926
+#> v3           -1.1322 -1.94703
 #> ======================================================================= 
 #> 
 #> ---- HYPERPARAMETERS ---- 
@@ -139,9 +157,9 @@ summary(model.inla)
 ## Plot of the posterior distributions
 
 
-<img src="figure/example/unnamed-chunk-7-1.png" alt="Posterior predictive distribution in the simplex. Points represent the original data" width="70%" />
+<img src="figure/example/unnamed-chunk-7-1.png" title="Posterior predictive distribution in the simplex. Points represent the original data" alt="Posterior predictive distribution in the simplex. Points represent the original data" width="70%" />
 
-<img src="figure/example/unnamed-chunk-8-1.png" alt="Posterior distributions of the parameters. Vertical line represents the real value" width="100%" />
+<img src="figure/example/unnamed-chunk-8-1.png" title="Posterior distributions of the parameters. Vertical line represents the real value" alt="Posterior distributions of the parameters. Vertical line represents the real value" width="100%" />
 
 
 
@@ -163,16 +181,28 @@ model.prediction <-
 #> 
 model.prediction$summary_predictive_means
 #> $y1
-#>            Min.   1st Qu.    Median      Mean  3rd Qu.     Max.
-#> [1,] 0.05081666 0.1148589 0.1373386 0.1405887 0.161967 0.329834
+#>            Min.   1st Qu.
+#> [1,] 0.05081666 0.1148318
+#>         Median     Mean
+#> [1,] 0.1372828 0.140574
+#>        3rd Qu.     Max.
+#> [1,] 0.1619587 0.329834
 #> 
 #> $y2
-#>            Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
-#> [1,] 0.07885033 0.2031195 0.2470649 0.2530218 0.2966276 0.5925873
+#>            Min.   1st Qu.
+#> [1,] 0.07885033 0.2030518
+#>         Median     Mean
+#> [1,] 0.2470195 0.252963
+#>        3rd Qu.      Max.
+#> [1,] 0.2966276 0.5925873
 #> 
 #> $y3
-#>           Min.   1st Qu.    Median      Mean   3rd Qu.     Max.
-#> [1,] 0.3085923 0.5550548 0.6093948 0.6063895 0.6598522 0.831211
+#>           Min.   1st Qu.
+#> [1,] 0.3085923 0.5549314
+#>         Median     Mean
+#> [1,] 0.6094129 0.606463
+#>        3rd Qu.     Max.
+#> [1,] 0.6599189 0.831211
 
 ### --- 6. We can also predict directly --- ####
 model.inla <- dirinlareg(
@@ -202,14 +232,26 @@ model.inla <- dirinlareg(
 
 model.prediction$summary_predictive_means
 #> $y1
-#>            Min.   1st Qu.    Median      Mean  3rd Qu.     Max.
-#> [1,] 0.05081666 0.1148589 0.1373386 0.1405887 0.161967 0.329834
+#>            Min.   1st Qu.
+#> [1,] 0.05081666 0.1148318
+#>         Median     Mean
+#> [1,] 0.1372828 0.140574
+#>        3rd Qu.     Max.
+#> [1,] 0.1619587 0.329834
 #> 
 #> $y2
-#>            Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
-#> [1,] 0.07885033 0.2031195 0.2470649 0.2530218 0.2966276 0.5925873
+#>            Min.   1st Qu.
+#> [1,] 0.07885033 0.2030518
+#>         Median     Mean
+#> [1,] 0.2470195 0.252963
+#>        3rd Qu.      Max.
+#> [1,] 0.2966276 0.5925873
 #> 
 #> $y3
-#>           Min.   1st Qu.    Median      Mean   3rd Qu.     Max.
-#> [1,] 0.3085923 0.5550548 0.6093948 0.6063895 0.6598522 0.831211
+#>           Min.   1st Qu.
+#> [1,] 0.3085923 0.5549314
+#>         Median     Mean
+#> [1,] 0.6094129 0.606463
+#>        3rd Qu.     Max.
+#> [1,] 0.6599189 0.831211
 ```
