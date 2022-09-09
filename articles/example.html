@@ -74,7 +74,7 @@
       <img src="" class="logo" alt=""><h1>The Integrated nested Laplace approximation for fitting Dirichlet regression models</h1>
                         <h4 data-toc-skip class="author">Joaquin Martinez-Minaya</h4>
             
-            <h4 data-toc-skip class="date">2022-09-08</h4>
+            <h4 data-toc-skip class="date">2022-09-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/inlabru-org/dirinla/blob/HEAD/vignettes/example.Rmd" class="external-link"><code>vignettes/example.Rmd</code></a></small>
       <div class="d-none name"><code>example.Rmd</code></div>
@@ -168,21 +168,39 @@
 <span><span class="co">#&gt; ======================================================================= </span></span>
 <span><span class="co">#&gt; y1</span></span>
 <span><span class="co">#&gt; ----------------------------------------------------------------------- </span></span>
-<span><span class="co">#&gt;             mean     sd 0.025quant 0.5quant 0.975quant   mode</span></span>
-<span><span class="co">#&gt; intercept -1.554 0.2014    -1.9490   -1.554     -1.159 -1.554</span></span>
-<span><span class="co">#&gt; v1         1.018 0.3690     0.2948    1.018      1.741  1.018</span></span>
+<span><span class="co">#&gt;             mean     sd</span></span>
+<span><span class="co">#&gt; intercept -1.554 0.2014</span></span>
+<span><span class="co">#&gt; v1         1.018 0.3690</span></span>
+<span><span class="co">#&gt;           0.025quant 0.5quant</span></span>
+<span><span class="co">#&gt; intercept    -1.9490   -1.554</span></span>
+<span><span class="co">#&gt; v1            0.2948    1.018</span></span>
+<span><span class="co">#&gt;           0.975quant   mode</span></span>
+<span><span class="co">#&gt; intercept     -1.159 -1.554</span></span>
+<span><span class="co">#&gt; v1             1.741  1.018</span></span>
 <span><span class="co">#&gt; ======================================================================= </span></span>
 <span><span class="co">#&gt; y2</span></span>
 <span><span class="co">#&gt; ----------------------------------------------------------------------- </span></span>
-<span><span class="co">#&gt;             mean     sd 0.025quant 0.5quant 0.975quant   mode</span></span>
-<span><span class="co">#&gt; intercept -1.760 0.2329     -2.217   -1.760     -1.304 -1.760</span></span>
-<span><span class="co">#&gt; v2         1.985 0.3971      1.206    1.985      2.763  1.985</span></span>
+<span><span class="co">#&gt;             mean     sd</span></span>
+<span><span class="co">#&gt; intercept -1.760 0.2329</span></span>
+<span><span class="co">#&gt; v2         1.985 0.3971</span></span>
+<span><span class="co">#&gt;           0.025quant 0.5quant</span></span>
+<span><span class="co">#&gt; intercept     -2.217   -1.760</span></span>
+<span><span class="co">#&gt; v2             1.206    1.985</span></span>
+<span><span class="co">#&gt;           0.975quant   mode</span></span>
+<span><span class="co">#&gt; intercept     -1.304 -1.760</span></span>
+<span><span class="co">#&gt; v2             2.763  1.985</span></span>
 <span><span class="co">#&gt; ======================================================================= </span></span>
 <span><span class="co">#&gt; y3</span></span>
 <span><span class="co">#&gt; ----------------------------------------------------------------------- </span></span>
-<span><span class="co">#&gt;               mean     sd 0.025quant 0.5quant 0.975quant     mode</span></span>
-<span><span class="co">#&gt; intercept -0.05926 0.2500    -0.5493 -0.05926     0.4307 -0.05926</span></span>
-<span><span class="co">#&gt; v3        -1.94703 0.4158    -2.7619 -1.94703    -1.1322 -1.94703</span></span>
+<span><span class="co">#&gt;               mean     sd</span></span>
+<span><span class="co">#&gt; intercept -0.05926 0.2500</span></span>
+<span><span class="co">#&gt; v3        -1.94703 0.4158</span></span>
+<span><span class="co">#&gt;           0.025quant 0.5quant</span></span>
+<span><span class="co">#&gt; intercept    -0.5493 -0.05926</span></span>
+<span><span class="co">#&gt; v3           -2.7619 -1.94703</span></span>
+<span><span class="co">#&gt;           0.975quant     mode</span></span>
+<span><span class="co">#&gt; intercept     0.4307 -0.05926</span></span>
+<span><span class="co">#&gt; v3           -1.1322 -1.94703</span></span>
 <span><span class="co">#&gt; ======================================================================= </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ---- HYPERPARAMETERS ---- </span></span>
@@ -196,8 +214,8 @@
 <div class="section level3">
 <h3 id="plot-of-the-posterior-distributions">Plot of the posterior distributions<a class="anchor" aria-label="anchor" href="#plot-of-the-posterior-distributions"></a>
 </h3>
-<p><img src="figure/example/unnamed-chunk-7-1.png" alt="Posterior predictive distribution in the simplex. Points represent the original data" width="70%"></p>
-<p><img src="figure/example/unnamed-chunk-8-1.png" alt="Posterior distributions of the parameters. Vertical line represents the real value" width="100%"></p>
+<p><img src="figure/example/unnamed-chunk-7-1.png" title="Posterior predictive distribution in the simplex. Points represent the original data" alt="Posterior predictive distribution in the simplex. Points represent the original data" width="70%"></p>
+<p><img src="figure/example/unnamed-chunk-8-1.png" title="Posterior distributions of the parameters. Vertical line represents the real value" alt="Posterior distributions of the parameters. Vertical line represents the real value" width="100%"></p>
 </div>
 </div>
 <div class="section level2">
@@ -218,16 +236,28 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">model.prediction</span><span class="op">$</span><span class="va">summary_predictive_means</span></span>
 <span><span class="co">#&gt; $y1</span></span>
-<span><span class="co">#&gt;            Min.   1st Qu.    Median      Mean  3rd Qu.     Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.05081666 0.1148589 0.1373386 0.1405887 0.161967 0.329834</span></span>
+<span><span class="co">#&gt;            Min.   1st Qu.</span></span>
+<span><span class="co">#&gt; [1,] 0.05081666 0.1148318</span></span>
+<span><span class="co">#&gt;         Median     Mean</span></span>
+<span><span class="co">#&gt; [1,] 0.1372828 0.140574</span></span>
+<span><span class="co">#&gt;        3rd Qu.     Max.</span></span>
+<span><span class="co">#&gt; [1,] 0.1619587 0.329834</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $y2</span></span>
-<span><span class="co">#&gt;            Min.   1st Qu.    Median      Mean   3rd Qu.      Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.07885033 0.2031195 0.2470649 0.2530218 0.2966276 0.5925873</span></span>
+<span><span class="co">#&gt;            Min.   1st Qu.</span></span>
+<span><span class="co">#&gt; [1,] 0.07885033 0.2030518</span></span>
+<span><span class="co">#&gt;         Median     Mean</span></span>
+<span><span class="co">#&gt; [1,] 0.2470195 0.252963</span></span>
+<span><span class="co">#&gt;        3rd Qu.      Max.</span></span>
+<span><span class="co">#&gt; [1,] 0.2966276 0.5925873</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $y3</span></span>
-<span><span class="co">#&gt;           Min.   1st Qu.    Median      Mean   3rd Qu.     Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.3085923 0.5550548 0.6093948 0.6063895 0.6598522 0.831211</span></span>
+<span><span class="co">#&gt;           Min.   1st Qu.</span></span>
+<span><span class="co">#&gt; [1,] 0.3085923 0.5549314</span></span>
+<span><span class="co">#&gt;         Median     Mean</span></span>
+<span><span class="co">#&gt; [1,] 0.6094129 0.606463</span></span>
+<span><span class="co">#&gt;        3rd Qu.     Max.</span></span>
+<span><span class="co">#&gt; [1,] 0.6599189 0.831211</span></span>
 <span></span>
 <span><span class="co">### --- 6. We can also predict directly --- ####</span></span>
 <span><span class="va">model.inla</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dirinlareg.html">dirinlareg</a></span><span class="op">(</span></span>
@@ -257,16 +287,28 @@
 <span></span>
 <span><span class="va">model.prediction</span><span class="op">$</span><span class="va">summary_predictive_means</span></span>
 <span><span class="co">#&gt; $y1</span></span>
-<span><span class="co">#&gt;            Min.   1st Qu.    Median      Mean  3rd Qu.     Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.05081666 0.1148589 0.1373386 0.1405887 0.161967 0.329834</span></span>
+<span><span class="co">#&gt;            Min.   1st Qu.</span></span>
+<span><span class="co">#&gt; [1,] 0.05081666 0.1148318</span></span>
+<span><span class="co">#&gt;         Median     Mean</span></span>
+<span><span class="co">#&gt; [1,] 0.1372828 0.140574</span></span>
+<span><span class="co">#&gt;        3rd Qu.     Max.</span></span>
+<span><span class="co">#&gt; [1,] 0.1619587 0.329834</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $y2</span></span>
-<span><span class="co">#&gt;            Min.   1st Qu.    Median      Mean   3rd Qu.      Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.07885033 0.2031195 0.2470649 0.2530218 0.2966276 0.5925873</span></span>
+<span><span class="co">#&gt;            Min.   1st Qu.</span></span>
+<span><span class="co">#&gt; [1,] 0.07885033 0.2030518</span></span>
+<span><span class="co">#&gt;         Median     Mean</span></span>
+<span><span class="co">#&gt; [1,] 0.2470195 0.252963</span></span>
+<span><span class="co">#&gt;        3rd Qu.      Max.</span></span>
+<span><span class="co">#&gt; [1,] 0.2966276 0.5925873</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $y3</span></span>
-<span><span class="co">#&gt;           Min.   1st Qu.    Median      Mean   3rd Qu.     Max.</span></span>
-<span><span class="co">#&gt; [1,] 0.3085923 0.5550548 0.6093948 0.6063895 0.6598522 0.831211</span></span></code></pre></div>
+<span><span class="co">#&gt;           Min.   1st Qu.</span></span>
+<span><span class="co">#&gt; [1,] 0.3085923 0.5549314</span></span>
+<span><span class="co">#&gt;         Median     Mean</span></span>
+<span><span class="co">#&gt; [1,] 0.6094129 0.606463</span></span>
+<span><span class="co">#&gt;        3rd Qu.     Max.</span></span>
+<span><span class="co">#&gt; [1,] 0.6599189 0.831211</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
