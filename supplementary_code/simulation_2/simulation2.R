@@ -253,9 +253,9 @@ simulations_with_slopes <- function(n)
     t_jags_2 <- t_jags_2[3]
   }
     ### ----- 3.4. Saving models --- ####
-    saveRDS(file = paste0("model_jags_", n,".RDS"), model.jags)
-    saveRDS(file = paste0("model_jags_long_", n, ".RDS"), model.jags.2)
-    saveRDS(file = paste0("model_inla_", n, ".RDS"), model.inla)
+    # saveRDS(file = paste0("model_jags_", n,".RDS"), model.jags)
+    # saveRDS(file = paste0("model_jags_long_", n, ".RDS"), model.jags.2)
+    # saveRDS(file = paste0("model_inla_", n, ".RDS"), model.inla)
 
   t_inla
   t_jags
@@ -369,12 +369,13 @@ simulations_with_slopes <- function(n)
 
 
     ### --- legend --- ###
-    p1[[i]]<- p1[[i]] + theme(legend.position   = c(0.2, 0.8),
-                              legend.title      = element_blank(),
-                              legend.background = element_rect(colour = "gray"),
-                              legend.key        = element_rect(colour = "white", fill="white"),
-                              legend.key.size   = unit(0.5, "cm")) +
-      theme(legend.text = element_text(size = 9)) +
+    p1[[i]]<- p1[[i]] +  theme(legend.position   = c(0.2, 0.8),
+                               legend.title      = element_blank(),
+                               legend.background = element_rect(colour = "gray"),
+                               legend.key        = element_rect(colour = "white", fill="white"),
+                               legend.key.size   = unit(0.5, "cm"),
+                               legend.text       = element_text(size = 15),
+                               axis.title        = element_text(size = 14)) +
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
@@ -446,12 +447,13 @@ simulations_with_slopes <- function(n)
 
 
     ### --- legend --- ###
-    p2[[i]]<- p2[[i]] + theme(legend.position   = c(0.2, 0.8),
-                              legend.title      = element_blank(),
-                              legend.background = element_rect(colour = "gray"),
-                              legend.key        = element_rect(colour = "white", fill="white"),
-                              legend.key.size   = unit(0.5, "cm")) +
-      theme(legend.text = element_text(size = 9)) +
+    p2[[i]]<- p2[[i]] +  theme(legend.position   = c(0.2, 0.8),
+                               legend.title      = element_blank(),
+                               legend.background = element_rect(colour = "gray"),
+                               legend.key        = element_rect(colour = "white", fill="white"),
+                               legend.key.size   = unit(0.5, "cm"),
+                               legend.text       = element_text(size = 15),
+                               axis.title        = element_text(size = 14)) +
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
@@ -477,11 +479,19 @@ simulations_with_slopes <- function(n)
   #   gridExtra::grid.arrange(p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
   # dev.off()
 
-
+  pl_combined <-
+    ((p1[[1]] | p1[[2]] | p1[[3]] | p1[[4]]) /
+       (p2[[1]] | p2[[2]] | p2[[3]] | p2[[4]])) +
+    patchwork::plot_layout(guides = "collect") &
+    ggplot2::theme(legend.position = "bottom",
+                   legend.key.width = unit(1.5,"cm")) &
+    guides(col = guide_legend(nrow=1,byrow=TRUE),
+           linetype = guide_legend(override.aes = list(size = 1.1)))
 
   pdf(paste0("examples_simualtion2_slopes_intercepts_", n ,".pdf"), width = 15, height = 6)
-  gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]],
-                          p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+  # gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]],
+  #                         p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+  print(pl_combined)
   dev.off()
   list(times = times,
        intercepts = result_beta0,
@@ -656,8 +666,7 @@ xtable(result_ratio2_jags, digits = 4)
 
 
 
-plot(result_time[,1])
-lines(result_time[,2], col = "red")
+
 
 
 ### --- 6. Plotting results --- ####
@@ -695,11 +704,12 @@ plot_ratios <- function(result_ratio_tot = result_ratio1_tot,
           legend.background = element_rect(colour = "gray"),
           legend.key        = element_rect(colour = "white", fill="white"),
           legend.key.size   = unit(0.5, "cm"),
-          axis.text         = element_text(size=12)) +
+          axis.text         = element_text(size = 12),
+          legend.text       = element_text(size = 15),
+          axis.title        = element_text(size = 14)) +
     facet_wrap('newbetas', ncol = 4, labeller = label_parsed) +
     theme(strip.text=element_text(face='bold', size=12, color='black'),
           strip.background=element_rect(fill='white')) +
-    theme(legend.text = element_text(size = 9)) +
     # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
     #                   values = c("darkgreen", "red4", "blue4" )) +
     scale_shape_manual(values=c(16, 17)) +
@@ -763,8 +773,29 @@ ratios2
 dev.off()
 
 ### ----- 6.3. Putting both together --- ####
+
+ratios1 <- ratios1 + labs(title = "a") +
+  theme(plot.title = element_text(size = 17, hjust = -0.05, face = "bold"),
+        strip.text = element_text(size = 15))
+
+
+
+ratios2 <- ratios2 + labs(title = "b") +
+  theme(plot.title = element_text(size = 17, hjust = -0.05, face = "bold"),
+        strip.text = element_text(size = 15))
+
+pl_combined <-
+  ((ratios1) /
+     (ratios2)) +
+  patchwork::plot_layout(guides = "collect") &
+  ggplot2::theme(legend.position = "bottom",
+                 legend.key.width = unit(1.5,"cm")) &
+  guides(col = guide_legend(nrow=1,byrow=TRUE),
+         linetype = guide_legend(override.aes = list(size = 1.1)))
+
+
 pdf(paste0("simulation2_ratios", ".pdf"), width = 15, height = 12)
-plot_grid(ratios1, ratios2, labels=c('a','b'), ncol = 1)
+pl_combined
 dev.off()
 
 
@@ -787,8 +818,9 @@ times2 <- result_time2 %>%
         legend.background = element_rect(colour = "gray"),
         legend.key        = element_rect(colour = "white", fill="white"),
         legend.key.size   = unit(0.5, "cm"),
-        axis.text         = element_text(size=12)) +
-  theme(legend.text = element_text(size = 9)) +
+        axis.text         = element_text(size = 12),
+        legend.text       = element_text(size = 12),
+        axis.title        = element_text(size = 12)) +
   # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
   #                   values = c("darkgreen", "red4", "blue4" )) +
   scale_shape_manual(values=c(16, 17, 18)) +
@@ -798,8 +830,16 @@ times2 <- result_time2 %>%
   scale_x_log10() +
   scale_y_log10()
 
+pl_combined2 <-
+  ((times2)) +
+  patchwork::plot_layout(guides = "collect") &
+  ggplot2::theme(legend.position = "bottom",
+                 legend.key.width = unit(0.5,"cm")) &
+  guides(col = guide_legend(nrow=1,byrow=TRUE),
+         linetype = guide_legend(override.aes = list(size = 1.1)))
+
 pdf(paste0("simulation2_times", ".pdf"), width = 6, height = 4)
-times2
+pl_combined2
 dev.off()
 
 

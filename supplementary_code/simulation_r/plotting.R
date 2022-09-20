@@ -109,8 +109,9 @@ plotting_all <- function(n, levels_factor)
                               legend.title      = element_blank(),
                               legend.background = element_rect(colour = "gray"),
                               legend.key        = element_rect(colour = "white", fill="white"),
-                              legend.key.size   = unit(0.5, "cm")) +
-      theme(legend.text = element_text(size = 9)) +
+                              legend.key.size   = unit(0.5, "cm"),
+                              legend.text       = element_text(size = 15),
+                              axis.title        = element_text(size = 14)) +
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
@@ -133,8 +134,23 @@ plotting_all <- function(n, levels_factor)
                                   hjust = 0.5))
   }
 
+  # pdf(paste0("examples_simulation4_slopes_", n, "_", levels_factor, ".pdf"), width = 15, height = 4)
+  # gridExtra::grid.arrange(p2[[1]], p2[[2]], p2[[3]], p2[[4]],ncol = 4)
+  # dev.off()
+
+
+  pl_combined2 <-
+    (p2[[1]] | p2[[2]] | p2[[3]] | p2[[4]]) +
+    patchwork::plot_layout(guides = "collect") &
+    ggplot2::theme(legend.position = "bottom",
+                   legend.key.width = unit(1.5,"cm")) &
+    guides(col = guide_legend(nrow=1,byrow=TRUE),
+           linetype = guide_legend(override.aes = list(size = 1.1)))
+
   pdf(paste0("examples_simulation4_slopes_", n, "_", levels_factor, ".pdf"), width = 15, height = 4)
-  gridExtra::grid.arrange(p2[[1]], p2[[2]], p2[[3]], p2[[4]],ncol = 4)
+  # gridExtra::grid.arrange(
+  #   p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+  print(pl_combined2)
   dev.off()
 
   ### --- 4. Hyperparemeters --- ####
@@ -311,12 +327,13 @@ plotting_all <- function(n, levels_factor)
 
 
     ### --- legend --- ###
-    p3[[i]] <- p3[[i]] + theme(legend.position   = c(0.8, 0.8),
+    p3[[i]] <- p3[[i]] + theme(legend.position   = c(0.2, 0.8),
                                legend.title      = element_blank(),
                                legend.background = element_rect(colour = "gray"),
                                legend.key        = element_rect(colour = "white", fill="white"),
-                               legend.key.size   = unit(0.5, "cm")) +
-      theme(legend.text = element_text(size = 9)) +
+                               legend.key.size   = unit(0.5, "cm"),
+                               legend.text       = element_text(size = 15),
+                               axis.title        = element_text(size = 14)) +
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
@@ -338,8 +355,23 @@ plotting_all <- function(n, levels_factor)
   }
 
 
+  # pdf(paste0("examples_simulation4_sigma_", n, "_", levels_factor, ".pdf"), width = 15, height = 4)
+  # gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]],ncol = 4)
+  # dev.off()
+  #
+
+  pl_combined3 <-
+    (p3[[1]] | p3[[2]] | p3[[3]] | p3[[4]]) +
+    patchwork::plot_layout(guides = "collect") &
+    ggplot2::theme(legend.position = "bottom",
+                   legend.key.width = unit(1.5,"cm")) &
+    guides(col = guide_legend(nrow=1,byrow=TRUE),
+           linetype = guide_legend(override.aes = list(size = 1.1)))
+
   pdf(paste0("examples_simulation4_sigma_", n, "_", levels_factor, ".pdf"), width = 15, height = 4)
-  gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]],ncol = 4)
+  # gridExtra::grid.arrange(
+  #   p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+  print(pl_combined3)
   dev.off()
 
 }

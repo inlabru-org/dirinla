@@ -398,12 +398,12 @@ result_time <- rbind(result$n100$d5$times,
                      result$n100$d15$times,
                      result$n100$d20$times,
                      result$n100$d30$times)
-colnames(result_time) <- c("R-JAGS", "dirinla", "long R-JAGS")
+result_time <- result_time[,-1]
+colnames(result_time) <- c( "R-JAGS", "dirinla", "long R-JAGS")
 rownames(result_time) <- paste0( c(5, 10, 15, 20, 30))
 result_time
 
 
-result$n100$d30$times <- c(30, 475.26, 3.80, 23520.41)
 
 
 
@@ -499,8 +499,9 @@ times2 <- result_time2 %>%
         legend.background = element_rect(colour = "gray"),
         legend.key        = element_rect(colour = "white", fill="white"),
         legend.key.size   = unit(0.5, "cm"),
-        axis.text         = element_text(size=12)) +
-  theme(legend.text = element_text(size = 9)) +
+        axis.text         = element_text(size = 12),
+        legend.text       = element_text(size = 12),
+        axis.title        = element_text(size = 12)) +
   # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
   #                   values = c("darkgreen", "red4", "blue4" )) +
   scale_shape_manual(values=c(16, 17, 18)) +
@@ -510,8 +511,17 @@ times2 <- result_time2 %>%
   scale_x_log10() +
   scale_y_log10()
 
+
+pl_combined2 <-
+  ((times2)) +
+  patchwork::plot_layout(guides = "collect") &
+  ggplot2::theme(legend.position = "bottom",
+                 legend.key.width = unit(0.5,"cm")) &
+  guides(col = guide_legend(nrow=1,byrow=TRUE),
+         linetype = guide_legend(override.aes = list(size = 1.1)))
+
 pdf(paste0("simulation3_times", ".pdf"), width = 6, height = 4)
-times2
+pl_combined2
 dev.off()
 
 

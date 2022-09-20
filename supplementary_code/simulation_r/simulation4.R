@@ -115,14 +115,14 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using SHORT JAGS \n"))
 
   if(file.exists(paste0("model_jags_", n,"_", levels_factor, ".RDS"))){
-    model.jags <- readRDS(paste0("model_jags_", n,".RDS"))
+    model.jags <- readRDS(paste0("model_jags_", n,"_", levels_factor, ".RDS"))
     if(n < 1000)
     {
       simulation <- readRDS("simulation4_50-500.RDS")
-      t_jags <- simulation[[paste0("n",n)]]$times[1]
+      t_jags <- simulation[, c(paste0(n, "-", levels_factor))]$times[1]
     }else{
-      simulation <- readRDS("simulation4_1000-10000.RDS")
-      t_jags <- simulation[[paste0("n",n)]]$times[1]
+      simulation <- readRDS("simulation4_1000.RDS")
+      t_jags <- simulation[, c(paste0(n, "-", levels_factor))]$times[1]
     }
 
   }else{
@@ -225,15 +225,15 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
   ### ----- 3.2. Fitting the model with INLA --- ####
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using INLA \n"))
-  if(file.exists(paste0("model_inla_", n,".RDS"))){
+  if(file.exists(paste0("model_inla_", n,"_", levels_factor, ".RDS"))){
     model.inla <- readRDS(paste0("model_inla_", n,"_", levels_factor, ".RDS"))
     if(n< 1000)
     {
       simulation <- readRDS("simulation4_50-500.RDS")
-      t_inla <- simulation[[paste0("n",n)]]$times[2]
+      t_inla <- simulation[, c(paste0(n, "-", levels_factor))]$times[2]
     }else{
-      simulation <- readRDS("simulation4_1000-10000.RDS")
-      t_inla <- simulation[[paste0("n",n)]]$times[2]
+      simulation <- readRDS("simulation4_1000.RDS")
+      t_inla <- simulation[, c(paste0(n, "-", levels_factor))]$times[2]
     }
   }else{
     t <- proc.time() # Measure the time
@@ -281,15 +281,15 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 #  half.normal  <<- list(prec = list(prior = UN.prior))
 
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using INLA \n"))
-  if(file.exists(paste0("model_inla_", n,".RDS"))){
-    model.inla.2 <- readRDS(paste0("model_inla_pc_", n,"_", levels_factor, ".RDS"))
+  if(file.exists(paste0("model_inla_2_", n,"_", levels_factor, ".RDS"))){
+    model.inla.2 <- readRDS(paste0("model_inla_2_", n,"_", levels_factor, ".RDS"))
     if(n< 1000)
     {
       simulation <- readRDS("simulation4_50-500.RDS")
-      t_inla <- simulation[[paste0("n",n)]]$times[2]
+      t_inla_2 <- simulation[, c(paste0(n, "-", levels_factor))]$times[4]
     }else{
-      simulation <- readRDS("simulation4_1000-10000.RDS")
-      t_inla <- simulation[[paste0("n",n)]]$times[2]
+      simulation <- readRDS("simulation4_1000.RDS")
+      t_inla_2 <- simulation[, c(paste0(n, "-", levels_factor))]$times[4]
     }
   }else{
     t <- proc.time() # Measure the time
@@ -316,15 +316,15 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   ### ----- 3.3. Fitting the model with long jags --- ####
   cat(paste0("n = ", n, " - levels_factor = ", levels_factor," -----> Fitting using long JAGS \n"))
 
-  if(file.exists(paste0("model_jags_long_", n,".RDS"))){
+  if(file.exists(paste0("model_jags_long_", n,"_", levels_factor, ".RDS"))){
     model.jags.2 <- readRDS(paste0("model_jags_long_", n,"_", levels_factor, ".RDS"))
     if(n< 1000)
     {
       simulation <- readRDS("simulation4_50-500.RDS")
-      t_jags_2 <- simulation[[paste0("n",n)]]$times[3]
+      t_jags_2 <- simulation[, c(paste0(n, "-", levels_factor))]$times[3]
     }else{
-      simulation <- readRDS("simulation4_1000-10000.RDS")
-      t_jags_2 <-simulation[[paste0("n",n)]]$times[3]
+      simulation <- readRDS("simulation4_1000.RDS")
+      t_jags_2 <-simulation[, c(paste0(n, "-", levels_factor))]$times[3]
     }
   }else{
     ## MCMC configuration
@@ -422,10 +422,10 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     t_jags_2 <- t_jags_2[3]
   }
   ### ----- 3.4. Saving models --- ####
-  saveRDS(file = paste0("model_jags_", n,"_", levels_factor, ".RDS"), model.jags)
-  saveRDS(file = paste0("model_jags_long_", n,"_", levels_factor, ".RDS"), model.jags.2)
-  saveRDS(file = paste0("model_inla_", n,"_", levels_factor, ".RDS"), model.inla)
-  saveRDS(file = paste0("model_inla_2_", n,"_", levels_factor, ".RDS"), model.inla.2)
+  # saveRDS(file = paste0("model_jags_", n,"_", levels_factor, ".RDS"), model.jags)
+  # saveRDS(file = paste0("model_jags_long_", n,"_", levels_factor, ".RDS"), model.jags.2)
+  # saveRDS(file = paste0("model_inla_", n,"_", levels_factor, ".RDS"), model.inla)
+  # saveRDS(file = paste0("model_inla_2_", n,"_", levels_factor, ".RDS"), model.inla.2)
 
 
 
@@ -437,17 +437,6 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
   ### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
   ratio1_beta1_pc <- ratio2_beta1_pc <-  ratio1_beta1_hn <-  ratio2_beta1_hn <- numeric()
-  # for (i in 1:4)
-  # {
-  #   mean_jags_2 <- mean(model.jags.2$BUGSoutput$sims.list$beta0[,i])
-  #   sd_jags_2 <- sd(model.jags.2$BUGSoutput$sims.list$beta0[,i])
-  #   mean_jags_1 <- mean(model.jags$BUGSoutput$sims.list$beta0[,i])
-  #   sd_jags_1 <- sd(model.jags$BUGSoutput$sims.list$beta0[,i])
-  #   mean_inla <- model.inla$summary_fixed[[i]]$mean[1]
-  #
-  #   ratio1_beta0 <- c(ratio1_beta0, c(mean_inla - mean_jags_2)/sd_jags_2)
-  #   ratio2_beta0 <- c(ratio2_beta0, sd(inla.rmarginal(10000, model.inla$marginals_fixed[[i]]$intercept))^2/sd_jags_2^2)
-  # }
 
   for (i in 1:4)
   {
@@ -464,15 +453,8 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
     ratio2_beta1_hn <- c(ratio2_beta1_hn, sd(inla.rmarginal(10000, model.inla.2$marginals_fixed[[i]][[1]]))^2/(sd_jags_2^2))
 
   }
-#
-#   mean_jags_2_sigma <- c("tau1", "tau2") %>% lapply(., function(x) mean(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-#   sd_jags_2_sigma <- c("tau1", "tau2") %>% lapply(., function(x) sd(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]]))) %>% unlist(.)
-#
-#   mean_jags_2_sigma_log <- c("tau1", "tau2") %>% lapply(., function(x) mean(log(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]])))) %>% unlist(.)
-#   sd_jags_2_sigma_log <- c("tau1", "tau2") %>% lapply(., function(x) sd(log(1/sqrt(model.jags.2$BUGSoutput$sims.list[[c(x)]])))) %>% unlist(.)
-#
-#
-#
+
+
   mean_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) mean(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
   sd_jags_2_sigma <- c("sigma1", "sigma2") %>% lapply(., function(x) sd(model.jags.2$BUGSoutput$sims.list[[c(x)]])) %>% unlist(.)
 
@@ -492,11 +474,6 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   names(inla_sigma_log_2) <- c("log(sigma1)", "log(sigma2)")
 
 
-
-  # inla_sigma_sim <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla$marginals_hyperpar[[x]])))
-  # inla_sigma_sim_2 <- lapply(1:2, function(x) 1/sqrt(inla.rmarginal(10000, model.inla.2$marginals_hyperpar[[x]])))
-  # names(inla_sigma_sim) <- c("sigma1", "sigma2")
-  # names(inla_sigma_sim_2) <- c("sigma1", "sigma2")
 
   #Ratios sigma
   ratio1_sigma_pc <- (lapply(inla_sigma, function(x) inla.zmarginal(x, silent = TRUE)[[1]]) %>% unlist() - mean_jags_2_sigma)/sd_jags_2_sigma
@@ -520,21 +497,6 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
   ### ----- 4.3. Mean and sd of the posterior distributions --- ####
-  ### Intercepts
-  #result_beta0 <- numeric()
-  # for(i in 1:4)
-  # {
-  #   result_beta0 <- rbind(result_beta0,
-  #                         t(matrix(c(model.jags$BUGSoutput$summary[paste0("beta0[", i,"]"), c("mean", "sd")],
-  #                                    model.inla$summary_fixed[[i]][1,c("mean", "sd")],
-  #                                    model.jags.2$BUGSoutput$summary[paste0("beta0[", i,"]"), c("mean", "sd")]))))
-  # }
-  # rownames(result_beta0) <- paste0("beta0", 1:4)
-  # colnames(result_beta0) <- c(paste0("JAGS", c("_mean", "_sigma")),
-  #                             paste0("INLA", c("_mean", "_sigma")),
-  #                             paste0("LONG_JAGS", c("_mean", "_sigma")))
-
-
   ### Beta1
   result_beta1 <- numeric()
   for(i in 1:4)
@@ -551,84 +513,6 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
                               paste0("LONG_JAGS", c("_mean", "_sigma")),
                               paste0("INLA_PC", c("_mean", "_sigma")))
   ### --- 5. Plotting --- ####
-  ### ----- 5.1. intercepts --- ####
-  # ## Intercept
-  # p1 <- list()
-  # beta0 <- expression(paste("p(", beta[0], "|", "y)"))
-  #
-  # for (i in 1:length(model.inla$marginals_fixed))
-  # {
-  #   #jags1
-  #   dens <- density(model.jags$BUGSoutput$sims.matrix[,i], adjust = 2)
-  #   dens <- as.data.frame(cbind(dens$x, dens$y))
-  #   colnames(dens) <- c("x", "y")
-  #
-  #   #jags2
-  #   dens2 <- density(model.jags.2$BUGSoutput$sims.matrix[,i], adjust = 2)
-  #   dens2 <- as.data.frame(cbind(dens2$x, dens2$y))
-  #   colnames(dens2) <- c("x", "y")
-  #
-  #   #Data combining jags (1) and inla (2)
-  #   dens <- rbind(cbind(dens, group = 1),
-  #                 cbind(as.data.frame(model.inla$marginals_fixed[[i]][[1]]), group = 2),
-  #                 cbind(dens2, group = 3))
-  #   dens$group <- factor(dens$group,
-  #                        labels = c("R-JAGS", "dirinla", "long R-JAGS"))
-  #
-  #   ### Intercept
-  #   p1[[i]] <- ggplot(dens,
-  #                     aes(x = x,
-  #                         y = y,
-  #                         group = group
-  #                         #colour = factor(group)
-  #                     ))  +
-  #     geom_line(size = 0.6, aes(linetype = group ,
-  #                               color    = group)) +
-  #     xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
-  #     theme_bw() + #Show axes
-  #     xlab(expression(beta[0])) + #xlab
-  #     ylab(beta0) #ylab
-  #
-  #
-  #   #Frequentist approach
-  #   p1[[i]] <- p1[[i]] + geom_vline(xintercept = x[seq(1,8, by=2)][i])
-  #
-  #
-  #
-  #   ### --- legend --- ###
-  #   p1[[i]]<- p1[[i]] + theme(legend.position   = c(0.2, 0.8),
-  #                             legend.title      = element_blank(),
-  #                             legend.background = element_rect(colour = "gray"),
-  #                             legend.key        = element_rect(colour = "white", fill="white"),
-  #                             legend.key.size   = unit(0.5, "cm")) +
-  #     theme(legend.text = element_text(size = 9)) +
-  #     # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
-  #     #                   values = c("darkgreen", "red4", "blue4" )) +
-  #     scale_colour_manual (
-  #       values= c("darkgreen", "red4", "blue4")) +
-  #     scale_linetype_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
-  #                           values=c("dotted", "twodash",  "solid"))
-  #
-  #   if(i!=1)
-  #   {
-  #     p1[[i]] <- p1[[i]] + theme(legend.position="none")
-  #   }
-  #
-  #   p1[[i]] <- p1[[i]] + ggtitle(paste0("Category ", i)) +
-  #     theme(
-  #       plot.title = element_text(color = "black",
-  #                                 size  = 15,
-  #                                 face  = "bold.italic",
-  #                                 hjust = 0.5))
-  # }
-
-  #
-  # pdf("example_simulation4_intercepts_50.pdf", width = 18, height = 4)
-  #   gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]], ncol = 4)
-  # dev.off()
-
-
-
   ### ----- 5.2. slopes --- ####
   p2 <- list()
   beta1 <- expression(paste("p(", beta[1], "|", "y)"))
@@ -679,15 +563,16 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
                               legend.title      = element_blank(),
                               legend.background = element_rect(colour = "gray"),
                               legend.key        = element_rect(colour = "white", fill="white"),
-                              legend.key.size   = unit(0.5, "cm")) +
-      theme(legend.text = element_text(size = 9)) +
+                              legend.key.size   = unit(0.5, "cm"),
+                              legend.text       = element_text(size = 15),
+                              axis.title        = element_text(size = 14)) +
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
         values= c("darkgreen", "red4", "blue4", "orange2")) +
       scale_linetype_manual(labels=c("R-JAGS", "dirinla pc", "long R-JAGS", "dirinla hn"),
-                            values=c("solid", "solid",  "solid", "solid"))
-                            #values=c("dotted", "twodash",  "solid", "longdash"))
+                            #values=c("solid", "solid",  "solid", "solid"))
+                            values=c("dotted", "twodash",  "solid", "longdash"))
 
     if(i!=1)
     {
@@ -867,12 +752,13 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
 
 
     ### --- legend --- ###
-    p3[[i]] <- p3[[i]] + theme(legend.position   = c(0.8, 0.8),
-                     legend.title      = element_blank(),
-                     legend.background = element_rect(colour = "gray"),
-                     legend.key        = element_rect(colour = "white", fill="white"),
-                     legend.key.size   = unit(0.5, "cm")) +
-      theme(legend.text = element_text(size = 9)) +
+    p3[[i]] <- p3[[i]] + theme(legend.position   = c(0.2, 0.8),
+                               legend.title      = element_blank(),
+                               legend.background = element_rect(colour = "gray"),
+                               legend.key        = element_rect(colour = "white", fill="white"),
+                               legend.key.size   = unit(0.5, "cm"),
+                               legend.text       = element_text(size = 15),
+                               axis.title        = element_text(size = 14)) +
       # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
       #                   values = c("darkgreen", "red4", "blue4" )) +
       scale_colour_manual (
@@ -913,14 +799,31 @@ simulations_with_slopes_iid <- function(n, levels_factor = NA)
   # gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
   # dev.off()
 
+  pl_combined2 <-
+    (p2[[1]] | p2[[2]] | p2[[3]] | p2[[4]]) +
+    patchwork::plot_layout(guides = "collect") &
+    ggplot2::theme(legend.position = "bottom")
+
   png(paste0("examples_simulation4_slopes_", n ,"_", levels_factor, ".png"), width = 2000, height = 600, res = 150)
-  gridExtra::grid.arrange(
-    p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+  # gridExtra::grid.arrange(
+  #   p2[[1]], p2[[2]], p2[[3]], p2[[4]], ncol = 4)
+  print(pl_combined2)
   dev.off()
 
+
+  pl_combined3 <-
+    (p3[[1]] | p3[[2]] | p3[[3]] | p3[[4]]) +
+    patchwork::plot_layout(guides = "collect") &
+    ggplot2::theme(legend.position = "bottom")
+
   png(paste0("examples_simulation4_sigma_", n ,"_", levels_factor,".png"), width = 2000, height = 600, res = 120)
-  gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
+  #gridExtra::grid.arrange(p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
+  print(pl_combined3)
   dev.off()
+
+
+
+
 
   check_jags1 <- print(model.jags)
   check_jags2 <- print(model.jags.2)
@@ -1184,11 +1087,12 @@ plot_ratios <- function(result_ratio_tot = result_ratio1_tot,
           legend.background = element_rect(colour = "gray"),
           legend.key        = element_rect(colour = "white", fill="white"),
           legend.key.size   = unit(0.5, "cm"),
-          axis.text         = element_text(size=12)) +
+          axis.text         = element_text(size = 12),
+          legend.text       = element_text(size = 15),
+          axis.title        = element_text(size = 14)) +
     facet_wrap('newbetas', ncol = 3, labeller = label_parsed) +
     theme(strip.text=element_text(face='bold', size=12, color='black'),
           strip.background=element_rect(fill='white')) +
-    theme(legend.text = element_text(size = 9)) +
     # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
     #                   values = c("darkgreen", "red4", "blue4" )) +
     scale_shape_manual(values=c(16, 17)) +
@@ -1268,11 +1172,30 @@ pdf(paste0("simulationr_ratio2", ".pdf"), width = 11, height = 6)
 ratios2
 dev.off()
 
+ratios1 <- ratios1 + labs(title = "a") +
+  theme(plot.title = element_text(size = 17, hjust = -0.05, face = "bold"),
+        strip.text = element_text(size = 15))
+
+
+
+ratios2 <- ratios2 + labs(title = "b") +
+  theme(plot.title = element_text(size = 17, hjust = -0.05, face = "bold"),
+        strip.text = element_text(size = 15))
+
+pl_combined <-
+  ((ratios1) /
+     (ratios2)) +
+  patchwork::plot_layout(guides = "collect") &
+  ggplot2::theme(legend.position = "bottom",
+                 legend.key.width = unit(1.5,"cm")) &
+  guides(col = guide_legend(nrow=1,byrow=TRUE),
+         linetype = guide_legend(override.aes = list(size = 1.1)))
 
 
 ### ----- 6.3. Putting both together --- ####
 pdf(paste0("simulationr_ratios", ".pdf"), width = 11, height = 12)
-plot_grid(ratios1, ratios2, labels=c('a','b'), ncol = 1)
+
+pl_combined
 dev.off()
 
 
@@ -1297,8 +1220,9 @@ times2 <- result_time2 %>%
         legend.background = element_rect(colour = "gray"),
         legend.key        = element_rect(colour = "white", fill="white"),
         legend.key.size   = unit(0.5, "cm"),
-        axis.text         = element_text(size=12)) +
-  theme(legend.text = element_text(size = 9)) +
+        axis.text         = element_text(size = 12),
+        legend.text       = element_text(size = 12),
+        axis.title        = element_text(size = 12)) +
   # scale_fill_manual(labels=c("R-JAGS", "R-INLA", "long R-JAGS"),
   #                   values = c("darkgreen", "red4", "blue4" )) +
   scale_shape_manual(values=c(16, 17, 18, 15)) +
@@ -1308,7 +1232,16 @@ times2 <- result_time2 %>%
   scale_x_log10() +
   scale_y_log10()
 
+
+pl_combined2 <-
+  ((times2)) +
+  patchwork::plot_layout(guides = "collect") &
+  ggplot2::theme(legend.position = "bottom",
+                 legend.key.width = unit(0.5,"cm")) &
+  guides(col = guide_legend(nrow=1,byrow=TRUE),
+         linetype = guide_legend(override.aes = list(size = 1.1)))
+
 pdf(paste0("simulationr_times", ".pdf"), width = 6, height = 4)
-times2
+pl_combined2
 dev.off()
 

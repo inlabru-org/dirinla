@@ -28,9 +28,9 @@ library(dplyr)
 data <- read.csv("ath_accessions.csv")
 
 data[,-c(1:7)] <- scale(data[,-c(1:7)])
-Glc <- data[1:100,]
+Glc <- data
 ### --- 3. Transforming the data --- ####
-Glc$Y <- as.matrix(data[1:100,paste0("gc", 1:4)]) #package DirichletReg
+Glc$Y <- as.matrix(data[, paste0("gc", 1:4)]) #package DirichletReg
 
 ### --- 4. Comparing posterior distributions. Jags vs INLA --- ####
 ### ----- 4.1. Fitting the model with jags --- ####
@@ -119,6 +119,7 @@ nb <- 100000
 nc <- 3
 
 
+
 inits <- function(){list(beta0 = rnorm(4, 0, 1),
                          beta1 = rnorm(4, 0, 1),
                          beta2 = rnorm(4, 0, 1))}
@@ -167,7 +168,7 @@ saveRDS(file = paste0("model_inla_real.RDS"), model.inla)
 
 ### ----- 4.1. Computational times --- ####
 times <- c(t_jags[3], t_inla[3], t_jags_2[3])
-saveRDS(file = paste0("times_real.RDS"), model.inla)
+saveRDS(file = paste0("times_real.RDS"), times)
 
 times <- readRDS("times_real.RDS")
 
@@ -322,8 +323,9 @@ for (i in 1:length(model.inla$marginals_fixed))
                             legend.title      = element_blank(),
                             legend.background = element_rect(colour = "gray"),
                             legend.key        = element_rect(colour = "white", fill="white"),
-                            legend.key.size   = unit(0.5, "cm")) +
-    theme(legend.text = element_text(size = 9)) +
+                            legend.key.size   = unit(0.5, "cm"),
+                            legend.text       = element_text(size = 15),
+                            axis.title        = element_text(size = 14))
     # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
     #                   values = c("darkgreen", "red4", "blue4" )) +
     scale_colour_manual (
@@ -400,8 +402,9 @@ for (i in 1:length(model.inla$marginals_fixed))
                             legend.title      = element_blank(),
                             legend.background = element_rect(colour = "gray"),
                             legend.key        = element_rect(colour = "white", fill="white"),
-                            legend.key.size   = unit(0.5, "cm")) +
-    theme(legend.text = element_text(size = 9)) +
+                            legend.key.size   = unit(0.5, "cm"),
+                            legend.text       = element_text(size = 15),
+                            axis.title        = element_text(size = 14)) +
     # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
     #                   values = c("darkgreen", "red4", "blue4" )) +
     scale_colour_manual (
@@ -470,8 +473,9 @@ for (i in 1:length(model.inla$marginals_fixed))
                             legend.title      = element_blank(),
                             legend.background = element_rect(colour = "gray"),
                             legend.key        = element_rect(colour = "white", fill="white"),
-                            legend.key.size   = unit(0.5, "cm")) +
-    theme(legend.text = element_text(size = 9)) +
+                            legend.key.size   = unit(0.5, "cm"),
+                            legend.text       = element_text(size = 15),
+                            axis.title        = element_text(size = 14)) +
     # scale_fill_manual(labels=c("R-JAGS", "dirinla", "long R-JAGS"),
     #                   values = c("darkgreen", "red4", "blue4" )) +
     scale_colour_manual (
@@ -497,13 +501,7 @@ for (i in 1:length(model.inla$marginals_fixed))
 
 
 
-list(times = times,
-     intercepts = result_beta0,
-     slopes     = result_beta1,
-     ratio1_intercepts = ratio1_beta0,
-     ratio1_slopes = ratio1_beta1,
-     ratio2_intercepts = ratio2_beta0,
-     ratio2_slopes = ratio2_beta1)
+
 
 
 # pdf("example_real_slopes_50.pdf", width = 18, height = 4)
@@ -512,12 +510,25 @@ list(times = times,
 
 
 
-pdf("examples_real_slopes_intercepts.pdf", width = 15, height = 10)
-gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]],
-             p2[[1]], p2[[2]], p2[[3]], p2[[4]],
-             p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
-dev.off()
+# pdf("examples_real_slopes_intercepts2.pdf", width = 15, height = 10)
+# gridExtra::grid.arrange(p1[[1]], p1[[2]], p1[[3]], p1[[4]],
+#              p2[[1]], p2[[2]], p2[[3]], p2[[4]],
+#              p3[[1]], p3[[2]], p3[[3]], p3[[4]], ncol = 4)
+# dev.off()
 
+pl_combined <-
+  ((p1[[1]] | p1[[2]] | p1[[3]] | p1[[4]]) /
+   (p2[[1]] | p2[[2]] | p2[[3]] | p2[[4]]) /
+   (p3[[1]] | p3[[2]] | p3[[3]] | p3[[4]])) +
+  patchwork::plot_layout(guides = "collect") &
+  ggplot2::theme(legend.position = "bottom",
+                 legend.key.width = unit(1.5,"cm")) &
+  guides(col = guide_legend(nrow=1,byrow=TRUE),
+         linetype = guide_legend(override.aes = list(size = 1.1)))
+
+pdf("examples_real_slopes_intercepts.pdf", width = 15, height = 10)
+  pl_combined
+dev.off()
 
 
 saveRDS(total, file = "real_data.RDS")
