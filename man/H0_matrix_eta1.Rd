@@ -25,4 +25,6 @@ Expected Hessian in eta.
 }
 \author{
 Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+
+Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
 }
