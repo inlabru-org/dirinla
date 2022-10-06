@@ -172,7 +172,6 @@ saveRDS(file = paste0("times_real.RDS"), times)
 
 times <- readRDS("times_real.RDS")
 
-times
 ### ----- 4.2. (E(INLA) - E(JAGS2))/SD(JAGS2) and variance ratios --- ####
 ratio1_beta0 <- ratio2_beta0 <- ratio1_beta1 <- ratio2_beta1 <- ratio1_beta2 <- ratio2_beta2 <- numeric()
 for (i in 1:4)
