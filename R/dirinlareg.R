@@ -30,8 +30,6 @@
 #'     requireNamespace("DirichletReg", quietly = TRUE)) {
 #' ### In this example, we show how to fit a model using the dirinla package ###
 #' ### --- 1. Loading the libraries --- ####
-#' library(INLA)
-#' library(DirichletReg)
 #'
 #'
 #' ### --- 2. Simulating from a Dirichlet likelihood --- ####
@@ -63,7 +61,7 @@
 #' alpha <- matrix(alpha,
 #'                 ncol  = C,
 #'                 byrow = TRUE)
-#' y_o <- rdirichlet(N, alpha)
+#' y_o <- DirichletReg::rdirichlet(N, alpha)
 #' colnames(y_o) <- paste0("y", 1:C)
 #' head(y_o)
 #'
