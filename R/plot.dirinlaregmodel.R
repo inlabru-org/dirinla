@@ -11,7 +11,7 @@
 #' @importFrom ggtern ggtern
 #' @importFrom gridExtra grid.arrange
 #' @importFrom grDevices devAskNewPage
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 plot.dirinlaregmodel <- function(x, ...) {
   nombres <- names(x$summary_means)
   if(dim(x$y)[2]> 3)

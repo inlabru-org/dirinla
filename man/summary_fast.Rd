@@ -13,12 +13,12 @@ summary_fast(A)
 A matrix whose columns are "mean", "sd", "0.025quant", "0.5quant", "0.975quant"
 }
 \description{
-`summary_fast` summarise a matrix by rows
+\code{summary_fast} summarise a matrix by rows
 }
 \examples{
 A <- matrix(rnorm(10000), ncol = 1000)
 summary_fast(A)
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

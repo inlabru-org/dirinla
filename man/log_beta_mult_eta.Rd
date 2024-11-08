@@ -13,8 +13,8 @@ log_beta_mult_eta(x)
 Numeric value.
 }
 \description{
-`beta_mult_eta` computes the log beta function in eta
+\code{beta_mult_eta} computes the log beta function in eta
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }

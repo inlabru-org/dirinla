@@ -15,8 +15,8 @@
 Print summary.
 }
 \description{
-`summary.dirinlaregmodel` is a function which gives a summary of a dirinlaregmodel object
+\code{summary.dirinlaregmodel} is a function which gives a summary of a dirinlaregmodel object
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

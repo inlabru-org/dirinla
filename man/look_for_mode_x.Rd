@@ -63,8 +63,8 @@ eta Linear predictor.
 z New pseudo observation conditioned to eta.
 }
 \description{
-`look_for_mode_x` computes optimization algorithms to find the mode of the posterior
+\code{look_for_mode_x} computes optimization algorithms to find the mode of the posterior
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }

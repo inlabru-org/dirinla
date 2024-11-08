@@ -19,9 +19,9 @@ dirichlet_log_pos_x(A = A, x, Qx = Qx, y)
 A real value showing the -log posterior density is returned
 }
 \description{
-`dirichlet_log_pos_x` returns the -log posterior Dirichlet distribution asumming
+\code{dirichlet_log_pos_x} returns the -log posterior Dirichlet distribution asumming
 multivariate normal prior with precision matrix Qx for elements of the latent field.
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

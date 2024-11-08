@@ -7,7 +7,7 @@
 #'
 #' @return Result of applying digamma function
 #'
-#' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
+#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
 digamma_red <- function(x, ...) {
     pos1 <- which(x <= 0.01)
     pos2 <- which(x > 0.01)
@@ -26,7 +26,7 @@ digamma_red <- function(x, ...) {
 #'
 #' @return Result of applying trigamma function.
 #'
-#' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
+#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
 
 trigamma_red <- function(x, ...) {
     # We use the equatlity trigamma(x+1) = trigamma(x) - 1/x^2

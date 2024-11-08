@@ -9,14 +9,14 @@ formula_list(form, y = NULL)
 \arguments{
 \item{form}{Object of class formula.}
 
-\item{y}{Matrix containing the response variable R^{nxd}, being n number of individuals
+\item{y}{Matrix containing the response variable \eqn{R^{nxd}}, being n number of individuals
 and d the number of categories.}
 }
 \value{
 A list with the names of the variables used in each category.
 }
 \description{
-`formula_list` reads the formula and generates a list with the name of the covariates used in each category
+\code{formula_list} reads the formula and generates a list with the name of the covariates used in each category
 }
 \examples{
 formula <- y ~ 1 + v1 + v2 | -1 + v1 | 0 + v2
@@ -24,5 +24,5 @@ formula_list(formula)
 
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

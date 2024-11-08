@@ -50,8 +50,8 @@ summary_means List containing a summary of the marginal posterior distributions 
 marginals_means List containing the simulations of the marginal posterior distributions of the means.
 }
 \description{
-`extract_linear_predictor` extracts the posterior distribution from the linear predictor
+\code{extract_linear_predictor} extracts the posterior distribution from the linear predictor
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

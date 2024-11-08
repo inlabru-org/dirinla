@@ -6,7 +6,7 @@
 #'
 #' @return Numeric value.
 #'
-#' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
+#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
 
 
 log_beta_mult_eta <- function(x) {

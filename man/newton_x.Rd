@@ -31,9 +31,9 @@ g0 : Gradient in x_hat_new. A numeric vector with the gradient in x_hat_new.
 x_hat_new: New value of x after apply one iteration.
 }
 \description{
-`newton_x` computes optimization algorithms to find the mode of the
+\code{newton_x} computes optimization algorithms to find the mode of the
 posterior. Line search strategy with Armijo conditions is implemented
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }

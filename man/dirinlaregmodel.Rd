@@ -91,7 +91,7 @@ dirinlaregmodel(
 
 \item{ncat}{Number of categories.}
 
-\item{y}{matrix containing the response variable R^{nxd}, being n number of individuals
+\item{y}{matrix containing the response variable \eqn{R^{nxd}}, being n number of individuals
 and d the number of categories}
 
 \item{data.cov}{data.frame with the covarites, only the covariates!}
@@ -100,5 +100,5 @@ and d the number of categories}
 object of list and dirinlaregmodel class.
 }
 \description{
-`dirinlaregmodel` is a new object class
+\code{dirinlaregmodel} is a new object class
 }

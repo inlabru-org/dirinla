@@ -36,7 +36,7 @@
 #' @export
 #' @import dplyr purrr
 #' @import Matrix
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 
 data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     data <- cbind(intercept = rep(1, dim(data)[1]), data)

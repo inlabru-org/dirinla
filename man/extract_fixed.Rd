@@ -17,8 +17,8 @@ summary_fixed Summary of fixed effects for each category.
 marginals_fixed Marginals for each parameter estimated.
 }
 \description{
-`extract_fixed` is a function to extract summary and marginals distribution corresponding to the fixed effects
+\code{extract_fixed} is a function to extract summary and marginals distribution corresponding to the fixed effects
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }

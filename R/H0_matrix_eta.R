@@ -2,21 +2,17 @@
 #'
 #' `H0_matrix_eta_x` computes the expected Hessian in eta of -loglikelihood
 #'
-#' @param eta Linear predictor resulting of the product A%*%x.
-#' @param d Dimension
+#' @param eta Linear predictor resulting of the product \eqn{A x}.
+#' @param d Dimension.
 #' @param cores Number of cores for parallel computation. The package parallel is used.
 #'
 #' @return Expected Hessian in eta.
 #' @import parallel
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 H0_matrix_eta_x <- function(eta, d, cores) {
   #eta <- Matrix::Matrix(as.numeric(A %*% x), ncol = d, byrow = TRUE)
   a1 <- apply(eta, 1, H0_matrix_eta1, d)
   parallel::mclapply(a1, "[[", 1, mc.cores = cores)
-
-    # eta_list <- split(eta, rep(1:nrow(eta), each = ncol(eta)))
-  # a <- parallel::mclapply(eta_list, H0_matrix_eta1, d, mc.cores = 4)
-
 }
 
 
@@ -28,9 +24,8 @@ H0_matrix_eta_x <- function(eta, d, cores) {
 #' @param d Dimension
 #'
 #' @return Expected Hessian in eta.
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 H0_matrix_eta1 <- function(eta, d) {
-  #eta <- as.numeric(A %*% x)
   sum_exp <- sum(exp(eta))
 
   ### --- The rest of the elements --- ###
@@ -45,5 +40,4 @@ H0_matrix_eta1 <- function(eta, d) {
   # t(A) %*% H0 %*% A
   list(-H0)
 }
-
 

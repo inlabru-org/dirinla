@@ -13,7 +13,7 @@
 #' A <- matrix(rnorm(10000), ncol = 1000)
 #' summary_fast(A)
 #' @export
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 summary_fast <- function(A){
     result <- t(
         rbind(

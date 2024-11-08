@@ -8,7 +8,7 @@
 #'
 #' @return A numeric vector with the gradient in eta.
 #'
-#' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
+#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
 
 g0_vector_eta_1 <- function(A = A, x, y) {
     eta <- Matrix::Matrix(as.numeric(A %*% x), ncol = dim(y)[2], byrow = TRUE)

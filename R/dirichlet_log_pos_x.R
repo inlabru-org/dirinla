@@ -13,7 +13,7 @@
 #'
 #' @importFrom Rfast rowsums
 #' @export
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 # dirichlet_log_pos_x <- function(A = A, x, Qx = Qx, y) {
 #     eta_hat <- A %*% x
 #     eta <- matrix(eta_hat,

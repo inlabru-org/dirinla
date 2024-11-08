@@ -37,6 +37,7 @@ Suggests:
   magrittr
 Encoding: UTF-8
 VignetteBuilder: knitr
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
 URL: https://inlabru-org.github.io/dirinla/
 BugReports: https://github.com/inlabru-org/dirinla/issues
+Roxygen: list(markdown = TRUE)

@@ -29,7 +29,7 @@
 #' @param cpo List containing the inla output for cpo.
 #' @param nobs Number of observations.
 #' @param ncat Number of categories.
-#' @param y matrix containing the response variable R^{nxd}, being n number of individuals
+#' @param y matrix containing the response variable \eqn{R^{nxd}}, being n number of individuals
 #' and d the number of categories
 #' @param data.cov data.frame with the covarites, only the covariates!
 #

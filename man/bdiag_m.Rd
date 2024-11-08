@@ -2,18 +2,17 @@
 % Please edit documentation in R/bdiag_m.R
 \name{bdiag_m}
 \alias{bdiag_m}
-\title{Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:
-Copyright (C) 2016 Martin Maechler, ETH Zurich}
+\title{Block diagonal matrix creation}
 \usage{
 bdiag_m(lmat)
 }
 \arguments{
-\item{lmat}{list(<mat1>, <mat2>, ....., <mat_N>)  where each mat_j is a  k x k 'matrix'}
+\item{lmat}{\verb{list(<mat1>, <mat2>, ....., <mat_N>)}  where each \code{mat_j} is a  \verb{k x k} 'matrix'}
 }
 \value{
-a sparse (N*k x N*k) matrix of class  \code{"\linkS4class{dgCMatrix}"}.
+a sparse (N\emph{k x N}k) matrix of class \link[Matrix:dgCMatrix-class]{Matrix::dgCMatrix}.
 }
 \description{
-Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:
+Fast version of \code{\link[Matrix:bdiag]{Matrix::.bdiag()}} -- for the case of \emph{many}  (k x k) matrices:
 Copyright (C) 2016 Martin Maechler, ETH Zurich
 }

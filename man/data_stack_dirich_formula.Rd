@@ -21,11 +21,13 @@ data_stack_dirich_formula(y, covariates, share = NULL, data, d, n)
 }
 \value{
 List with two objects
-- Object of class inla.stack
-- Object with class formula
+\itemize{
+\item Object of class inla.stack
+\item Object with class formula
+}
 }
 \description{
-`data_stack_dirich_formula` prepares the data using inla.stack from the package INLA.
+\code{data_stack_dirich_formula} prepares the data using inla.stack from the package INLA.
 }
 \examples{
 n <- 100
@@ -51,5 +53,5 @@ data_stack_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
 
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }

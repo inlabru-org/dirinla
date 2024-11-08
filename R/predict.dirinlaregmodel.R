@@ -70,7 +70,7 @@
 #' model.prediction$summary_predictive_means
 #' }
 #' @export
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 predict.dirinlaregmodel <- function(object, data.pred.cov, ...)
 {
   if (!dirinla_safe_inla()) {

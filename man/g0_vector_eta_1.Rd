@@ -17,8 +17,8 @@ g0_vector_eta_1(A = A, x, y)
 A numeric vector with the gradient in eta.
 }
 \description{
-`g0_vector_eta` computes the gradient of -loglikelihood
+\code{g0_vector_eta} computes the gradient of -loglikelihood
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }

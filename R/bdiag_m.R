@@ -1,8 +1,10 @@
-#' Fast version of Matrix :: .bdiag() -- for the case of *many*  (k x k) matrices:
+#' Block diagonal matrix creation
+#'
+#' Fast version of [Matrix::.bdiag()] -- for the case of *many*  (k x k) matrices:
 #' Copyright (C) 2016 Martin Maechler, ETH Zurich
-#' @param lmat list(<mat1>, <mat2>, ....., <mat_N>)  where each mat_j is a  k x k 'matrix'
+#' @param lmat `list(<mat1>, <mat2>, ....., <mat_N>)`  where each `mat_j` is a  `k x k` 'matrix'
 #' @importFrom methods new
-#' @return a sparse (N*k x N*k) matrix of class  \code{"\linkS4class{dgCMatrix}"}.
+#' @return a sparse (N*k x N*k) matrix of class [Matrix::dgCMatrix-class].
 bdiag_m <- function(lmat) {
   if(!length(lmat)) return(new("dgCMatrix"))
   stopifnot(is.list(lmat), is.matrix(lmat[[1]]),

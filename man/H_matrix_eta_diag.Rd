@@ -17,8 +17,8 @@ H_matrix_eta_diag(eta, d, y)
 Elements of the diagonal  such as H = H0 + diag
 }
 \description{
-`H_matrix_eta_diag` computes the expected Hessian in eta of -loglikelihood
+\code{H_matrix_eta_diag} computes the expected Hessian in eta of -loglikelihood
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

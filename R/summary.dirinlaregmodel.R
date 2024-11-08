@@ -7,7 +7,7 @@
 #' @return Print summary.
 #' @method summary dirinlaregmodel
 #' @export
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 
 summary.dirinlaregmodel <- function(object, ...) {
     cat("\n")

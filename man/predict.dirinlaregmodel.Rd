@@ -17,7 +17,7 @@
 model dirinlaregmodel object
 }
 \description{
-`predict.dirinlaregmodel` computes the posterior predictive distribution for some given values of the covariates
+\code{predict.dirinlaregmodel} computes the posterior predictive distribution for some given values of the covariates
 }
 \examples{
 if (dirinla_safe_inla() &&
@@ -83,5 +83,5 @@ model.prediction$summary_predictive_means
 }
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

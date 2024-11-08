@@ -3,7 +3,7 @@
 #' `dirinlareg` Main function to do a Dirichlet Regression
 #'
 #' @param formula object of class formula indicating the response variable and the covariates of the Dirichlet regression
-#' @param y matrix containing the response variable R^{nxd}, being n number of individuals
+#' @param y matrix containing the response variable \eqn{R^{nxd}}, being n number of individuals
 #' and d the number of categories
 #' @param data.cov data.frame with the covarites, only the covariates!
 #' @param share parameters to be fitted jointly.
@@ -82,7 +82,7 @@
 #' @import stringr
 #' @import samplingDataCRT
 #' @importFrom purrr map
-#' @author Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@@uv.es}>
+#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
 dirinlareg <- function (formula,
                         y,
                         data.cov,

@@ -3,7 +3,7 @@
 #' `formula_list` reads the formula and generates a list with the name of the covariates used in each category
 #'
 #' @param form Object of class formula.
-#' @param y Matrix containing the response variable R^{nxd}, being n number of individuals
+#' @param y Matrix containing the response variable \eqn{R^{nxd}}, being n number of individuals
 #' and d the number of categories.
 #'
 #' @return A list with the names of the variables used in each category.
@@ -13,7 +13,7 @@
 #' formula_list(formula)
 #'
 #' @export
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 
 formula_list <- function(form,y = NULL) {
 

@@ -15,8 +15,8 @@
 Plotting the posterior of the fixed effects.
 }
 \description{
-`plot.dirinlaregmodel` Method which plots a dirinlaregmodel x
+\code{plot.dirinlaregmodel} Method which plots a dirinlaregmodel x
 }
 \author{
-Joaquín Martínez-Minaya <\email{jomarminaya@gmail.com}>
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

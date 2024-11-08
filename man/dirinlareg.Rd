@@ -28,7 +28,7 @@ dirinlareg(
 \arguments{
 \item{formula}{object of class formula indicating the response variable and the covariates of the Dirichlet regression}
 
-\item{y}{matrix containing the response variable R^{nxd}, being n number of individuals
+\item{y}{matrix containing the response variable \eqn{R^{nxd}}, being n number of individuals
 and d the number of categories}
 
 \item{data.cov}{data.frame with the covarites, only the covariates!}
@@ -68,7 +68,7 @@ The bigger it is, better is the approximation, but more computational time.}
 model dirinlaregmodel object
 }
 \description{
-`dirinlareg` Main function to do a Dirichlet Regression
+\code{dirinlareg} Main function to do a Dirichlet Regression
 }
 \examples{
 if (dirinla_safe_inla() &&
@@ -125,5 +125,5 @@ summary(model.inla)
 }
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }

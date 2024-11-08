@@ -8,7 +8,7 @@
 #'
 #' @return Elements of the diagonal  such as H = H0 + diag
 #' @importFrom Rfast rowsums
-#' @author Joaquín Martínez-Minaya <\email{jomarminaya@@gmail.com}>
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 H_matrix_eta_diag <- function(eta, d, y) {
 
   sum_exp <- Rfast::rowsums(exp(eta))

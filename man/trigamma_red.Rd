@@ -15,8 +15,8 @@ trigamma_red(x, ...)
 Result of applying trigamma function.
 }
 \description{
-`trigamma_red` is the function trigamma appropiate for really small values
+\code{trigamma_red} is the function trigamma appropiate for really small values
 }
 \author{
-Joaquín Martínez-Minaya <\email{joaquin.martinez-minaya@uv.es}>
+Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
 }
