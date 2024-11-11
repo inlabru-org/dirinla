@@ -1,0 +1,220 @@
+---
+title: "The Integrated nested Laplace approximation for fitting Dirichlet regression models. The case of i.i.d. random effects"
+author: Joaquin Martinez-Minaya
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    pandoc_args: [
+      "--number-offset=1,0"
+      ]
+    number_sections: true
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{The Integrated nested Laplace approximation for fitting Dirichlet regression models. The case of i.i.d. random effects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figure/example/"
+)
+```
+
+# Introduction
+This vignette is devoted to explain how to use the package **dirinla** when we deal with Dirichlet mixed models. It can be installed and upgraded via the repository https://github.com/inlabru-org/dirinla. In this manual, we simulate some data from a Dirichlet distribution with i.i.d. random effects to posteriorly fit them using the main function of the package **dirinla**.
+
+```{r, echo= TRUE, results= 'hide', warning= FALSE, message= FALSE, eval = TRUE}
+library(dirinla)
+library(INLA)
+library(DirichletReg)
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+library(patchwork)
+```
+
+# Simulation
+This setting is based on a Dirichlet regression with a different covariate per category without intercept and adding two shared independent random effects.
+\begin{align}
+  \boldsymbol{Y}_{\bullet n} & \sim  \text{Dirichlet}(\alpha_{1n}, \ldots, \alpha_{4n}) \,, n = 1, \ldots, N, \nonumber \\
+  \log(\alpha_{1n}) & =   \beta_{11} v_{1n} + \omega_{1i_n}, \nonumber \\
+  \log(\alpha_{2n}) & =   \beta_{12} v_{2n} + \omega_{1i_n}, \nonumber \\
+  \log(\alpha_{3n}) & =   \beta_{13} v_{3n} + \omega_{2i_n},  \\
+  \log(\alpha_{4n}) & =   \beta_{14} v_{4n} + \omega_{2i_n}. \nonumber
+\end{align}
+We simulated a dataset with size 500. We set values for $\beta_{1c}$ for $c = 1, \ldots, 4$ to $-1.5, 2, 1, -3 $ respectively, and we simulated covariates from a Uniform distribution on the interval $(-1,1)$. Random effects $\boldsymbol{\omega}_1$ and $\boldsymbol{\omega}_2$ were simulated from Gaussian distributions with mean 0 and standard deviations $\sigma_1 = 1/2$ (precision $\tau_1 = 4$) and $\sigma_2 = 1/3$ (precision $\tau_2 = 9$)} varying the levels of the factor ($I$), in particular, {\azul they were set to $10$. The $i_n$ sub-index assigns each individual $n$ to a level of the factor.
+
+As we are in the context of Bayesian LGMs, we established Gaussian prior distributions for the latent field, in this case, formed by the parameters corresponding to the fixed effects and the random effects. In particular, we assigned Gaussian prior distributions with mean 0 and precision $0.0001$ to \{$\beta_{1c}, c = 1,\ldots,4$\}, and Gaussian priors distribution with mean $0$ and precisions $\tau_1$ and $\tau_2$ for the two shared random effects $\boldsymbol{\omega}_{1}$ and $\boldsymbol{\omega}_{2}$.
+PC-prior(1, 0.01) were employed for standard deviatons hyperparaterms. The generated data did not contain zeros and ones, so we did not use any transformation. 
+
+
+```{r, echo= TRUE, results= 'hide', warning= FALSE, message= FALSE, eval = TRUE}
+ ### --- 2. Simulation data --- ####
+n <- 500
+levels_factor <- 10
+cat("n = ", n, " - levels_factor = ", levels_factor," -----> Simulating data \n")
+
+set.seed(100)
+
+cat_elem <- n/levels_factor
+cat(paste0(n, "-", levels_factor, "\n"))
+#Covariates
+V <- as.data.frame(matrix(runif((10)*n, -1, 1), ncol=10))
+names(V) <- paste0('v', 1:(10))
+tau0 <- 1
+
+
+### 4 random effects
+iid1 <- iid2  <- rep(1:levels_factor, rep(n/levels_factor, levels_factor))
+#Desorder index 3
+# pos <- sample(1:length(iid3))
+# iid3 <- iid3[pos]
+
+V <- cbind(V, iid1, iid2)
+
+# Formula that we want to fit
+formula <- y ~ -1 + v1 + f(iid1, model = 'iid') |
+  -1 + v2 + f(iid1, model = 'iid') |
+  -1 + v3 + f(iid2, model = 'iid') |
+  -1 + v4 + f(iid2, model = 'iid')
+names_cat <- formula_list(formula)
+
+# Fixed parameters
+x <- c(-1.5, 2,
+       1, -3)
+
+#random effect
+prec_w <- c(4, 9)
+(sd_w <- 1/sqrt(prec_w))
+
+w1 <- rnorm(levels_factor, sd = sqrt(1/prec_w[1])) %>% rep(., rep(n/levels_factor, levels_factor))
+w2 <- w1
+w3 <- rnorm(levels_factor, sd = sqrt(1/prec_w[2])) %>% rep(., rep(n/levels_factor, levels_factor))
+w4 <- w3
+
+
+#w3 <- w3[pos]
+x <- c(x, c(unique(w1),
+            unique(w3)))
+
+
+d <- length(names_cat)
+A_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
+                                 covariates = names_cat,
+                                 share      = NULL,
+                                 data       = V,
+                                 d          = d,
+                                 n          = n )
+
+# Ordering the data with covariates --- ###
+eta <- A_construct %*% x
+alpha <- exp(eta)
+alpha <- matrix(alpha,
+                ncol  = d,
+                byrow = TRUE)
+y_o <- rdirichlet(n, alpha)
+colnames(y_o) <- paste0("y", 1:d)
+
+
+y <- y_o
+
+head(y)
+```
+
+# Fitting the model
+The next step is to call the **dirinlareg** function in order to fit a model to the data. We just need to specify the formula, the response variable, the covariates and the precision for the Gaussian prior distribution of the parameters.
+
+```{r, echo= TRUE, results= 'hide', warning= FALSE, message= FALSE, eval = TRUE}
+### --- 3. Fitting the model --- ####
+  t <- proc.time() # Measure the time
+    formula  = y ~
+      -1 + v1 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+      -1 + v2 + f(iid1, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+      -1 + v3 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01))))) |
+      -1 + v4 + f(iid2, model = 'iid', hyper=list(theta=(list(prior="pc.prec", param=c(10, 0.01)))))
+   model.inla <- dirinlareg(formula = formula,
+                y        = y,
+                data.cov = V,
+                prec     = 0.01,
+                verbose  = FALSE)
+    summary(model.inla)
+```
+
+To collect information about the fitted values and marginal posterior distributions of the parameters, we can use the methods **summary** and **plot** directly to the **dirinlaregmodel** object generated.
+
+## Summary
+```{r, echo = TRUE, warning= FALSE, message= FALSE}
+summary(model.inla)
+plot(model.inla)
+```
+
+
+# Posterior distributions for the parameters
+This section is devoted to check how the fitted model is able to reconstruct the original values for the parameters.
+
+```{r, out.width="100%"}
+  p2 <- list()
+  beta1 <- expression(paste("p(", beta[1], "|", "y)"))
+
+  for (i in 1:length(model.inla$marginals_fixed))
+  {
+ 
+
+    #Data combining jags (1) and inla (2)
+    dens <- rbind(cbind(as.data.frame(inla.smarginal(model.inla$marginals_fixed[[i]][[1]]))))
+    
+    ###
+    p2[[i]] <- ggplot(dens,
+                      aes(x = x,
+                          y = y))  +
+            theme_bw()  + #Show axes
+      geom_line(size = 0.6, ,
+                      col = "red4") +
+      ggtitle(paste0("Category ",i )) +
+      theme(
+        plot.title = element_text(color = "black",
+                                  size  = 15,
+                                  face  = "bold.italic",
+                                  hjust = 0.5)) +
+      geom_vline(data = data.frame(x = x[i]), aes(xintercept = x), col = "blue4") +
+      xlab(expression(beta[1])) + #xlab
+      ylab(beta1)
+  }
+  p2[[1]] | p2[[2]] | p2[[3]] | p2[[4]]
+```
+
+
+# Posterior distributions for the hyperparameters
+
+In this part, we prove how posterior distributions have been able to recover the original values for the hyperparameters.
+
+```{r}
+  #### Hyperparemeters
+#inla_sigma
+inla_sigma <- lapply(1:2, function(x) inla.tmarginal(function(x) 1/sqrt(x), inla.smarginal(model.inla$marginals_hyperpar[[x]], factor = 100)))
+names(inla_sigma) <- c("sigma1", "sigma2")
+
+
+# Convertir la lista a data frame y agregar los nombres de los elementos como una columna
+inla_sigma_df <- do.call(rbind, lapply(names(inla_sigma), function(name) {
+  data.frame(value = inla_sigma[[name]], element_name = name)
+}))
+colnames(inla_sigma_df) <- c("x", "y", "parameter")
+
+
+ggplot(inla_sigma_df) +
+  geom_line(aes(x = x, y = y), col = "blue4") +
+  geom_vline(data = data.frame(x = sd_w,
+                        parameter= c("sigma1", "sigma2")),
+             aes(xintercept = x), col = "red4") +
+    facet_wrap(~parameter) +
+    xlab(expression(sigma)) + #xlab
+  ylab(expression(paste("p(", sigma, "|", "y)"))) +
+  theme_bw()
+
+
+```
+
