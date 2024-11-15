@@ -11,7 +11,7 @@
 #' @export
 #' @importFrom dplyr select
 #' @importFrom plyr ldply
-#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 extract_fixed <- function(inla_model, names_cat) {
     summary_fixed <- list()  #List to store the summary of fixed effects for the different categories
     #names_inla <- names(inla_model$summary.random)  #

@@ -18,5 +18,5 @@ Result of applying trigamma function.
 \code{trigamma_red} is the function trigamma appropiate for really small values
 }
 \author{
-Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

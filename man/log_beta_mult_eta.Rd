@@ -16,5 +16,5 @@ Numeric value.
 \code{beta_mult_eta} computes the log beta function in eta
 }
 \author{
-Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

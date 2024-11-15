@@ -26,7 +26,7 @@
 #' @return z New pseudo observation conditioned to eta.
 #'
 #'
-#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 
 
 look_for_mode_x <- function(A = A,

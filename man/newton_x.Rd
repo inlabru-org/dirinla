@@ -35,5 +35,5 @@ x_hat_new: New value of x after apply one iteration.
 posterior. Line search strategy with Armijo conditions is implemented
 }
 \author{
-Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

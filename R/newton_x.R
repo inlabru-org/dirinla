@@ -16,7 +16,7 @@
 #' @return g0 : Gradient in x_hat_new. A numeric vector with the gradient in x_hat_new.
 #' @return x_hat_new: New value of x after apply one iteration.
 #'
-#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 newton_x <- function(A, x_hat, gk, Hk, a, Qx, strategy, y, d = d) {
     x_hat <- as.numeric(x_hat)
 

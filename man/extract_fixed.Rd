@@ -20,5 +20,5 @@ marginals_fixed Marginals for each parameter estimated.
 \code{extract_fixed} is a function to extract summary and marginals distribution corresponding to the fixed effects
 }
 \author{
-Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

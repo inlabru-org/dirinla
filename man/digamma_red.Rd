@@ -18,5 +18,5 @@ Result of applying digamma function
 \code{digamma_red} is the function digamma appropiate for really small values
 }
 \author{
-Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

@@ -20,5 +20,5 @@ A numeric vector with the gradient in eta.
 \code{g0_vector_eta} computes the gradient of -loglikelihood
 }
 \author{
-Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }

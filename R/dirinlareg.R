@@ -82,7 +82,7 @@
 #' @import stringr
 #' @import samplingDataCRT
 #' @importFrom purrr map
-#' @author Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@@uv.es}
+#' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 dirinlareg <- function (formula,
                         y,
                         data.cov,

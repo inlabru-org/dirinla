@@ -53,5 +53,5 @@ data_stack_construct <- data_stack_dirich(y          = as.vector(rep(NA, n*d)),
 
 }
 \author{
-Joaquín Martínez-Minaya \email{joaquin.martinez-minaya@uv.es}
+Joaquín Martínez-Minaya \email{jomarminaya@gmail.com}
 }
