@@ -37,7 +37,8 @@ Suggests:
   tidyverse,
   utils,
   sn,
-  magrittr
+  magrittr,
+  patchwork
 Encoding: UTF-8
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2
