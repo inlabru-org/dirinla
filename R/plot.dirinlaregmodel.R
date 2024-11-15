@@ -57,8 +57,8 @@ plot.dirinlaregmodel <- function(x, ...) {
       {
         dens <- as.data.frame(x$marginals_fixed[[j]][[i]])
         p1[[i]] <- ggplot2::ggplot(dens,
-                                   aes(x = x,
-                                       y = y)) +
+                                   aes(x = .data$x,
+                                       y = .data$y)) +
           ggplot2::geom_line(size = 0.6, col = "red4") +
           #xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
           ggplot2::theme_light() + #Show axes
@@ -80,8 +80,8 @@ plot.dirinlaregmodel <- function(x, ...) {
       {
         dens <- as.data.frame(x$marginals_hyperpar[[j]])
         p2[[j]] <- ggplot2::ggplot(dens,
-                                   aes(x = x,
-                                       y = y)) +
+                                   aes(x = .data$x,
+                                       y = .data$y)) +
           ggplot2::geom_line(size = 0.6, col = "red4") +
           #xlim(c(min(dens$x[dens$group=="R-JAGS"]), max(dens$x[dens$group=="R-JAGS"]))) +
           ggplot2::theme_light() + #Show axes
