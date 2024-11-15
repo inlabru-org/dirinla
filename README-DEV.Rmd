@@ -9,22 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Prebuilt vignettes
-
-Vignettes that require INLA cannot be built on the automated packaging sites
-like r-universe and CRAN.  Place such vignettes in the `vignettes_prebuild/`
-folder instead.  Every time you do changes that should be propagated to the package
-website and/or the package itself, run
-```{r,eval=FALSE}
-source("vignettes/prebuild.R")
-```
-and then commit the generated files.
-
-Make sure you do not edit the generated files manually; always edit the `.Rmd`
-files in `vignettes/prebuild/`, and not the generated version in `vignettes/`.
-
-Also keep in mind that generated figures may take a substantial amount of space, so
-you should only regenerate the vignettes when necessary.
 
 ## git flow branching
 

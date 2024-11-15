@@ -10,7 +10,9 @@ Authors@R: c(
                 role = c("aut"),
                 comment = c(ORCID = "0000-0002-5833-2011"))
   )
-Description: The R-package dirinla allows the user to fit models in the compositional data context. In particular, it allows fit Dirichlet regression models using the Integrated Nested Laplace Approximation (INLA) methodology.  
+Description: The R-package dirinla allows the user to fit models in the
+  compositional data context. In particular, it allows fit Dirichlet regression
+  models using the Integrated Nested Laplace Approximation (INLA) methodology.  
 License: GPL-2
 Additional_repositories: https://inla.r-inla-download.org/R/testing
 Imports:
@@ -26,7 +28,8 @@ Imports:
   ggtern,
   gridExtra,
   plyr,
-  methods
+  methods,
+  lifecycle
 Suggests:
   DirichletReg,
   INLA,

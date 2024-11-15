@@ -1,7 +1,7 @@
 ---
 title: "The Integrated nested Laplace approximation for fitting Dirichlet regression models. The case of i.i.d. random effects"
 author: "Joaquin Martinez-Minaya and Finn Lindgren"
-date: "`r Sys.Date()`"
+date: "Built on `r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     pandoc_args: [
@@ -19,7 +19,10 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "figure/example/"
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.width = 7,
+  fig.height = 5
 )
 ```
 
@@ -146,7 +149,7 @@ The next step is to call the **dirinlareg** function in order to fit a model to 
 To collect information about the fitted values and marginal posterior distributions of the parameters, we can use the methods **summary** and **plot** directly to the **dirinlaregmodel** object generated.
 
 ## Summary
-```{r, echo = TRUE, warning= FALSE, message= FALSE}
+```{r, echo = TRUE, warning= FALSE, message= FALSE, fig.width = 2, fig.height = 4}
 summary(model.inla)
 plot(model.inla)
 ```

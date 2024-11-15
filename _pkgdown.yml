@@ -2,3 +2,30 @@ url: https://inlabru-org.github.io/dirinla/
 template:
   bootstrap: 5
 
+navbar:
+  structure:
+    left: [home, intro, reference, articles, news]
+    right: [search, github]
+  components:
+    articles:
+      text: General examples
+      menu:
+      - text: Fixed effects
+        href: articles/example.html
+      - text: Fixed and random effects
+        href: articles/example_random.html
+      - text: ---
+      - text: Full articles list
+        href: articles/articles.html
+
+redirects:
+
+reference:
+- title: "Model construction and estimation"
+  desc: "Functions for constructing models and performing estimation."
+  contents:
+  - matches("^dirinla-package$")
+- title: "Other functions"
+  desc: "Other functions"
+  contents:
+  - matches("")

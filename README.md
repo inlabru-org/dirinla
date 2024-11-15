@@ -197,7 +197,7 @@ summary(model.inla)
 #> 
 #>  No hyperparameters in the model 
 #> ======================================================================= 
-#> DIC = 1555.1536 , WAIC = 1039.5914 , LCPO = 779.5894 
+#> DIC = 1555.1541 , WAIC = 1039.5909 , LCPO = 779.5896 
 #> Number of observations: 50
 #> Number of Categories: 4
 ```
@@ -218,18 +218,18 @@ model.prediction <-
 #> 
 model.prediction$summary_predictive_means
 #> $y1
-#>            Min.    1st Qu.    Median     Mean   3rd Qu.     Max.
-#> [1,] 0.02366363 0.08237956 0.1045064 0.110114 0.1321715 0.306817
+#>            Min.    1st Qu.    Median     Mean   3rd Qu.      Max.
+#> [1,] 0.02366365 0.08238497 0.1044544 0.110075 0.1319717 0.3068168
 #> 
 #> $y2
-#>             Min.    1st Qu.     Median       Mean    3rd Qu.      Max.
-#> [1,] 0.005978446 0.02318953 0.03082928 0.03341511 0.04057716 0.1574298
+#>             Min.    1st Qu.    Median       Mean   3rd Qu.      Max.
+#> [1,] 0.005978457 0.02321143 0.0308166 0.03341506 0.0405673 0.1574295
 #> 
 #> $y3
-#>           Min.   1st Qu.    Median      Mean   3rd Qu.    Max.
-#> [1,] 0.2386448 0.4920715 0.5580837 0.5553907 0.6213676 0.86177
+#>          Min.   1st Qu.    Median     Mean   3rd Qu.      Max.
+#> [1,] 0.238645 0.4919207 0.5581122 0.555305 0.6211048 0.8617697
 #> 
 #> $y4
-#>            Min.   1st Qu.    Median      Mean   3rd Qu.     Max.
-#> [1,] 0.08145196 0.2404386 0.2950362 0.3010802 0.3541525 0.626968
+#>            Min.   1st Qu.    Median     Mean   3rd Qu.      Max.
+#> [1,] 0.08145221 0.2405351 0.2951816 0.301205 0.3543549 0.6269677
 ```

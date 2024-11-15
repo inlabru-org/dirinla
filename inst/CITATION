@@ -1,0 +1,39 @@
+citHeader("To cite dirinla in publications use:")
+
+bibentry(
+  bibtype = "Article",
+  title = "The integrated nested laplace approximation for fitting dirichlet regression models",
+  author = c(person(given = "Joaquín",
+                    family = "Martínez-Minaya"),
+             person(given = "Finn",
+                    family = "Lindgren"),
+             person(given = "Antonio",
+                    family = "López-Quílez"),
+             person(given = "Daniel",
+                    family = "Simpson"),
+             person(given = "David",
+                    family = "Conesa")),
+  year = "2023",
+  journal = "Journal of Computational and Graphical Statistics",
+  volume = "32",
+  number = "3",
+  pages = "805--823",
+  publisher = "Taylor & Francis",
+  textVersion =
+      paste0("Joaquín Martínez-Minaya, Finn Lindgren, Antonio López-Quílez, Daniel Simpson, and David Conesa (2023), ",
+             "The integrated nested laplace approximation for fitting dirichlet regression models, ",
+             "Journal of Computational and Graphical Statistics, Taylor & Francis, 32(3), 805--823")
+)
+
+bibentry(
+  bibtype = "Manual",
+  title = "{dirinla}: Hierarchical {Bayesian} {Dirichlet} regression models using {Integrated} {Nested} {Laplace} {Approximation}",
+  author = "{Joaquín Martínez-Minaya} and {Finn Lindgren}",
+  year = "2022-2024",
+  note = "{R} package version 1.0.5",
+  url = "https://inlabru-org.github.io/dirinla/",
+  textVersion =
+      paste0("Joaquín Martínez-Minaya, Finn Lindgren (2022-2024), ",
+             "dirinla: Hierarchical Bayesian Dirichlet regression models using Integrated Nested Laplace Approximation",
+             "R package version 1.0.5, <https://inlabru-org.github.io/dirinla/>")
+)
