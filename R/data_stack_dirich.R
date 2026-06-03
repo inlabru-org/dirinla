@@ -59,7 +59,7 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     data_cov_notcommon <- lapply(notcommon, dplyr::select, .data = data)
 
     A.names <- names(A)
-    for (j in 1:length(data_cov_notcommon)) {
+    for (j in seq_along(data_cov_notcommon)) {
         if (length(notcommon[[j]]) != 0) {
             pos <- rep(0, d)
             pos[j] <- 1

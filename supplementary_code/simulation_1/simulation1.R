@@ -330,7 +330,7 @@ simulations_just_intercepts <- function(n)
   p2 <- list()
   beta0 <- expression(paste("p(", beta[0], "|", "y)"))
 
-  for (i in 1:length(model.inla$marginals_fixed))
+  for (i in seq_along(model.inla$marginals_fixed))
   {
     #jags1
     dens <- density(model.jags$BUGSoutput$sims.list$beta0[,i], adjust = 2)
@@ -468,7 +468,7 @@ simulations_just_intercepts <- function(n)
     adjust_inla <- 3
   }
 
-  for (i in 1:length(model.inla$marginals_fixed))
+  for (i in seq_along(model.inla$marginals_fixed))
   {
     #jags1
     dens <- density(model.jags$BUGSoutput$sims.list$mu[,i], adjust = 2)

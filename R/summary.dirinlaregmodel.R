@@ -21,7 +21,7 @@ summary.dirinlaregmodel <- function(object, ...) {
 
     if(length(object$summary_fixed %>% unlist())>1)
     {
-      for (i in 1:length(object$summary_fixed)) {
+      for (i in seq_along(object$summary_fixed)) {
         cat("======================================================================= \n")
         cat(paste0(names(object$summary_fixed)[i], "\n"))
         #cat(paste0("Category "), i, "\n")

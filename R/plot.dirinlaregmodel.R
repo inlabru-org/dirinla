@@ -50,10 +50,10 @@ plot.dirinlaregmodel <- function(x, ...) {
   if(length(x$summary_fixed %>% unlist())>1)
   {
     ### Plotting fixed effects
-    for(j in 1:length(x$marginals_fixed))
+    for(j in seq_along(x$marginals_fixed))
     {
       p1 <- list()
-      for(i in 1:length(x$marginals_fixed[[j]]))
+      for(i in seq_along(x$marginals_fixed[[j]]))
       {
         dens <- as.data.frame(x$marginals_fixed[[j]][[i]])
         p1[[i]] <- ggplot2::ggplot(dens,
@@ -76,7 +76,7 @@ plot.dirinlaregmodel <- function(x, ...) {
   if(length(x$marginals_hyperpar %>% unlist())>1)
     {
       p2 <- list()
-      for(j in 1:length(x$marginals_hyperpar))
+      for(j in seq_along(x$marginals_hyperpar))
       {
         dens <- as.data.frame(x$marginals_hyperpar[[j]])
         p2[[j]] <- ggplot2::ggplot(dens,

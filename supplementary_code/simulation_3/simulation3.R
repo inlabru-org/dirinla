@@ -429,7 +429,7 @@ for(i in 2:length(d))
 
 
 ### Ratios R-JAGS
-for(i in 1:length(d))
+for(i in seq_along(d))
 {
   result_ratio <- rbind(result_ratio,
                         data.frame(ratio1 = round(res_ratio[[i]]$ratio1_beta0_jags, 4),

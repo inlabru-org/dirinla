@@ -18,7 +18,7 @@ extract_fixed <- function(inla_model, names_cat) {
     names_inla <- rownames(inla_model$summary.fixed)
     marginals_fixed <- list()
 
-    for (i in 1:length(names_cat)) {
+    for (i in seq_along(names_cat)) {
         # Auxiliar variables
         names_cat_ind <- names_cat[[i]]
         names_cat_ind <- names_inla[stringr::str_detect(names_inla, paste0("cat", i, "_"))]

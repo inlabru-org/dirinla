@@ -64,7 +64,7 @@ model.inla$summary_fixed
 p1 <- list()
 beta0 <- expression(paste("p(", beta[0], "|", "y)"))
 
-for (i in 1:length(model.inla$marginals_fixed))
+for (i in seq_along(model.inla$marginals_fixed))
 {
 
   #Data combining jags (1) and inla (2)
@@ -101,7 +101,7 @@ grid.arrange(p1[[1]], p1[[2]], p1[[3]], ncol = 3)
 p2 <- list()
 beta1 <- expression(paste("p(", beta[1], "|", "y)"))
 
-for (i in 1:length(model.inla$marginals_fixed))
+for (i in seq_along(model.inla$marginals_fixed))
 {
 
   #Data combining jags (1) and inla (2)

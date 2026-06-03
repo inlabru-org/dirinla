@@ -329,7 +329,7 @@ simulations_with_slopes <- function(n)
   p1 <- list()
   beta0 <- expression(paste("p(", beta[0], "|", "y)"))
 
-  for (i in 1:length(model.inla$marginals_fixed))
+  for (i in seq_along(model.inla$marginals_fixed))
   {
     #jags1
     dens <- density(model.jags$BUGSoutput$sims.matrix[,i], adjust = 2)
@@ -407,7 +407,7 @@ simulations_with_slopes <- function(n)
   p2 <- list()
   beta1 <- expression(paste("p(", beta[1], "|", "y)"))
 
-  for (i in 1:length(model.inla$marginals_fixed))
+  for (i in seq_along(model.inla$marginals_fixed))
   {
     #jags1
     dens <- density(model.jags$BUGSoutput$sims.matrix[,i + d], adjust = 2)

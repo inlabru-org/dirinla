@@ -63,7 +63,7 @@ plotting_all <- function(n, levels_factor)
   p2 <- list()
   beta1 <- expression(paste("p(", beta[1], "|", "y)"))
 
-  for (i in 1:length(model.inla$marginals_fixed))
+  for (i in seq_along(model.inla$marginals_fixed))
   {
     #jags1
     dens <- density(model.jags$BUGSoutput$sims.matrix[,i], adjust = 2)
@@ -249,7 +249,7 @@ plotting_all <- function(n, levels_factor)
 
 
   p3 <- list()
-  for(i in 1:length(dens))
+  for(i in seq_along(dens))
   {
     #Data combining jags (1) and inla (2)
     dens_sigma <- rbind(cbind(dens[[i]], group = 1),

@@ -33,7 +33,7 @@ formula_list <- function(form,y = NULL) {
     # Clasified variables by category
     names_cat <- sapply(oformula_str, strsplit, split = "\\+")
     if(is.null(y)){
-        names(names_cat) <- paste0("category ", 1:length(names_cat))
+        names(names_cat) <- paste0("category ", seq_along(names_cat))
     }else{
         names(names_cat) <- colnames(y)
     }

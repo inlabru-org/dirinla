@@ -163,7 +163,7 @@ look_for_mode_x <- function(A = A,
   H_diag <- H_matrix_eta_diag(eta = eta, d = d, y = y)
 
 
-  lapply(1:length(H0_list), function(x){
+  lapply(seq_along(H0_list), function(x){
     H_list[[x]] <- H0_list[[x]] + diag(H_diag[x,])
     real <- TRUE
     if(any(eigen(H_list[[x]])$values < 0))

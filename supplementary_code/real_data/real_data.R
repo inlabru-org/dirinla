@@ -277,7 +277,7 @@ model.jags.2 <- readRDS("model_jags_long_real.RDS")
 p1 <- list()
 beta0 <- expression(paste("p(", beta[0], "|", "y)"))
 
-for (i in 1:length(model.inla$marginals_fixed))
+for (i in seq_along(model.inla$marginals_fixed))
 {
   #jags1
   dens <- density(model.jags$BUGSoutput$sims.list$beta0[,i], adjust = 2)
@@ -357,7 +357,7 @@ p2 <- list()
 beta1 <- expression(paste("p(", beta[1], "|", "y)"))
 d <- 4
 
-for (i in 1:length(model.inla$marginals_fixed))
+for (i in seq_along(model.inla$marginals_fixed))
 {
   #jags1
   dens <- density(model.jags$BUGSoutput$sims.list$beta1[,i], adjust = 2)
@@ -428,7 +428,7 @@ p3 <- list()
 beta1 <- expression(paste("p(", beta[2], "|", "y)"))
 d <- 4
 
-for (i in 1:length(model.inla$marginals_fixed))
+for (i in seq_along(model.inla$marginals_fixed))
 {
   #jags1
   dens <- density(model.jags$BUGSoutput$sims.list$beta2[,i], adjust = 2)
