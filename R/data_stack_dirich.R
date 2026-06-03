@@ -113,7 +113,7 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
             lapply(purrr::map(random_eff_args, names), function(x) {
                 (index_random_names %in% x) %>% as.numeric()
             })
-        inex_mat <- do.call(rbind, index_mat) %>% Matrix()
+        index_mat <- do.call(rbind, index_mat) %>% Matrix()
         colnames(index_mat) <- index_random_names
 
         ## For common effect we have to check it they have the same arguments!
