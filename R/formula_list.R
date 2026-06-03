@@ -39,11 +39,11 @@ formula_list <- function(form,y = NULL) {
     }
     # Checking if there are intercepts
     lapply(names_cat, function(x) {
-        if (any(grepl("^1$", x) == TRUE)) {
+        if (any(grepl("^1$", x))) {
             x[grep("^1$", x)] <- "intercept"
-        } else if (any(grepl("^-1$", x) == TRUE)){
+        } else if (any(grepl("^-1$", x))){
             x <- x[-grep("^-1$", x)]
-        }else if(any(grepl("^0$", x) == TRUE)){
+        }else if(any(grepl("^0$", x))){
             x <- x[-grep("^0$", x)]
         }else{
             x <- c("intercept", x)

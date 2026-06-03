@@ -82,7 +82,7 @@ predict.dirinlaregmodel <- function(object, data.pred.cov, ...)
     data.pred.cov<- cbind(intercept=1, data.pred.cov)
   }
 
-  if(any(sapply(object$marginals_fixed, function(x){names(x)}) %in% colnames(data.pred.cov) == FALSE)){
+  if(!all((sapply(object$marginals_fixed, function(x){names(x)}) %in% colnames(data.pred.cov)))){
     stop("Names of the variables in the data.frame does not match with the variables in the formula.")
   }
 

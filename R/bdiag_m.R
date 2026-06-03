@@ -7,8 +7,10 @@
 #' @return a sparse (N*k x N*k) matrix of class [Matrix::dgCMatrix-class].
 bdiag_m <- function(lmat) {
   if(!length(lmat)) return(new("dgCMatrix"))
+  d <- dim(lmat[[1]])
+  k <- d[1]
   stopifnot(is.list(lmat), is.matrix(lmat[[1]]),
-            (k <- (d <- dim(lmat[[1]]))[1]) == d[2], # k x k
+            k == d[2], # k x k
             all(vapply(lmat, dim, integer(2)) == k)) # all of them
   N <- length(lmat)
   if(N * k > .Machine$integer.max)

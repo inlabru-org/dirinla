@@ -53,7 +53,7 @@ look_for_mode_x <- function(A = A,
     y = y
   )
   ### --- Looking for using the expected Hessian --- ###
-  while ((!less == TRUE) && (k<k0)) {
+  while ((!less) && (k<k0)) {
     ### --- Call the function to define new variables in each iteration --- ###
     Hk_list <- list()
     gk <- numeric()
@@ -69,7 +69,7 @@ look_for_mode_x <- function(A = A,
                                d,
                                cores = cores)
 
-    if (any(!is.finite(gk))) {
+    if (!all(is.finite(gk))) {
       gk[which(!is.finite(gk))] <- exp(100)
       stop("You should apply the transformation DR_data to your data")
     }
@@ -115,7 +115,7 @@ look_for_mode_x <- function(A = A,
     #   as.logical(abs(f_new - f_old) < tol0)) && #Condition in f
     #   as.logical(max(abs(gk)) < tol1 * max(1, abs(f_new)))
 
-    if(verbose == TRUE)
+    if(verbose)
     {
       cat(paste0("Iter = ", k, ", |grad| = ", round(abs(sum(gk)),
                                                     2), ", log.post = ", round(f_new, 2), ", |x_new - x_old| = ",
@@ -198,9 +198,9 @@ look_for_mode_x <- function(A = A,
   #   }
   # }
 
-  if(verbose==TRUE)
+  if(verbose)
   {
-    if(less == TRUE)
+    if(less)
     {
       cat("\nGreat news! The mode has been properly located!")
     }else{

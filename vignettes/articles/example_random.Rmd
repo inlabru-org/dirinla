@@ -71,7 +71,7 @@ tau0 <- 1
 
 
 ### 4 random effects
-iid1 <- iid2  <- rep(1:levels_factor, rep(n/levels_factor, levels_factor))
+iid1 <- iid2  <- rep(seq_len(levels_factor), rep(n/levels_factor, levels_factor))
 #Desorder index 3
 # pos <- sample(1:length(iid3))
 # iid3 <- iid3[pos]
@@ -162,7 +162,7 @@ This section is devoted to check how the fitted model is able to reconstruct the
   p2 <- list()
   beta1 <- expression(paste("p(", beta[1], "|", "y)"))
 
-  for (i in 1:length(model.inla$marginals_fixed))
+  for (i in seq_along(model.inla$marginals_fixed))
   {
  
 

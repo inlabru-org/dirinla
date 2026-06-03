@@ -170,7 +170,7 @@ dirinlareg <- function (formula,
 
   j <- 1
   less <- FALSE
-  while ((less != TRUE) && (j <= k1))
+  while ((!less) && (j <= k1))
   {
     cat(paste0("\n \n ----------------------", " Looking for the mode ", "----------------- \n \n "))
     x_hat1 <- look_for_mode_x(A        = A,
@@ -247,20 +247,20 @@ dirinlareg <- function (formula,
                  num.threads = cores, ...)
 
 
-    if(verbose == TRUE)
+    if(verbose)
     {
       cat(paste0(
         "INLA-Iter = ", j,
         ", fixed.effects = ", dim(mod0$summary.fixed)[1],
         ", hyperparameters = ", ifelse(is.null(dim(mod0$summary.hyperpar)[1]), 0, dim(mod0$summary.hyperpar)[1]),
-        " ---> ", ifelse(less == TRUE, "PASS", "NO PASS"),
+        " ---> ", ifelse(less, "PASS", "NO PASS"),
         "\n"
         #", x = ", paste(round(x_hat_new, 2), collapse = " ")
       ))
 
 
     }
-    if(less != TRUE)
+    if(!less)
     {
       if(length(mod0$summary.random) == 0){
         x0 <- c(mod0$summary.fixed$mode)
@@ -297,7 +297,7 @@ dirinlareg <- function (formula,
                                                cores      = cores)
 
   ### --- Prediction --- ####
-  if(prediction == TRUE)
+  if(prediction)
   {
     model.inla <- structure(list(
                    call                           = this.call,
