@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>The Integrated nested Laplace approximation for fitting Dirichlet regression models • dirinla</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="The Integrated nested Laplace approximation for fitting Dirichlet regression models">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dirinla</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.5.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.5.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
                         <h4 data-toc-skip class="author">Joaquin
 Martinez-Minaya</h4>
             
-            <h4 data-toc-skip class="date">2024-11-21</h4>
+            <h4 data-toc-skip class="date">2026-06-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/inlabru-org/dirinla/blob/devel/vignettes/articles/example.Rmd" class="external-link"><code>vignettes/articles/example.Rmd</code></a></small>
       <div class="d-none name"><code>example.Rmd</code></div>
@@ -95,26 +95,26 @@ them using the main function of the package
 <p>We firstly illustrate how to simulate 100 data points from a
 Dirichlet regression model with three different categories and one
 different covariate per category:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐘</mi><mi>n</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mtext mathvariant="normal">Dirichlet</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>1</mn><mi>n</mi></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>α</mi><mrow><mn>3</mn><mi>n</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mo>,</mo><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>100</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>1</mn><mi>n</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>β</mi><mn>01</mn></msub><mo>+</mo><msub><mi>β</mi><mn>11</mn></msub><msub><mi>v</mi><mrow><mn>1</mn><mi>n</mi></mrow></msub><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>β</mi><mn>02</mn></msub><mo>+</mo><msub><mi>β</mi><mn>12</mn></msub><msub><mi>v</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>3</mn><mi>n</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>β</mi><mn>03</mn></msub><mo>+</mo><msub><mi>β</mi><mn>13</mn></msub><msub><mi>v</mi><mrow><mn>3</mn><mi>n</mi></mrow></msub><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align}
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐘</mi><mi>n</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>∼</mo><mtext mathvariant="normal">Dirichlet</mtext><mo stretchy="false" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>1</mn><mi>n</mi></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>α</mi><mrow><mn>3</mn><mi>n</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mo>,</mo><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>100</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>1</mn><mi>n</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>β</mi><mn>01</mn></msub><mo>+</mo><msub><mi>β</mi><mn>11</mn></msub><msub><mi>v</mi><mrow><mn>1</mn><mi>n</mi></mrow></msub><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>β</mi><mn>02</mn></msub><mo>+</mo><msub><mi>β</mi><mn>12</mn></msub><msub><mi>v</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>α</mi><mrow><mn>3</mn><mi>n</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>β</mi><mn>03</mn></msub><mo>+</mo><msub><mi>β</mi><mn>13</mn></msub><msub><mi>v</mi><mrow><mn>3</mn><mi>n</mi></mrow></msub><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align}
   \boldsymbol{Y}_n &amp; \sim  \text{Dirichlet}(\alpha_{1n}, \ldots, \alpha_{3n}) \,, n = 1, \ldots, 100, \nonumber \\
   \log(\alpha_{1n}) &amp; =  \beta_{01} + \beta_{11} v_{1n}, \nonumber \\
   \log(\alpha_{2n}) &amp; =  \beta_{02} + \beta_{12} v_{2n},  \\
   \log(\alpha_{3n}) &amp; =  \beta_{03} + \beta_{13} v_{3n}, \nonumber 
 \end{align}</annotation></semantics></math> being the parameters that
 compose the latent field
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>01</mn></msub><mo>=</mo><mo>−</mo><mn>1.5</mn></mrow><annotation encoding="application/x-tex">\beta_{01}= -1.5</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>02</mn></msub><mo>=</mo><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta_{02}=-2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>01</mn></msub><mo>=</mo><mi>−</mi><mn>1.5</mn></mrow><annotation encoding="application/x-tex">\beta_{01}= -1.5</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>02</mn></msub><mo>=</mo><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta_{02}=-2</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>03</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\beta_{03}=0</annotation></semantics></math>
 (the intercepts), and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>11</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\beta_{11}=1</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>12</mn></msub><mo>=</mo><mn>2.3</mn></mrow><annotation encoding="application/x-tex">\beta_{12}=2.3</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>13</mn></msub><mo>=</mo><mo>−</mo><mn>1.9</mn></mrow><annotation encoding="application/x-tex">\beta_{13}=-1.9</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>13</mn></msub><mo>=</mo><mi>−</mi><mn>1.9</mn></mrow><annotation encoding="application/x-tex">\beta_{13}=-1.9</annotation></semantics></math>
 (the slopes). Note that covariates are different for each category. This
 could be particularized for a situation where all of them are the same.
 For simplicity, covariates are simulated from a Uniform distribution on
 (0,1). To posteriorly fit the model, a following the structure of LGMs,
 Gaussian prior distributions are assigned with precision
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup><annotation encoding="application/x-tex">10^{-4}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><annotation encoding="application/x-tex">10^{-4}</annotation></semantics></math>
 to all the elements of the Gaussian field.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">### --- 2. Simulating from a Dirichlet likelihood --- ####</span></span>
@@ -216,13 +216,13 @@ distributions of the parameters, we can use the methods
 <h3 id="plot-of-the-posterior-distributions">Plot of the posterior distributions<a class="anchor" aria-label="anchor" href="#plot-of-the-posterior-distributions"></a>
 </h3>
 <div class="figure">
-<img src="example_files/figure-html/unnamed-chunk-7-1.png" alt="Posterior predictive distribution in the simplex. Points represent the original data" width="70%"><p class="caption">
+<img src="example_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="Posterior predictive distribution in the simplex. Points represent the original data" width="70%"><p class="caption">
 Posterior predictive distribution in the simplex. Points represent the
 original data
 </p>
 </div>
 <div class="figure">
-<img src="example_files/figure-html/unnamed-chunk-8-1.png" alt="Posterior distributions of the parameters. Vertical line represents the real value" width="100%"><p class="caption">
+<img src="example_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="Posterior distributions of the parameters. Vertical line represents the real value" width="100%"><p class="caption">
 Posterior distributions of the parameters. Vertical line represents the
 real value
 </p>
@@ -310,7 +310,7 @@ will predict for a value of v1 = 0.2, v2 = 0.5, and v3 = -0.1:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
