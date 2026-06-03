@@ -47,8 +47,8 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     notcommon <- covariates
     covariates
     ### Fixed effect
-    covariates %>% lapply(., function(x){
-        logic1 <- x %>% str_starts("f\\(") %>% !.
+    lapply(covariates, function(x){
+        logic1 <- !str_starts(x, "f\\(")
         x[logic1]
     }) -> notcommon
 
@@ -84,18 +84,19 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
     #############################################################################
 
     ### Random effects
-    covariates %>% lapply(., function(x){
-        logic1 <- x %>% str_starts("f\\(") %>% x[.]
+    lapply(covariates, function(x){
+        logic1 <- str_starts(x, "f\\(")
+        x[logic1]
     }) -> random_eff
 
 
 
-    if(any(random_eff %>% sapply(., length) >=1))
+    if(any(lengths(random_eff) >= 1))
     {
         ### Extract arguments from formula. We use INLA
         random_eff_args <- lapply(random_eff, function(x){
             list1 <- lapply(x, function(x1){
-                form1 <- paste0("INLA::", x1) %>% parse(text = .) %>% eval(.)
+                form1 <- parse(text = paste0("INLA::", x1)) %>% eval()
                 form1
                 })
             names(list1) <- purrr::map(list1, "term")
@@ -105,22 +106,24 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
 
         ### Check if same index is used in different categories.
         ## All the names for index
-        index_random_names <- purrr::map(random_eff_args, names) %>% unlist(.) %>% unique(.)
+        index_random_names <- purrr::map(random_eff_args, names) %>% unlist() %>% unique()
 
         ## Checking where are common effects
-        index_mat <- purrr::map(random_eff_args, names) %>%
-            lapply(., function(x){(index_random_names %in% x) %>% as.numeric()}) %>%
-            do.call(rbind, .) %>% Matrix(.)
+        index_mat <-
+            lapply(purrr::map(random_eff_args, names), function(x) {
+                (index_random_names %in% x) %>% as.numeric()
+            })
+        inex_mat <- do.call(rbind, index_mat) %>% Matrix()
         colnames(index_mat) <- index_random_names
 
         ## For common effect we have to check it they have the same arguments!
         #Esto falta por hacer
 
         ## Constructing the matrix for the effects (withouth having in mind categories)
-        index_random_names %>% lapply(., function(x){
+        lapply(index_random_names, function(x){
             dat <- data.frame(x = 1:n,
                               y = data[,x])
-            A_random <- Matrix(data = 0, nrow = n, ncol = length(data[,x] %>% table(.)),
+            A_random <- Matrix(data = 0, nrow = n, ncol = length(table(data[,x])),
                                dimnames = list(as.character(1:n), names(table(data[, x]))))
             A_random[as.matrix(dat)] <- 1
             A_random
@@ -129,7 +132,7 @@ data_stack_dirich <- function(y, covariates, share = NULL, data, d, n) {
 
 
         ### Mixing categories with random effects, index_mat and A_random
-        index_random_names %>% lapply(., function(x){
+        lapply(index_random_names, function(x){
             kronecker(A_random[[x]], index_mat[,x] )
         }) -> A_random
         names(A_random) <- index_random_names

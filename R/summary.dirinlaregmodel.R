@@ -19,7 +19,7 @@ summary.dirinlaregmodel <- function(object, ...) {
     ## Summary of the fixed effects
     cat("---- FIXED EFFECTS ---- \n")
 
-    if(length(object$summary_fixed %>% unlist(.))>1)
+    if(length(object$summary_fixed %>% unlist())>1)
     {
       for (i in 1:length(object$summary_fixed)) {
         cat("======================================================================= \n")

@@ -80,7 +80,7 @@
 #' }
 #' @export
 #' @import stringr
-#' @import samplingDataCRT
+# @import samplingDataCRT
 #' @importFrom purrr map
 #' @author Joaquín Martínez-Minaya \email{jomarminaya@@gmail.com}
 dirinlareg <- function (formula,
@@ -159,7 +159,7 @@ dirinlareg <- function (formula,
 
 
   #Random effect.
-  n_fixed <- names_cat %>% unlist() %>% length(.) - names_cat %>% unlist() %>% stringr::str_count(., "^f\\(") %>% sum(.)
+  n_fixed <- names_cat %>% unlist() %>% length() - names_cat %>% unlist() %>% stringr::str_count("^f\\(") %>% sum()
     #Fixed effects, we use prior precision
     Qx <- Matrix(diag(prec, dim(A)[2]))
 

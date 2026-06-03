@@ -47,7 +47,7 @@ newton_x <- function(A, x_hat, gk, Hk, a, Qx, strategy, y, d = d) {
         j <- 1
 
 
-        while (!found & (j < 20)) {
+        while (!found && (j < 20)) {
             x_hat_new <- x_hat + aa * p
             #f <- suppressWarnings(dirichlet_log_pos_x(A = A, x_hat_new, Qx, y))
             f <- dirichlet_log_pos_x(A = A, x_hat_new, Qx, y)

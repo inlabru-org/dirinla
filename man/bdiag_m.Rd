@@ -13,6 +13,6 @@ bdiag_m(lmat)
 a sparse (N\emph{k x N}k) matrix of class \link[Matrix:dgCMatrix-class]{Matrix::dgCMatrix}.
 }
 \description{
-Fast version of \code{\link[Matrix:bdiag]{Matrix::.bdiag()}} -- for the case of \emph{many}  (k x k) matrices:
+Fast version of \code{\link[Matrix:.bdiag]{Matrix::.bdiag()}} -- for the case of \emph{many}  (k x k) matrices:
 Copyright (C) 2016 Martin Maechler, ETH Zurich
 }

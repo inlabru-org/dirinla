@@ -21,7 +21,7 @@ extract_fixed <- function(inla_model, names_cat) {
     for (i in 1:length(names_cat)) {
         # Auxiliar variables
         names_cat_ind <- names_cat[[i]]
-        names_cat_ind <- names_inla %>% stringr::str_detect(., paste0("cat", i, "_")) %>% names_inla[.]
+        names_cat_ind <- names_inla[stringr::str_detect(names_inla, paste0("cat", i, "_"))]
         names_cov <- NULL
         summary_fixed_i <- data.frame(matrix(ncol =7 ))
         summary_fixed_i <- summary_fixed_i[-1,]
@@ -34,7 +34,7 @@ extract_fixed <- function(inla_model, names_cat) {
             marginals_fixed_i <- c(marginals_fixed_i, inla_model$marginals.fixed[names_cat_ind])
 
             ### Names cov
-            names_cov <- names_cat_ind %>% stringr::str_remove(., paste0("cat", i, "_"))
+            names_cov <- names_cat_ind %>% stringr::str_remove(paste0("cat", i, "_"))
 
 
 

@@ -47,7 +47,7 @@ plot.dirinlaregmodel <- function(x, ...) {
   devAskNewPage(ask=TRUE)
 
   #If there are fixed effects
-  if(length(x$summary_fixed %>% unlist(.))>1)
+  if(length(x$summary_fixed %>% unlist())>1)
   {
     ### Plotting fixed effects
     for(j in 1:length(x$marginals_fixed))
@@ -73,7 +73,7 @@ plot.dirinlaregmodel <- function(x, ...) {
   }
 
   #Random effects
-  if(length(x$marginals_hyperpar %>% unlist(.))>1)
+  if(length(x$marginals_hyperpar %>% unlist())>1)
     {
       p2 <- list()
       for(j in 1:length(x$marginals_hyperpar))

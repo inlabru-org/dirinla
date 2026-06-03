@@ -1,7 +1,7 @@
 Package: dirinla
 Type: Package
 Title: Hierarchical Bayesian Dirichlet regression models using Integrated Nested Laplace Approximation
-Version: 1.0.5.9000
+Version: 1.0.5.9001
 Authors@R: c(
   person("Joaquín Martínez-Minaya", email = "jomarminaya@gmail.com", 
          role = c("aut", "cre"),
@@ -18,7 +18,6 @@ Additional_repositories: https://inla.r-inla-download.org/R/testing
 Imports:
   Matrix,
   dplyr,
-  samplingDataCRT,
   purrr,
   stringr,
   stats,
@@ -41,7 +40,7 @@ Suggests:
   patchwork
 Encoding: UTF-8
 VignetteBuilder: knitr
-RoxygenNote: 7.3.2
 URL: https://inlabru-org.github.io/dirinla/
 BugReports: https://github.com/inlabru-org/dirinla/issues
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.0.0

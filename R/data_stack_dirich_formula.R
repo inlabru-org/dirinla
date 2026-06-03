@@ -50,15 +50,15 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
   covariatesall <- covariates
 
   ### Fixed effect
-  covariates %>% lapply(., function(x){
-    logic1 <- x %>% str_starts("f\\(") %>% !.
+  lapply(covariates, function(x){
+    logic1 <- !str_starts(x, "f\\(")
     x[logic1]
   }) -> covariatesall
 
   if(length(unlist(covariatesall)) >=1){
     ### Prepare covariates
-    1:length(covariatesall)  %>%
-      lapply(., function(x){
+    effects <- seq_along(covariatesall)  %>%
+      lapply(function(x){
         data_x <- data %>% dplyr::select(covariatesall[[x]])
         categories <- paste0("cat", x,  "_", covariatesall[[x]])
         index <- rep(NA, d)
@@ -66,8 +66,8 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
         data_x <- kronecker(as.matrix(data_x), index)
         colnames(data_x) <- categories
         data_x
-      }) %>%
-      do.call(cbind.data.frame, .) -> effects
+      })
+    do.call(cbind.data.frame, effects) -> effects
 
 
 
@@ -120,17 +120,18 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
 
   ### Random effects
-  covariates %>% lapply(., function(x){
-    logic1 <- x %>% str_starts("f\\(") %>% x[.]
+  lapply(covariates, function(x){
+    logic1 <- str_starts(x, "f\\(")
+    x[logic1]
   }) -> random_eff
 
-  if(any(random_eff %>% sapply(., length) >=1))
+  if(any(lengths(random_eff) >= 1))
   {
 
     ### Extract arguments from formula. We use INLA
     random_eff_args <- lapply(random_eff, function(x){
       list1 <- lapply(x, function(x1){
-        form1 <- paste0("INLA::", x1) %>% parse(text = .) %>% eval(.)
+        form1 <- parse(text = paste0("INLA::", x1)) %>% eval()
         form1
       })
       names(list1) <- purrr::map(list1, "term")
@@ -140,12 +141,12 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
     ### Check if same index is used in different categories.
     ## All the names for index
-    index_random_names <- purrr::map(random_eff_args, names) %>% unlist(.) %>% unique(.)
+    index_random_names <- purrr::map(random_eff_args, names) %>% unlist() %>% unique()
 
     ## Checking where are common effects
-    index_mat <- purrr::map(random_eff_args, names) %>%
-      lapply(., function(x){(index_random_names %in% x) %>% as.numeric()}) %>%
-      do.call(rbind, .) %>% Matrix(.)
+    index_mat <-
+      lapply(purrr::map(random_eff_args, names), function(x){(index_random_names %in% x) %>% as.numeric()})
+    index_mat <- do.call(rbind, index_mat) %>% Matrix()
     colnames(index_mat) <- index_random_names
     index_mat[index_mat == 0] <- NA
 
@@ -154,14 +155,14 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
 
     ### Mixing categories with random effects, index_mat and A_random
-    index_random_names %>% lapply(., function(x){
+    lapply(index_random_names, function(x){
       kronecker(data[,x], index_mat[,x] )
     }) -> effects_random
     names(effects_random) <- index_random_names
 
 
     #Formula
-    formula.inla.pred2 <- random_eff %>% unlist(.) %>% unique(.) %>% paste(., collapse = "+")
+    formula.inla.pred2 <- random_eff %>% unlist() %>% unique() %>% paste(collapse = "+")
     formula.inla.pred <- paste(formula.inla.pred, formula.inla.pred2, sep = "+")
 
   }else{
@@ -170,7 +171,7 @@ data_stack_dirich_formula <- function(y, covariates, share = NULL, data, d, n) {
 
   ### Mixing two formulas
   #formula.inla <- covariatesall %>% names() %>% str_remove(., "1") %>% .[1] %>% paste0(., " ~ -1 + ")
-  formula.inla <- "y" %>% paste0(., " ~ -1 + ")
+  formula.inla <- "y" %>% paste0(" ~ -1 + ")
 
   formula.inla <- as.formula(paste(formula.inla, formula.inla.pred, collapse = " " ))
   effects <- cbind(effects, effects_random)
