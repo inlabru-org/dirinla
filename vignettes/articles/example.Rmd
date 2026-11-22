@@ -126,8 +126,8 @@ a <- ggtern::ggtern(data = y_resp,
                                 z = nombres[3])) +
   ggtern::stat_density_tern(geom='polygon',
                             n = 200,
-                            aes(fill=..level..,
-                                alpha = ..level..),
+                            aes(fill = after_stat(.data$level),
+                                alpha = after_stat(.data$level)),
                             base = "identity") +
   ggtern::theme_rgbw() +
   guides(color = "none", fill = "none", alpha = "none") +

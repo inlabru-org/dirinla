@@ -24,14 +24,15 @@ plot.dirinlaregmodel <- function(x, ...) {
     alpha <- as.matrix(datos)
     y_resp <- as.data.frame(DirichletReg::rdirichlet(dim(datos)[1], alpha))
     colnames(y_resp) <- colnames(datos)
+    level <- NULL # Dummy variable to avoid importing .data for .data$level
     a <- ggtern::ggtern(data = y_resp,
            aes_string( x = nombres[1],
                        y = nombres[2],
                        z = nombres[3])) +
       ggtern::stat_density_tern(geom='polygon',
                         n = 200,
-                        aes(fill=..level..,
-                            alpha = ..level..),
+                        aes(fill = after_stat(level),
+                            alpha = after_stat(level)),
                         base = "identity") +
       ggtern::theme_rgbw() +
       guides(color = "none", fill = "none", alpha = "none") +
