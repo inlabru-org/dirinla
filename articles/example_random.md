@@ -195,10 +195,10 @@ summary(model.inla)
 #> ---- HYPERPARAMETERS ---- 
 #> ======================================================================= 
 #>                      mean    sd 0.025quant 0.5quant 0.975quant  mode
-#> Precision for iid1  2.497 1.214     0.8426    2.262       5.50 1.832
-#> Precision for iid2 11.102 6.173     3.3020    9.749      26.79 7.406
+#> Precision for iid1  2.496 1.209     0.8472    2.263      5.486 1.835
+#> Precision for iid2 11.098 6.164     3.3076    9.747     26.765 7.410
 #> ======================================================================= 
-#> DIC = 103748.0717 , WAIC = 107357.5134 , LCPO = 7836.5387 
+#> DIC = 103748.0902 , WAIC = 107357.9122 , LCPO = 7836.5386 
 #> Number of observations: 500
 #> Number of Categories: 4
 plot(model.inla)
